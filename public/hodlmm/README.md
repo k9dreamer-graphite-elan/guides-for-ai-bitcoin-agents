@@ -23,6 +23,9 @@ mechanics. Versioned (currently **v0.6**). Plus onboarding notes, security polic
 check and how often, the tool/skill catalog, **strategy profiles** (which LP strategy to run when),
 and what healthy operation looks like.
 
+[`operating-guide/hodlmm-autonomous-campaign-prompt.md`](./operating-guide/hodlmm-autonomous-campaign-prompt.md) —
+copy-paste prompt for asking an operator/agent pair to plan a fully autonomous HODLMM pool campaign.
+
 ### Runbooks (executable procedures)
 
 Each runbook is one operation: inputs → gates → procedure (skills/commands) → expected outputs →
