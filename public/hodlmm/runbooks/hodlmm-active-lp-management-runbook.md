@@ -1,6 +1,17 @@
+---
+name: HODLMM Active LP Management Runbook
+type: runbook
+handbook: v0.6
+enforces: [INV-1, INV-2, INV-7, INV-9, INV-10, INV-11, INV-12]
+skills: [hodlmm-move-liquidity, hodlmm-bin-guardian, bitflow-hodlmm-deposit, bitflow-hodlmm-withdraw, bitflow-swap-aggregator, memory, cron]
+status: active
+---
+
 # HODLMM Liquidity Management — Agent Operational Runbook
 
 > **Purpose:** Instructions for an AI agent managing concentrated liquidity positions on Bitflow HODLMM (DLMM) pools via the Stacks blockchain.
+>
+> **Conforms to:** [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) v0.6 — enforces INV-1/2/7/9/10/11/12.
 >
 > **Author:** @k9dreamer_btc
 >
