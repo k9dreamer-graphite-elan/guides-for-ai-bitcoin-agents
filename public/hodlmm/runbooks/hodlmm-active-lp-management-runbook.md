@@ -2,310 +2,123 @@
 name: HODLMM Active LP Management Runbook
 type: runbook
 handbook: v0.6
-enforces: [INV-1, INV-2, INV-7, INV-9, INV-10, INV-11, INV-12]
-skills: [hodlmm-move-liquidity, hodlmm-bin-guardian, bitflow-hodlmm-deposit, bitflow-hodlmm-withdraw, bitflow-swap-aggregator, memory, cron]
+enforces: [INV-1, INV-2, INV-6, INV-7, INV-9, INV-10, INV-11, INV-12]
+skills: [hodlmm-move-liquidity, hodlmm-bin-guardian]
 status: active
 ---
 
-# HODLMM Liquidity Management — Agent Operational Runbook
+# HODLMM Active LP Management Runbook
 
-> **Purpose:** Instructions for an AI agent managing concentrated liquidity positions on Bitflow HODLMM (DLMM) pools via the Stacks blockchain.
+> Conforms to the [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) **v0.6**.
+> Enforces: INV-1, INV-2, INV-6, INV-7, INV-9, INV-10, INV-11, INV-12.
 >
-> **Conforms to:** [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) v0.6 — enforces INV-1/2/7/9/10/11/12.
->
-> **Author:** @k9dreamer_btc
->
-> **Last updated:** 2026-05-29
->
-> **Status:** Active — live run in progress
+> Author: @k9dreamer_btc
 
----
+## Purpose
 
-## Resources
+Recenter an existing HODLMM LP position near the active bin when live drift exceeds the operator-approved threshold.
 
-| Resource | URL | Purpose |
+## When to run / when NOT to run
+
+- **Run when:** a fresh read-only scan shows an existing in-scope position has drifted outside its approved active-management band.
+- **Do NOT run when:** approval scope is missing or expired, the pool is stale, the position is already inside the approved band, the operation would add new capital, or the command would touch any pool outside scope.
+- Decision reference: use the operating guide's active-management profile, then apply the handbook Chapter 0 pre-flight GATE.
+
+## Inputs
+
+| Param | Meaning | Default |
 |---|---|---|
-| Skills Registry | https://www.bff.army/skills | Browse and deploy agent skills |
-| Agent Dashboard | https://www.bff.army/agent-dashboard | Track on-chain agent activity |
-| Build Course | https://www.bff.army/courses/build-your-first-bitcoin-ai-agent-in-10-Minutes | Launch a Bitcoin AI agent in 10 minutes |
-| AIBTC Network Guide | https://aibtc.com/guide | Onboarding to the AIBTC agent network |
-| Bitflow HODLMM App | https://app.bitflow.finance | Pool interface and position management |
+| `wallet` | signing address that owns the LP position | - |
+| `pool-id` | target HODLMM pool ID | - |
+| `range-percent` | target recenter width requested by the operator or strategy profile | approval scope |
+| `drift-threshold` | minimum drift that allows a recenter decision | approval scope |
+| `state-file` | campaign or operation state used for counters/cooldowns | operation-specific |
 
----
+## Required Approval Scope (INV-1)
 
-## Core Concept
+- Permissions needed: `manage-existing` for the exact `pool-id`.
+- Caps this runbook respects: pool allowlist, duration, recenter count, gas budget, range/deviation limits, cooldown policy, and any explicit "no swap" / "no add-new" constraints.
+- If scope is missing, expired, ambiguous, or narrower than the proposed action -> **read-only**, request approval. Do not infer authority.
 
-HODLMM liquidity is allocated to discrete **bins**. Each bin represents a narrow price range. The **active bin** is the bin currently processing swaps.
+## Gates (Ch.0 pre-flight subset)
 
-- If the active bin moves away from a position's bins, that position becomes **out of range**.
-- Out-of-range liquidity is **idle** — tokens are held but not competing for trading flow or earning fees.
-- The primary objective is: **keep useful liquidity near the active bin.**
-
----
-
-## Control Loop
-
-All liquidity management follows this loop. Execute steps in order. Do not skip steps.
+The applicable subset of the handbook pre-flight GATE:
 
 ```
-SCAN → DECIDE → DRY-RUN → EXECUTE → VERIFY → REMEMBER → MEASURE
+[ ] Active scope covers this pool + manage-existing action (INV-1)
+[ ] Fresh scan this iteration; plan re-simulated        (INV-7)
+[ ] Pool liveness OK; stale pool exits instead          (INV-9)
+[ ] LP fund-protection bounds present                   (INV-2)
+[ ] Nonce serialized; RBF path known                    (INV-6)
+[ ] Ledger entry prepared                               (INV-11)
 ```
 
-### Phase 1 — Read-Only (no signing, no broadcast)
+## Procedure
 
-| Step | Action | Output |
-|---|---|---|
-| **SCAN** | Fetch wallet positions, active bin, pool state | Position report with drift calculation |
-| **DECIDE** | Compare drift to thresholds, evaluate pool health | Recommendation: hold / recenter / exit |
-| **DRY-RUN** | Simulate the proposed move without broadcasting | Preflight report: target bins, token amounts, expected state |
+Each step is a skill/command with an expected output. Dry-run before any broadcast.
 
-### Phase 2 — Execution (requires approval)
+1. **SCAN** - run:
 
-| Step | Action | Output |
-|---|---|---|
-| **EXECUTE** | Broadcast the approved transaction | txid |
-| **VERIFY** | Wait for confirmation, rescan position, confirm intended state achieved | Post-check report |
+   ```bash
+   hodlmm-move-liquidity scan --wallet <wallet>
+   hodlmm-bin-guardian run --wallet <wallet> --pool-id <pool-id>
+   ```
 
-### Phase 3 — Learning
+   Expected: current HODLMM positions, target `pool-id`, active bin, user bins, drift, DLP identity, pool health fields, and a read-only hold/rebalance/check recommendation.
 
-| Step | Action | Output |
-|---|---|---|
-| **REMEMBER** | Log the transaction, outcome, and any lessons to memory | Updated transaction ledger |
-| **MEASURE** | Update performance ledger with exposure, fees, gas, mark-to-market | Updated performance ledger |
+2. **DECIDE** - compare the scan to the active approval scope.
 
----
+   Expected: one of `hold`, `recenter`, `exit-candidate`, or `approval-required`. If the pool is stale, stop this runbook and use an exit runbook path instead.
 
-## Required Skills
+3. **DRY-RUN** - run without a confirm token:
 
-| Skill | Function | Phase |
-|---|---|---|
-| `hodlmm-move-liquidity` | Scan positions, dry-run moves, execute recenters | Read-only + Execution |
-| `hodlmm-bin-guardian` | Read-only guardrails and drift alerts | Read-only |
-| `bitflow-hodlmm-deposit` | Add new liquidity to a pool | Execution |
-| `bitflow-hodlmm-withdraw` | Remove liquidity / exit a pool | Execution |
-| `bitflow-swap-aggregator` | Route and execute token swaps | Execution |
-| `memory` | Persist decisions, outcomes, lessons across sessions | Learning |
-| `cron` | Schedule recurring scans (default: every 6 hours) | Read-only |
+   ```bash
+   hodlmm-move-liquidity run --wallet <wallet> --pool <pool-id> --range-percent <range-percent>
+   ```
 
----
+   Expected: a non-broadcast plan with decision, target range, cooldown state, projected bounds, and any blocked reason.
 
-## Rule: Fresh Scan Before Every Transaction
+4. **EXECUTE** - only when the dry-run says a recenter is needed and every gate passes:
 
-**This rule is mandatory. No exceptions.**
+   ```bash
+   hodlmm-move-liquidity run --wallet <wallet> --pool <pool-id> --range-percent <range-percent> --confirm
+   ```
 
-Active bins move continuously. A plan that was valid 20 minutes ago may be stale at broadcast time.
+   Expected: one signed transaction for the in-scope pool. Signer unlock material must come from the execution environment, never command-line arguments.
 
-Before any transaction:
+5. **VERIFY** - confirm on-chain status, then re-scan the same pool.
 
-1. Scan wallet positions
-2. Read current active bin
-3. Calculate drift (active bin − nearest user bin)
-4. Dry-run the target range
-5. Only then decide whether to proceed
+   Expected: mined `success`, current bins/range reflect the intended move, and no out-of-scope pool changed.
 
-If the scan reveals the position is already in range, **do not transact.**
+6. **REMEMBER** - update transaction and performance ledgers.
 
----
+   Expected: transaction receipt, pre/post state, approval scope, gas, current exposure, DLP/bin state, drift, pool economics, mark-to-market, fee-attribution confidence, and lesson learned.
 
-## Pool Selection Criteria
+## Expected outputs
 
-Before automating any pool, evaluate:
+- Success shape: txid, pool ID, old range, new range, active bin at signing, post-confirm active bin, post-confirm user bins, and ledger paths.
+- Blocked shape: `blocked` with reason such as cooldown, no active scope, no move needed, stale pool, failed liveness, or failed bounds.
+- A `blocked` status is an expected safety result, not an error.
 
-| Factor | Check | Action if failed |
-|---|---|---|
-| 24h volume | > 0 and meaningful relative to TVL | Do not automate — likely exit candidate |
-| 24h fees | Fees being generated | Do not automate |
-| TVL | Sufficient for position size | Evaluate slippage risk |
-| Active bin movement | Bin is moving (pool is traded) | Do not automate if static |
-| Existing wallet bins | Agent already has a position | Manage existing before adding new |
-| Token exposure | Acceptable to the operator | Flag if outside tolerance |
+## Failure handling
 
-**A stale pool with no volume is not a rebalance candidate. It is an exit candidate.**
+Map each failure to Handbook Chapter 3:
 
----
-
-## Approval Boundaries
-
-The agent operates within an explicitly defined scope. Everything outside requires fresh human approval.
-
-### Scope Definition Format
-
-```
-Pool:         [pool name and ID]
-Duration:     [number of days]
-Permissions:  [manage existing / add new / withdraw / swap]
-Constraints:  [what is NOT allowed]
-```
-
-### Example
-
-```
-Pool:         STX / sBTC DLMM Bin Step 15 (dlmm_6)
-URL:          https://app.bitflow.finance/pools/dlmm/dlmm_6
-Duration:     4 days
-Permissions:  Manage existing liquidity only
-Constraints:  No new liquidity. No swaps. No other pools.
-```
-
-### Rules
-
-- The agent **can** act within the defined scope without asking.
-- The agent **must** request approval for anything outside the scope.
-- If the scope expires (duration elapsed), all execution permissions revert. Read-only scanning continues.
-
----
-
-## Ledgers
-
-Maintain two separate ledgers. They answer different questions.
-
-### Transaction Ledger — "What did we do?"
-
-Record for every transaction:
-
-| Field | Description |
+| Symptom | Handbook |
 |---|---|
-| `timestamp` | When the action was taken |
-| `intent` | What the agent was trying to achieve |
-| `approval_scope` | The active approval scope at time of execution |
-| `preflight` | Position state before the transaction |
-| `txid` | On-chain transaction identifier |
-| `status` | confirmed / failed / pending |
-| `post_check` | Position state after confirmation |
-| `lesson` | What was learned (especially on failure) |
+| Stuck `pending` / nonce stalled | Ch.3 §3.2 (RBF unstick) |
+| Partial or unexpected state | Ch.3 §3.3 (residual / post-state mismatch) |
+| Stale quote / lagging positions | Ch.3 §3.4 |
+| `blocked` cooldown / confirmation / deviation | Ch.3 §3.5 |
+| Repeated failure / fund-risk / key exposure | Ch.3 §3.6 -> STOP + escalate |
 
-### Performance Ledger — "Is this working?"
+## Idempotency/cooldown
 
-Track over time:
+- Safe to re-run read-only scan and dry-run steps.
+- Do not re-submit the execute step unless the current scope, cooldown, nonce state, and fresh dry-run all still authorize it.
+- Never resend an original-size action to "fix" a partial or ambiguous result; re-scan and derive a new plan.
 
-| Metric | Description |
-|---|---|
-| `token_exposure` | Current token balances in the position |
-| `dlp_bin_state` | Which bins hold DLP tokens and their amounts |
-| `active_bin_drift` | Distance between active bin and nearest user bin |
-| `pool_apr` | Current pool APR and fee rate |
-| `gas_paid` | Cumulative gas spent on rebalances |
-| `mark_to_market` | Current USD value of the position |
-| `fee_attribution` | Confidence level that observed gains are from fees vs price movement |
+## Notes
 
-**DLP balance is not the same as earned fees. Do not conflate them. Do not report fake PnL.**
-
----
-
-## Default Monitoring Loop
-
-Runs on cron. **Read-only. No signing. No broadcast.**
-
-**Frequency:** Every 6 hours
-
-**Steps:**
-
-1. Scan all HODLMM positions in the wallet
-2. For each position:
-   - Read active bin
-   - Calculate drift
-   - Flag if out of range
-3. If any position is out of range:
-   - Prepare a dry-run move plan
-   - Alert the operator
-4. If all positions are in range:
-   - Log the scan result
-   - No alert needed
-
-**This loop never executes transactions.** It only observes and alerts.
-
----
-
-## Recenter Decision Logic
-
-When a position is flagged as out of range:
-
-```
-IF drift > threshold AND pool is active AND approval scope is valid:
-    → dry-run recenter
-    → present plan to operator (or auto-execute if within scope)
-
-IF drift > threshold AND pool is NOT active (no recent volume):
-    → recommend EXIT, not recenter
-
-IF drift <= threshold:
-    → hold, do nothing
-
-IF approval scope is expired:
-    → alert operator, request new scope
-```
-
-### Recenter Constraints
-
-- **Recenter existing liquidity only.** Do not add new capital during a recenter unless explicitly approved.
-- **Respect cooldowns.** Do not recenter the same pool within the cooldown window unless the operator overrides.
-- **Managing existing capital is not the same as increasing exposure.** These are separate decisions requiring separate approvals.
-
----
-
-## Post-Transaction Verification
-
-**Mandatory after every broadcast. No exceptions.**
-
-1. Verify tx status on-chain (confirmed / failed)
-2. Wait for confirmation (do not assume success from broadcast)
-3. Rescan the position
-4. Compare actual state to intended state
-5. Log the result to the transaction ledger
-
-**A successful transaction does not guarantee the strategy outcome is correct.** The post-check is where you confirm that.
-
-If actual state ≠ intended state → log as anomaly, alert operator.
-
----
-
-## Cooldown Policy
-
-| Scope | Default Cooldown | Override |
-|---|---|---|
-| Same-pool recenter | 6 hours minimum | Operator can override with explicit approval |
-| Cross-pool moves | No default cooldown | Subject to approval scope |
-| Emergency exit | No cooldown | Always allowed |
-
-Frequent rebalancing incurs gas costs and potential churn. **The goal is not maximum activity. The goal is profitable, controlled activity.**
-
----
-
-## Memory Requirements
-
-The agent must persist the following across sessions:
-
-| Memory Item | Why |
-|---|---|
-| Which pools were stale | Avoid rebalancing dead pools |
-| Which API calls were flaky | Retry logic, fallback behavior |
-| Which moves reduced drift effectively | Improve future recenter targeting |
-| Which transactions failed | Avoid repeating known-bad patterns |
-| What the operator approved | Stay within scope |
-| What the operator rejected | Do not re-propose without new information |
-| Lessons from post-checks | Improve verification accuracy |
-
-**Without memory, every rebalance is a cold start.** Memory is what turns a script into an operating system.
-
----
-
-## Summary
-
-HODLMM management is not a single DeFi action. It is an **operating system for liquidity.**
-
-| Layer | Function |
-|---|---|
-| **Skills** | Execute on-chain actions |
-| **Memory** | Preserve judgment across sessions |
-| **Ledgers** | Maintain audit trail and performance tracking |
-| **Approval scopes** | Bound agent authority |
-| **Monitoring loop** | Continuous read-only observation |
-| **Post-checks** | Verify outcomes match intent |
-
-**The agent advantage is not magic. It is continuous attention.**
-
----
-
-*Built on [Bitflow HODLMM](https://app.bitflow.finance) · Stacks · sBTC*
-
-*Maintained by [@k9dreamer_btc](https://x.com/k9dreamer_btc)*
+- This runbook manages existing liquidity only. Deposits, withdrawals, swaps, inventory balancing, and campaign entry/exit belong in separate runbooks.
+- Public docs must cite handbook invariants by ID and query live pool state at runtime. Do not hardcode pool lists, TVL, APR, active bin, fee rates, contract constants, or private operational details here.
