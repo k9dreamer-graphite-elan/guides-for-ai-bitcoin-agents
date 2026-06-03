@@ -27,7 +27,7 @@ operators who run them. The handbook is **machine-first**: rules are stated as `
 | **7 — Approval Scopes, Authority & Custody** | Scope grammar, spend limits, key custody. |
 | **8 — Skill Authoring & Conformance** | How to build a skill that *imports* this handbook. |
 
-→ **[Read the handbook](./HODLMM-Agent-Handbook.md)**
+→ **[Read the handbook](./HODLMM-Agent-Handbook.md)** · **[Onboarding notes](./ONBOARDING.md)** (paste-ready notes for handing this to an agent or operator)
 
 ## How to use it
 
@@ -76,4 +76,4 @@ for fund-affecting bugs.
 
 ## License
 
-Documentation is licensed under **CC BY 4.0**.
+Documentation is licensed under **CC BY 4.0** — see [LICENSE](./LICENSE).
