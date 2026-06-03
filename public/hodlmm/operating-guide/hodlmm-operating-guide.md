@@ -14,7 +14,8 @@ This sits between the **handbook** (doctrine — what's true, what you must neve
 Operate on the handbook's seven-phase loop: `SCAN → DECIDE → DRY-RUN → EXECUTE → VERIFY → REMEMBER →
 MEASURE`. In steady state, most cycles are **read-only**:
 
-- **Monitoring cadence:** a read-only scan every ~6h (or your chosen interval). It reads positions,
+- **Monitoring cadence:** active-management campaigns normally use read-only checks every ~2h; lower-touch
+  profiles can choose a slower interval. Each check reads positions,
   active bin, drift, pool health, and the freshness/lag signal — it never signs.
 - **Act only on a trigger:** a scan that crosses a threshold (drift, inventory deviation, regime
   change, stale pool) hands off to the matching **runbook**, which runs the gated write path.

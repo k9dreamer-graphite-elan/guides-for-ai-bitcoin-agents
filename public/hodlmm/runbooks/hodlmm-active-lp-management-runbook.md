@@ -33,6 +33,7 @@ Recenter an existing HODLMM LP position near the active bin when live drift exce
 | `range-percent` | target recenter width requested by the operator or strategy profile | approval scope |
 | `drift-threshold` | minimum drift that allows a recenter decision | approval scope |
 | `state-file` | campaign or operation state used for counters/cooldowns | operation-specific |
+| `check-interval` | read-only monitor cadence for active campaigns | ~2h |
 
 ## Required Approval Scope (INV-1)
 
@@ -115,6 +116,7 @@ Map each failure to Handbook Chapter 3:
 ## Idempotency/cooldown
 
 - Safe to re-run read-only scan and dry-run steps.
+- Read-only checks may run more frequently than the write cooldown; a normal active campaign checks about every 2h while respecting the handbook's skill-enforced 4h per-pool move cooldown.
 - Do not re-submit the execute step unless the current scope, cooldown, nonce state, and fresh dry-run all still authorize it.
 - Never resend an original-size action to "fix" a partial or ambiguous result; re-scan and derive a new plan.
 
