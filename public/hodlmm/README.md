@@ -34,13 +34,13 @@ failure handling. All conform to the handbook and declare the invariants they en
 | Runbook | Purpose | Status |
 |---|---|---|
 | [`hodlmm-active-lp-management-runbook.md`](./runbooks/hodlmm-active-lp-management-runbook.md) | Manage concentrated liquidity near the active bin under approval (scan → recenter loop). | active |
-| `hodlmm-campaign-entry-runbook.md` | Select a pool, grant scope, place the initial LP position. | planned |
-| `hodlmm-recenter-runbook.md` | The atomic recenter procedure (move drifted bins around active). | planned |
-| `hodlmm-inventory-balancing-runbook.md` | Restore target token ratio via corrective swap + redeploy. | planned |
-| `hodlmm-exit-runbook.md` | Exit / stale-pool recovery — withdraw and stand down. | planned |
-| `hodlmm-pnl-runbook.md` | End-of-campaign PnL + withdrawal accounting (DLP m2m vs earned fees). | planned |
+| [`hodlmm-exit-runbook.md`](./runbooks/hodlmm-exit-runbook.md) | Exit / stale-pool recovery — withdraw a position and stand down. | draft |
+| [`hodlmm-campaign-entry-runbook.md`](./runbooks/hodlmm-campaign-entry-runbook.md) | Select a pool, grant scope, place the initial LP position. | draft |
+| [`hodlmm-recenter-runbook.md`](./runbooks/hodlmm-recenter-runbook.md) | The atomic recenter procedure (move drifted bins around active). | draft |
+| [`hodlmm-inventory-balancing-runbook.md`](./runbooks/hodlmm-inventory-balancing-runbook.md) | Restore target token ratio via corrective swap + redeploy. | draft |
+| [`hodlmm-pnl-runbook.md`](./runbooks/hodlmm-pnl-runbook.md) | End-of-campaign PnL accounting — earned fees vs IL vs DLP m2m (read-only, INV-8). | draft |
 
-New runbooks copy [`runbooks/_TEMPLATE-runbook.md`](./runbooks/_TEMPLATE-runbook.md).
+Authoring or updating a runbook? Read [`runbooks/AGENT-AUTHORING-GUIDE.md`](./runbooks/AGENT-AUTHORING-GUIDE.md) first, then copy [`runbooks/_TEMPLATE-runbook.md`](./runbooks/_TEMPLATE-runbook.md).
 
 ## Conventions
 
