@@ -8,7 +8,7 @@ invariants it enforces (same rule as protocol runbooks).
 
 | Runbook | Spans | Purpose | Status |
 |---|---|---|---|
-| `sbtc-yield-routing-runbook.md` | HODLMM (Bitflow) + Zest | Route idle sBTC to the highest *safe* yield: compare HODLMM LP APR vs Zest supply under TVL/volume/divergence gates, then deploy. | planned |
+| [`sbtc-yield-routing-runbook.md`](./sbtc-yield-routing-runbook.md) | HODLMM (Bitflow) + Zest | Route idle sBTC to the highest *safe* yield: compare HODLMM LP APR vs Zest supply under TVL/volume/divergence gates, then deploy. | draft |
 
 New cross-protocol runbooks copy the protocol runbook template at
 [`../hodlmm/runbooks/_TEMPLATE-runbook.md`](../hodlmm/runbooks/_TEMPLATE-runbook.md) and list **all**
