@@ -423,6 +423,11 @@ loop (INV-7):
 > Synthesis: **width = f(regime, bin velocity)**, **exposure = f(regime, toxicity)**. High APR never
 > overrides a `crisis` regime or an `avoid` flow verdict.
 
+> Width also sets your **impermanent-loss exposure** (Ch.6 §6.6): narrower ranges realize divergence
+> loss faster when price exits, so size width against *both* expected fee capture **and** expected IL —
+> not fees alone. When a drifting position's IL is outrunning its fee accrual, the call is **exit**, not
+> recenter (INV-9).
+
 ### 4.3 Asymmetric ranges under directional bias
 
 `hodlmm-flow.directionBias` ∈ [-1, +1]. A strong, persistent bias means one side of a symmetric range
@@ -621,6 +626,53 @@ as **convenience, not ground truth** — on any discrepancy, trust on-chain read
   targeting, failed-tx patterns.
 - **Never write secrets** to ledgers, logs, or escalations (no wallet passwords, keys) — see Ch.7.
 
+### 6.6 Impermanent loss (divergence loss) & net LP return
+
+**Impermanent loss (IL)** is the difference between holding your LP position and simply holding the
+same tokens. It exists because the pool rebalances your reserves as price moves, so your position
+diverges from a plain hold. It is **a comparison, not a fee or a direct cost**, and it is *impermanent*
+— unrealized until you withdraw, and it can grow or shrink as price moves.
+
+IL is the third term in honest LP accounting and the counterweight to fees (extends INV-8 / §6.2):
+
+```
+net LP return  ≈  Fee PnL  +  IL-only PnL  −  gas
+              =  earned fees  −  divergence loss  −  gas
+```
+
+where, valued in one numeraire at the **current** price:
+
+```
+IL-only PnL = V_position(excluding fees) − V_hold(original deposited amounts)
+Fee PnL     = attributed earned fees (derived, with fee_confidence — see §6.2)
+```
+
+**Baseline formula (constant product).** For an `x·y=k` pool the closed form is `IL = 2√r/(1+r) − 1`,
+where `r` = current price ÷ entry price. This applies directly to Bitflow's **XYK** pools and is the
+right intuition for HODLMM (IL grows with the square-root of divergence and is symmetric in up/down
+moves).
+
+**HODLMM specifics (concentrated / bin model — this is what differs):**
+- **No single closed form.** HODLMM is concentrated liquidity across **discrete bins**, so IL is
+  **range-dependent**: compute IL-only PnL **empirically** — value your actual per-bin token amounts at
+  the current price (`V_position excluding fees`) against the hold basis (`V_hold`). Don't use the
+  Uniswap-V3 sqrt-price/tick equations; HODLMM is bin-based, not tick-based.
+- **IL accelerates toward the range edges**, and is **realized when price exits your range**: your
+  liquidity converts entirely to one side of the pair (per the bin rule in §1.3 — bins **above** the
+  active bin hold only **Y**, bins **below** hold only **X**). Out of range, divergence loss stops being
+  paper and becomes real until/unless price returns.
+- **The `impermanentLossEstimatePct` figure from a risk skill is a rough linear proxy** (`driftScore ×
+  0.08`, §6.3), useful for *monitoring*, **not** a true price-ratio IL. The definition above is
+  canonical; the proxy is a shortcut.
+- **Concentration is a two-edged lever (INV-9, Ch.4):** narrower bins earn more fees per dollar **and**
+  realize IL faster on a move; wider bins are more durable but dilute fees. There is no protocol keeper
+  for HODLMM (§1.7) — the agent controls realized IL via range width and **proactive recentering**
+  (`hodlmm-move-liquidity`), or by **exiting** a position whose divergence is outrunning its fees.
+
+> Reporting rule (with INV-8): always separate **IL-only PnL** from **Fee PnL** — never net them into a
+> single number, and never report DLP balance as profit. No strategy eliminates IL; the goal is fees +
+> incentives consistently exceeding divergence loss + gas.
+
 ## Chapter 7 — Approval Scopes, Authority & Custody
 
 The contract between the human operator and the agent. Expands INV-1 (scope) and INV-6 (nonce/custody)
@@ -804,6 +856,7 @@ Contract IDs and constants verified point-in-time (April 2026); re-verify on-cha
 | V2 | `dlmm-swap-router-v-1-2` → `SM1FKXGNZJWSTWDWXQZJNF7B5TV5ZB235JTCXYXKD.dlmm-swap-router-v-1-2` | verified (live Hiro `/v2/contracts/interface`; exports bounded `*-simple-range-multi`) |
 | V3 | On-chain swap-router bin cap (≈350–384) | non-load-bearing — `MAX_STEPS = 319` fold confirmed; `max-steps ≤ 230` sits under it by design |
 | V4 | Block read ceiling (≈15,000 reads) | non-load-bearing Stacks network constant — the `< 12,000`-read budget (INV-4) is the operative guard |
+| V5 | Out-of-range conversion direction (above active bin → **Y only**; below → **X only**) | verified — matches §1.3 `add-relative-liquidity-same-multi` bin-side semantics (on-chain DLMM contract source); load-bearing for §6.6 IL realization |
 
 ### Appendix C — Change log & versioning
 
@@ -812,6 +865,7 @@ The handbook is **versioned**; skills pin the version they conform to (Ch.8 §8.
 | Version | Change |
 |---|---|
 | v0.6 | First public Community Edition: full Ch.0–8 + appendices; canonical contract IDs (two deployers); bounded-swap and two-form-post-condition invariants; strategy + recovery + supervision + conformance. |
+| v0.6 *(additive)* | Added §6.6 impermanent-loss & net-LP-return doctrine, §4.2 width↔IL note, and verification V5 (out-of-range conversion direction). No constant changed — `handbook: v0.6` pins remain valid; no skill re-verification required. |
 
 ---
 
