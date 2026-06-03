@@ -134,6 +134,33 @@ Maintain:
 - fee-attribution confidence
 - lessons learned
 
+8. LEARN + IMPROVE
+Persist local memory after every transaction, trade, swap, rebalance, blocked dry-run, failed broadcast,
+and campaign review. The next decision must read this memory before proposing another action.
+
+Ask the operator where durable local memory should live. If no project-specific path exists, create:
+- `memory/hodlmm-transactions.md` for transaction receipts and post-checks
+- `memory/hodlmm-performance.md` for measurement cycles and PnL/IL tracking
+- `memory/hodlmm-lessons.md` for reusable lessons, failed patterns, stale pools, API issues, and effective targeting
+- one campaign state file for counters, approvals, cooldowns, gas budget, tx IDs, and end date
+
+Each memory update should capture:
+- what was attempted
+- why it was allowed by scope
+- preflight state
+- exact command/skill used
+- txid or blocked/failure reason
+- post-check state
+- gas spent
+- PnL vs hold baseline
+- impermanent-loss estimate when relevant
+- fee-attribution confidence
+- what the agent should do differently next time
+
+Before any new write, read the prior campaign state, ledgers, and lessons. Do not repeat a failed
+shape, stale-pool decision, bad route, or blocked action without a fresh reason and operator-approved
+scope.
+
 Default campaign shape if the operator wants an active campaign:
 - Start from a clean slate by closing old HODLMM positions first.
 - Choose the best live pool, favoring Bitcoin-aligned exposure if live data supports it.
