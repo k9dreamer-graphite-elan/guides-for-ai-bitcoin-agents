@@ -21,6 +21,15 @@ SCAN -> DECIDE -> DRY-RUN -> EXECUTE -> VERIFY -> REMEMBER -> MEASURE
 
 Before proposing or executing a campaign, ask the operator these questions:
 
+Question handling rule:
+- Treat wallet address, campaign budget, spend permissions, and final approval phrase as mandatory.
+- If the operator skips a non-mandatory question, says "agent decides", or does not understand a
+  technical setting, recommend a conservative default and clearly mark it as `agent-recommended`.
+- Do not block the strategy draft just because an optional/technical setting was skipped; fill it with
+  a safe recommendation, explain the tradeoff in one sentence, and let the operator approve or revise.
+- After the basic questions, ask: "Would you like to review advanced LP settings, or should I use
+  conservative agent-recommended defaults?"
+
 1. Wallet and balances
 - What STX wallet address should be used?
 - What tokens does the agent currently hold? Include STX, sBTC, USDCx, and any other pool-relevant tokens.
@@ -64,6 +73,22 @@ Before proposing or executing a campaign, ask the operator these questions:
 - Respect the HODLMM skill-enforced 4-hour per-pool move cooldown.
 - Read-only checks may run during cooldown; writes may not bypass it.
 
+7. Optional advanced LP settings
+Ask these only after the operator has answered the basic requirements, or if the operator asks for
+advanced controls. If skipped, recommend conservative defaults:
+- Range width / bin spread preference: narrow active, moderate active, passive wide, or agent decides?
+- Entry style: balanced two-sided entry, asymmetric range, or single-bin high concentration?
+- Target inventory ratio and maximum allowed ratio drift?
+- Impermanent-loss tolerance or minimum fee-to-IL ratio before continuing?
+- Recenter trigger: drift threshold, edge-proximity trigger, or fee-to-IL trigger?
+- Inventory-balancing permission: disabled, recommend-only, or approved under caps?
+- Max price impact / slippage for any prep or corrective swap?
+- Minimum pool health requirements: volume, fee run-rate, TVL depth, and freshness tolerance?
+- Gas policy: max gas per action, max cumulative gas, minimum STX reserve, and gas-to-position-size cap?
+- PnL policy: mark-to-hold baseline, reporting numeraire, fee-confidence threshold, and exit trigger?
+- Exit policy: fixed end date, exit on stale pool, exit when IL outruns fees, or manual-only?
+- Public reporting policy: whether any updates may be posted publicly, and what must remain private?
+
 Required agent workflow:
 
 1. SCAN
@@ -94,6 +119,7 @@ Return a campaign plan with:
 - gas budget
 - halt rules
 - exit rule
+- any skipped answers and the agent-recommended defaults used
 - required approval scope
 - exact approval phrase
 
