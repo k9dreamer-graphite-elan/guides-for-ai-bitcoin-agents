@@ -52,6 +52,41 @@ readings (`hodlmm-risk` regime + `hodlmm-flow`), then run the matching runbook.
 - flow toxicity high / `lpSafety: avoid` ⇒ stand aside regardless of APR.
 - a stale pool is an **exit** candidate, not a rebalance candidate (INV-9).
 
+### 3.1 Managing impermanent loss
+
+IL is the *cost side* of the range-width tradeoff (handbook Ch.6 §6.6 defines it; this is how to
+operate on it). The rule of thumb: **concentration buys fee efficiency and sells IL protection.** Tune
+the balance to the regime.
+
+**Track these each cycle (feed the Performance Ledger, INV-11):**
+- **IL-only PnL** — absolute and as % of hold value.
+- **Fee PnL** — absolute and as % of deployed capital.
+- **Fee-to-IL ratio** — the headline health metric (> 1 means fees are covering divergence).
+- **Time in-range vs out-of-range** — out-of-range time is realized-IL time earning no fees.
+- **Capital efficiency** — fees earned per dollar deployed.
+- **Net after gas.**
+
+**Width by regime (HODLMM levers only — width, recenter cadence, dynamic fees; no shapes/keepers):**
+
+| Regime / view | Lever | Rationale |
+|---|---|---|
+| Low-vol / ranging | Narrower range near active bin; recenter rarely | Max fee efficiency while price cooperates; IL stays small |
+| High-vol / trending | Wider range; recenter proactively near edges (or stand aside) | Avoid fast one-sided conversion (realized IL) |
+| Strong directional view | Narrow range aligned with the view | Express conviction while still earning fees |
+| BTC-hold focus | Wider, balanced range; lean on automation cadence | Keep more balanced exposure, accept lower fee APR |
+| High-fee event (launch/volume spike) | Tighter bins to capture elevated/variable fees | Fee capture can outpace IL during the spike |
+
+**Mitigation available to the agent:**
+- Match range width / bin spread to expected volatility.
+- **Recenter proactively** as price approaches a range edge (`hodlmm-move-liquidity`); use its `auto`
+  cadence — this is the only "keeper" HODLMM has (handbook §1.7).
+- Prefer **stable or correlated pairs** when IL minimization is the priority.
+- Only layer extra incentives into a position if they **meaningfully exceed** expected IL.
+
+**The operating rule (ties INV-9):** if a position has drifted and its **IL-only PnL is outrunning its
+fee accrual**, treat it as an **exit** candidate, not a recenter — especially in a stale pool. Recenter
+preserves a productive position; it doesn't undo realized divergence.
+
 ## 4. Capital routing & allocation
 
 - Idle sBTC: compare HODLMM vs other venues before deploying — see the cross-protocol
