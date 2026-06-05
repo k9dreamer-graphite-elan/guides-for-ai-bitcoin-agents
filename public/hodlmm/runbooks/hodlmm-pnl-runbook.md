@@ -3,7 +3,7 @@ name: HODLMM PnL Runbook
 type: runbook
 handbook: v0.6
 enforces: [INV-7, INV-8, INV-10, INV-11, INV-12]
-skills: [defi-portfolio-scanner, bitflow, query]
+skills: [defi-portfolio-scanner, bitflow, query, bitflow-earnings-card]
 status: draft
 ---
 
@@ -75,7 +75,13 @@ Read-only — no `--confirm`, no broadcast. Cites handbook §6.6 for the IL defi
 6. **REPORT** — emit every component **separately** plus the headline ratios. `MUST NOT` collapse them
    into one number or present DLP mark-to-market as profit (INV-8). Re-read once if indexer lag is
    suspected rather than trusting a single snapshot (INV-10).
-7. **REMEMBER** — write the Performance Ledger row + memory (running cost basis, `fee_confidence`
+7. **EARNINGS CARD** *(optional, recommended for sharing)* — generate a visual Bitflow-style earnings
+   card for the position. This is a branded PNG matching the official Bitflow app "share" card
+   layout (see procedure below). Generate when the user asks for earnings, for periodic campaign
+   reports, or for social sharing. The card shows **Bitflow app-level fee attribution only** — always
+   pair it with the full component breakdown from step 6 so DLP mark-to-market is never presented
+   as profit (INV-8).
+8. **REMEMBER** — write the Performance Ledger row + memory (running cost basis, `fee_confidence`
    trend, time-in-range) (INV-11/12).
 
 ## Expected outputs
@@ -101,6 +107,54 @@ A PnL report object — components never netted into one figure:
 | Position shows balances inconsistent with ledger | Ch.3 §3.4 (indexing latency — reconcile, don't assume loss) |
 | Quote API returns empty `execution_path` / no DLMM price | fall back to `GET /pools/{id}` mid; flag pricing confidence |
 
+## Earnings Card — Visual Reporting
+
+Generate a branded PNG card matching the Bitflow app "share earnings" style. Read-only — uses the
+same `GET /users/{wallet}/earnings/pnl/{pool}?period_type={period}` endpoint as step 4.
+
+### API
+
+```
+GET https://bff.bitflowapis.finance/api/app/v1/users/{wallet}/earnings/pnl/{pool}?period_type={period}
+```
+
+Periods: `1d`, `7d`, `30d`. Returns `earningsUsd`, `earningsBtc`, `feeTvl`, `tvlUsd`, range, binStep,
+baseFee.
+
+### Generation
+
+```bash
+cd <workspace>/skills/bitflow-earnings-card
+python3 generate_card.py --wallet <SP-address> --pool <pool-id> --period <1d|7d|30d>
+```
+
+Output: `output/bitflow-earnings-card-{pool}-{period}.png`
+
+The script fetches live data → caches token icons → renders the card (1200×675 dark theme, green hero
+earnings figure, overlapping token icons, footer stat chips: FEE/TVL %, YOUR TVL, RANGE, BIN STEP, FEE).
+
+### When to generate
+
+- User asks for earnings, PnL, or "share my performance"
+- End-of-campaign wrap-up (pair with the full PnL component breakdown)
+- Periodic reports (daily/weekly summaries)
+- Social content (X threads, Discord, Telegram)
+
+### Guardrails
+
+- The card shows **Bitflow app fee attribution** — it is NOT the full PnL picture.
+- **Always pair** the card image with the component PnL report from step 6 (IL, fees, gas, net).
+- Never present the card's earnings figure as campaign profit without the hold-baseline context (INV-8).
+- The API is read-only and keyless (beta). Cache results ≥5 min to be respectful of rate limits.
+
+### Dependencies
+
+```bash
+pip install Pillow requests
+```
+
+Token icons are auto-cached in `skills/bitflow-earnings-card/icons/` on first run.
+
 ## Idempotency / cooldown
 
 - **Always safe to re-run** — read-only, no state mutation, no cooldown. Each run is a fresh snapshot;
@@ -110,6 +164,9 @@ A PnL report object — components never netted into one figure:
 
 ## Notes
 
+- **Earnings Card** requires `Pillow` and `requests` — both are standard Python packages. The
+  `generate_card.py` script is self-contained: API fetch → icon cache → PNG render. No wallet
+  unlock or signing needed.
 - The `impermanentLossEstimatePct` from `hodlmm-risk` is a **monitoring proxy** (`driftScore × 0.08`,
   handbook §6.3/§6.6), not a true price-ratio IL — use the empirical per-bin computation here for
   reporting, the proxy only for cheap cycle-to-cycle monitoring.
