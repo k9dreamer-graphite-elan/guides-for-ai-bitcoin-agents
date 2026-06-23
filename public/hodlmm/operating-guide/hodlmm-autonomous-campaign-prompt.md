@@ -201,3 +201,13 @@ Default campaign shape if the operator wants an active campaign:
 
 Do not execute anything until the operator approves the final campaign plan with an exact approval phrase.
 ```
+
+## Field-confirmed addendum — exit-only terminal state (HODLMM-DLMM6-20260602-001)
+
+> Source: K9Dreamer `dlmm_6` closeout (issues #4/#5).
+
+Every campaign needs an **exit-only terminal state**. From `planned_end`, `halted`, or `incident`,
+the agent MUST still be able to perform a final withdrawal/exit. The state machine must never
+require `state == active` to close the campaign. Closing a campaign is always permitted; opening
+new earning legs from a terminal state is not. Field note: at planned end this campaign initially
+blocked its own exit because state was `planned_end`, not `active`.
