@@ -175,3 +175,20 @@ Token icons are auto-cached in `skills/bitflow-earnings-card/icons/` on first ru
   balanced pair.
 - Pair with [`hodlmm-exit-runbook.md`](./hodlmm-exit-runbook.md) for end-of-campaign: account first
   (this runbook), then exit.
+
+## Field-confirmed addendum — HODLMM-DLMM6-20260602-001
+
+> Source: K9Dreamer `dlmm_6` closeout (issues #4/#5). Confirms the PnL-confidence direction
+> from the Hex Stallion closeout (#1/#3) with a clean, fully-realized exit.
+
+**Headline PnL is net-vs-original-hold after gas, at realized-withdrawal confidence.** This
+campaign closed at **net −$1.25 vs holding the original tokens, after gas** (gross −$0.58; gas
+3.6 STX / ~$0.667). Roughly flat: fee capture ≈ offset the one-sided/IL drag as STX/USD fell.
+
+**DLP balance and protocol display earnings are context only — never realized fee income.** The
+BFF 30-day display read showed `$27.01` / `0.00043235 BTC` while realized net-vs-hold was ≈flat.
+Report display earnings separately and labeled; never headline them.
+
+**Closure proof = wallet DLP for the pool is zero AND the withdraw tx is chain-confirmed.**
+Protocol status/position endpoints may lag (this campaign's Bitflow status still showed TVL after
+a confirmed exit). A lagging status read is advisory and must not trigger a duplicate exit.

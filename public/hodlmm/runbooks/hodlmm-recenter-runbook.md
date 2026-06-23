@@ -110,3 +110,29 @@ router; its protection is the **LP (Allow + contract-level bounds)** form, not s
   the Active LP Management runbook, scheduled via runtime cron or `hodlmm-move-liquidity auto`.
 - Alternative skill: `hodlmm-range-keeper` offers a keeper-style recenter cadence over the same router
   entrypoint — same GATE applies.
+
+## Field-confirmed addendum — HODLMM-DLMM6-20260602-001
+
+> Source: K9Dreamer `dlmm_6` STX/sBTC campaign closeout (issues #4/#5). Independently
+> reproduces the native-move findings from the Hex Stallion closeout (#2). Reviewer
+> evidence (bins/pools) is campaign context, not evergreen doctrine.
+
+**Native-move legality is a geometry proof, not an intent proof.** Before broadcasting a
+same-pool native move (e.g. `move-relative-liquidity-multi`):
+
+1. Read current active bin and current wallet bins.
+2. Compute source and target bin sets.
+3. Prove source/target **non-overlap** and a legal direction for the current one-sidedness.
+4. If overlap exists, or the move is a downward shift on a fully one-sided (single-token)
+   position, **do not broadcast** — route to withdraw/swap/redeposit.
+5. A move returning `(err u5001)` is a shape rejection, not a timing hiccup. **Never blind-retry
+   the same shape.**
+
+Field results (dlmm_6 STX/sBTC, context only): failed `(u5001)` `319→333`, `314→328`
+(downward, one-sided STX); succeeded `316→330`, `331→345` (upward / non-overlapping).
+
+**Withdraw → swap → redeposit is a first-class recenter route** for `u5001`-shaped or
+width-expanding repairs: withdraw (confirm on-chain) → swap toward target ratio if needed →
+redeposit covering the current active bin with fresh min-DLP/postconditions. Higher gas per
+cycle, but it is the reliable repair when a native move shape is illegal. Account for every
+leg's gas; failed legs are campaign cost.

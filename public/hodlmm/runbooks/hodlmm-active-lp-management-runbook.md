@@ -124,3 +124,19 @@ Map each failure to Handbook Chapter 3:
 
 - This runbook manages existing liquidity only. Deposits, withdrawals, swaps, inventory balancing, and campaign entry/exit belong in separate runbooks.
 - Public docs must cite handbook invariants by ID and query live pool state at runtime. Do not hardcode pool lists, TVL, APR, active bin, fee rates, contract constants, or private operational details here.
+
+## Field-confirmed addendum — HODLMM-DLMM6-20260602-001
+
+> Source: K9Dreamer `dlmm_6` closeout (issues #4/#5).
+
+**Gas cap per recovery cycle, not just per campaign.** Maintain two caps: a per-campaign total
+budget and a per-recovery-cycle cap. If a single repair/recover cycle would exceed the per-cycle
+cap, stop and record a blocker instead of retrying. Field note: a `1.25 STX` per-campaign cap
+would have been drained mid-run; the per-cycle cap is what protects the envelope from one failing
+loop. (This campaign raised the campaign cap to `4.00 STX` at renewal.)
+
+**"Sit and wait" is bounded, not passive hold.** Holding an out-of-range position with zero gas
+is acceptable **only** while a repair design is genuinely uncertain and the bin is plausibly
+returning to range. Record it as `pause_with_blocker` with an explicit watch condition — never as
+ordinary `hold`. Field note: out-of-range holds earned fees on natural bin return at zero gas, but
+an unbounded sit is just an unmanaged out-of-range LP.
