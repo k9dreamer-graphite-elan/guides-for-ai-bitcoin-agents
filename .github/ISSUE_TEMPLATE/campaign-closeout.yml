@@ -1,0 +1,132 @@
+name: Campaign Closeout
+description: Share results, findings, and (optionally) proposed improvements from a completed campaign.
+title: "[<Agent> · <Campaign-ID>] Campaign closeout — <pool>"
+labels: ["campaign-closeout"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing to the learning loop. **One issue per campaign.**
+        You may propose improvements here — but **don't open a PR**; maintainers do that.
+        Post only on-chain-public or operator-approved data — **never secrets/keys**.
+        See `CONTRIBUTING.md` for the standard and `hodlmm-closeout-runbook.md` for how to generate this.
+
+  - type: input
+    id: agent
+    attributes:
+      label: Agent / author
+      placeholder: "e.g. K9Dreamer"
+    validations:
+      required: true
+
+  - type: input
+    id: campaign-id
+    attributes:
+      label: Campaign ID
+      description: "Format HODLMM-<POOL>-<YYYYMMDD>-<seq>"
+      placeholder: "HODLMM-DLMM6-20260602-001"
+    validations:
+      required: true
+
+  - type: input
+    id: pool
+    attributes:
+      label: Pool / pair
+      placeholder: "dlmm_6 — STX/sBTC"
+    validations:
+      required: true
+
+  - type: textarea
+    id: charter
+    attributes:
+      label: Charter
+      description: Pool, authorization/scope, capital envelope, deliverables.
+    validations:
+      required: true
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome summary
+      description: Objective → outcome → evidence → lesson (a table is ideal).
+      value: |
+        | Objective | Outcome | Evidence | Lesson |
+        |---|---|---|---|
+        |  |  |  |  |
+    validations:
+      required: true
+
+  - type: textarea
+    id: timeline
+    attributes:
+      label: Timeline
+      description: Entry → recentering → failures → recovery → holds → renewal → exit.
+    validations:
+      required: true
+
+  - type: textarea
+    id: pnl
+    attributes:
+      label: PnL — honest framing
+      description: Headline is NET-vs-HOLD AFTER GAS with confidence. Label DLP / protocol "display earnings" as context-only, never realized.
+      value: |
+        **Headline: net vs hold after gas = ____ (confidence: realized-withdrawal)**
+
+        | Measure | Value | Confidence |
+        |---|---|---|
+        | Entry inventory |  | realized |
+        | Wallet after exit |  | realized |
+        | Hold baseline (at exit prices) |  | realized |
+        | Gas total |  | realized |
+        | **Net vs hold, after gas** |  | **realized** |
+        | Protocol "display earnings" |  | context-only — NOT realized |
+    validations:
+      required: true
+
+  - type: textarea
+    id: findings
+    attributes:
+      label: Findings
+      description: finding → implication → suggested doc area.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-improvements
+    attributes:
+      label: Proposed improvements (optional)
+      description: Missing/weak rule → evidence → risk → target doc → patch-ready text. Leave blank if none. Maintainers decide on PRs.
+      value: |
+        | Missing/weak rule | Evidence | Future-agent risk | Target doc | Patch-ready text |
+        |---|---|---|---|---|
+        |  |  |  |  |  |
+    validations:
+      required: false
+
+  - type: textarea
+    id: reviewer-evidence
+    attributes:
+      label: Reviewer evidence
+      description: Campaign ID, lifecycle timestamps (start / planned end / final exit), key tx hashes, closeout state (positions remaining), limits in force.
+    validations:
+      required: true
+
+  - type: input
+    id: handbook-version
+    attributes:
+      label: Handbook version this campaign ran against
+      placeholder: "v0.6"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: No secrets/keys; only on-chain-public or operator-approved data.
+          required: true
+        - label: PnL headline is net-vs-hold after gas; display marks labeled context-only (INV-8).
+          required: true
+        - label: Closure proof = wallet DLP zero AND chain-confirmed exit tx (status endpoints advisory).
+          required: true
