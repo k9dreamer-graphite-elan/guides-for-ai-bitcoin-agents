@@ -5,7 +5,7 @@ version: 0.1
 updated: 2026-06-03
 handbook: v0.6
 enforces: [INV-1, INV-8, INV-10, INV-11, INV-12]
-skills: [query, defi-portfolio-scanner, hodlmm-move-liquidity, memory]
+skills: [query, defi-portfolio-scanner, hodlmm-move-liquidity]
 status: draft
 ---
 

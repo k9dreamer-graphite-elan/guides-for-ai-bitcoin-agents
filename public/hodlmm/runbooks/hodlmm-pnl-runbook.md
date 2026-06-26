@@ -3,7 +3,7 @@ name: HODLMM PnL Runbook
 type: runbook
 handbook: v0.6
 enforces: [INV-7, INV-8, INV-10, INV-11, INV-12]
-skills: [defi-portfolio-scanner, bitflow, query, bitflow-earnings-card]
+skills: [defi-portfolio-scanner, bitflow, query]
 status: draft
 ---
 
@@ -112,6 +112,10 @@ A PnL report object — components never netted into one figure:
 Generate a branded PNG card matching the Bitflow app "share earnings" style. Read-only — uses the
 same `GET /users/{wallet}/earnings/pnl/{pool}?period_type={period}` endpoint as step 4.
 
+> **Not a registry skill.** The card is produced directly from the BFF API below by a self-contained
+> local render script (Pillow) — there is no `bitflow-earnings-card` entry in `aibtcdev/skills`, so it
+> is not listed in this runbook's `skills:` frontmatter.
+
 ### API
 
 ```
@@ -124,11 +128,11 @@ baseFee.
 ### Generation
 
 ```bash
-cd <workspace>/skills/bitflow-earnings-card
+cd <workspace>/tools/earnings-card
 python3 generate_card.py --wallet <SP-address> --pool <pool-id> --period <1d|7d|30d>
 ```
 
-Output: `output/bitflow-earnings-card-{pool}-{period}.png`
+Output: `output/earnings-card-{pool}-{period}.png`
 
 The script fetches live data → caches token icons → renders the card (1200×675 dark theme, green hero
 earnings figure, overlapping token icons, footer stat chips: FEE/TVL %, YOUR TVL, RANGE, BIN STEP, FEE).
@@ -153,7 +157,7 @@ earnings figure, overlapping token icons, footer stat chips: FEE/TVL %, YOUR TVL
 pip install Pillow requests
 ```
 
-Token icons are auto-cached in `skills/bitflow-earnings-card/icons/` on first run.
+Token icons are auto-cached in `tools/earnings-card/icons/` on first run.
 
 ## Idempotency / cooldown
 

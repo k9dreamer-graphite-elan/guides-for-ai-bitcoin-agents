@@ -68,8 +68,8 @@ is the **LP (Allow + contract-level bounds)** form, not sender post-conditions (
    is healthy and you meant to rebalance → stop and use the Active LP / recenter runbook instead.
 3. **DRY-RUN** — preview the withdraw: target bins, expected token amounts, `min-dlp` / fee bounds.
    `bitflow-hodlmm-withdraw status …` *(no confirm token)*. Verify amounts match the position (INV-7).
-4. **EXECUTE — withdraw** — `bitflow-hodlmm-withdraw run … ` with the skill's explicit confirm token
-   (see its `SKILL.md`). Proof path: `dlmm-liquidity-router…withdraw-relative-liquidity-same-multi`.
+4. **EXECUTE — withdraw** — `bitflow-hodlmm-withdraw run … --confirm=EXIT` (the skill's explicit confirm
+   token; verify against its `SKILL.md`). Proof path: `dlmm-liquidity-router…withdraw-relative-liquidity-same-multi`.
    Large positions may need **multiple calls** across bin batches — handle each like a leg (re-scan
    between them, INV-7).
 5. **EXECUTE — convert (optional)** — only if `convert-to` is set and scope grants `swap`: route the
