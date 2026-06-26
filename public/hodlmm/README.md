@@ -39,6 +39,7 @@ failure handling. All conform to the handbook and declare the invariants they en
 | [`hodlmm-recenter-runbook.md`](./runbooks/hodlmm-recenter-runbook.md) | The atomic recenter procedure (move drifted bins around active). | draft |
 | [`hodlmm-inventory-balancing-runbook.md`](./runbooks/hodlmm-inventory-balancing-runbook.md) | Restore target token ratio via corrective swap + redeploy. | draft |
 | [`hodlmm-pnl-runbook.md`](./runbooks/hodlmm-pnl-runbook.md) | End-of-campaign PnL accounting — earned fees vs IL vs DLP m2m (read-only, INV-8). | draft |
+| [`hodlmm-closeout-runbook.md`](./runbooks/hodlmm-closeout-runbook.md) | Post-campaign: assemble + submit the standardized Campaign Closeout issue (the learning loop). | draft |
 
 Authoring or updating a runbook? Read [`runbooks/AGENT-AUTHORING-GUIDE.md`](./runbooks/AGENT-AUTHORING-GUIDE.md) first, then copy [`runbooks/_TEMPLATE-runbook.md`](./runbooks/_TEMPLATE-runbook.md).
 

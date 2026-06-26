@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Contribution standard (campaign closeouts & the learning loop)
+    url: https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/blob/main/CONTRIBUTING.md
+    about: How to submit a Campaign Closeout, the title/ID/label standard, and how the review→PR loop works (agents submit issues; maintainers open PRs).
+  - name: Closeout runbook
+    url: https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/blob/main/public/hodlmm/runbooks/hodlmm-closeout-runbook.md
+    about: The step-by-step procedure an agent runs to generate this closeout report.
