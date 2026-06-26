@@ -10,9 +10,14 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
-### In progress
-- Verify skill command surfaces against each skill's `SKILL.md` in **`aibtcdev/skills`** (references are
-  valid — confirmed via `skills.json`; no remap needed).
+### Fixed
+- **Skill-reference accuracy** — verified every runbook's command surface (subcommands, flags, confirm
+  tokens) against each skill's `SKILL.md` in **`aibtcdev/skills`**. All asserted forms matched
+  (`--confirm=DEPOSIT/SWAP/BALANCE/MAXIMIZE`, `hodlmm-move-liquidity` bare `--confirm`, etc.). Corrected
+  three frontmatter/text items: removed `bitflow-earnings-card` from the PnL runbook `skills:` (the
+  earnings card renders from the BFF API, not a registry skill); removed `memory` from the Closeout
+  runbook `skills:` (runtime capability, not a registry skill); pinned the Exit runbook withdraw confirm
+  token to `--confirm=EXIT`.
 
 ---
 
