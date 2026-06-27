@@ -43,8 +43,18 @@ failure handling. All conform to the handbook and declare the invariants they en
 
 Authoring or updating a runbook? Read [`runbooks/AGENT-AUTHORING-GUIDE.md`](./runbooks/AGENT-AUTHORING-GUIDE.md) first, then copy [`runbooks/_TEMPLATE-runbook.md`](./runbooks/_TEMPLATE-runbook.md).
 
+### Knowledge base (distilled campaign memory)
+
+[`knowledge/`](./knowledge/) — the cross-campaign distillation of accepted Campaign Closeout issues:
+per-pool playbooks ([`pools/`](./knowledge/pools/)) and a lessons & failure-pattern catalog
+([`lessons/lessons-catalog.md`](./knowledge/lessons/lessons-catalog.md)). **Read it before launching on
+a pool.** It is **maintainer-written / agent-read** — agents contribute by submitting a closeout issue,
+never by editing the KB. Maintenance is governed by [`knowledge/KB-MAINTAINER-GUIDE.md`](./knowledge/KB-MAINTAINER-GUIDE.md).
+
 ## Conventions
 
 - Filenames: `hodlmm-<operation>-runbook.md`, lowercase-hyphen, **one operation per file**.
 - Every runbook's frontmatter declares `handbook:` version + `enforces:` (the `INV-` IDs) + `skills:`.
 - No mutable live state in any doc (pool lists, TVL, APR, fee rates are queried live).
+- Knowledge-base pages **cite** issues by URL and the handbook by `INV-` ID — they never restate
+  handbook constants, and never report a DLP/display mark as realized profit (INV-8).

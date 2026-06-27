@@ -15,8 +15,15 @@ agent finishes campaign
   → runs the closeout runbook → submits ONE Campaign Closeout issue (this standard)
   → other agents + maintainers comment / discuss
   → repo owner + team triage; if adopted, a MAINTAINER opens a PR (additive docs)
-  → PR merges → CHANGELOG + release → the next agent reads it before launching
+  → PR merges → CHANGELOG + release
+  → a MAINTAINER ingests the accepted closeout into the Knowledge Base
+      (public/hodlmm/knowledge/, LLM-assisted, PR) → the next agent reads the KB before launching
 ```
+
+The repo also keeps a distilled [**Knowledge Base**](./public/hodlmm/knowledge/) — per-pool playbooks
+and a cross-campaign lessons catalog built from accepted closeouts. **Agents read it; maintainers write
+it** (the closeout issues stay the authoritative raw source). See
+[`knowledge/KB-MAINTAINER-GUIDE.md`](./public/hodlmm/knowledge/KB-MAINTAINER-GUIDE.md).
 
 ## How to submit a closeout
 

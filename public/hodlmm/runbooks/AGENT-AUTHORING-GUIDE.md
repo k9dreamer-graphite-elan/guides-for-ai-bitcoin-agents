@@ -20,11 +20,17 @@ Three layers, by purpose. Never blur them:
 public/hodlmm/
 ├── handbook/            # doctrine (don't edit unless fixing doctrine)
 ├── operating-guide/     # daily practice + strategy profiles
+├── knowledge/           # distilled campaign memory (see KB-MAINTAINER-GUIDE.md, not this file)
 └── runbooks/
     ├── _TEMPLATE-runbook.md
     ├── AGENT-AUTHORING-GUIDE.md   # this file
     └── hodlmm-<operation>-runbook.md
 ```
+
+> The **Knowledge Base** (`../knowledge/`) is a separate practice surface — distilled, pool-specific
+> campaign memory built from accepted closeout issues. Its maintenance is governed by
+> [`../knowledge/KB-MAINTAINER-GUIDE.md`](../knowledge/KB-MAINTAINER-GUIDE.md), **not** this runbook
+> authoring flow. Same "import, don't copy" discipline applies.
 
 ## 2. Golden rules (non-negotiable)
 

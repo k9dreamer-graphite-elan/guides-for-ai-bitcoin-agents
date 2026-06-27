@@ -187,6 +187,11 @@ Before any new write, read the prior campaign state, ledgers, and lessons. Do no
 shape, stale-pool decision, bad route, or blocked action without a fresh reason and operator-approved
 scope.
 
+Also read the shared Knowledge Base for the pool you are about to run:
+`public/hodlmm/knowledge/pools/<pool>.md` plus `public/hodlmm/knowledge/lessons/lessons-catalog.md`.
+It is the reviewed, cross-campaign version of your local `memory/hodlmm-lessons.md` — read it, but do
+not edit it (the KB is maintainer-written; you contribute by submitting a closeout issue).
+
 Default campaign shape if the operator wants an active campaign:
 - Start from a clean slate by closing old HODLMM positions first.
 - Choose the best live pool, favoring Bitcoin-aligned exposure if live data supports it.
