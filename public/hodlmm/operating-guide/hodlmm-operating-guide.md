@@ -20,7 +20,9 @@ MEASURE`. In steady state, most cycles are **read-only**:
 - **Act only on a trigger:** a scan that crosses a threshold (drift, inventory deviation, regime
   change, stale pool) hands off to the matching **runbook**, which runs the gated write path.
 - **Before every write:** fresh scan + the Chapter 0 pre-flight GATE. A plan older than the current
-  cycle is stale — re-derive it (INV-7).
+ cycle is stale — re-derive it (INV-7). Clear the **divergence/feed-safety gate**
+ (`hodlmm-divergence-safety-runbook`) first: a `defensive` tier forces conservative params, an
+ `abnormal` tier halts (INV-13).
 
 ## 2. Tool / skill catalog
 
@@ -45,6 +47,7 @@ readings (`hodlmm-risk` regime + `hodlmm-flow`), then run the matching runbook.
 | **Passive wide-range** | you want low-touch exposure; volatile or thin attention | wide; rare rebalancing | `hodlmm-campaign-entry-runbook` (wide profile) |
 | **Single-bin high-concentration** | strong conviction price holds; calm regime; max fee share | ±0–1 bins; high drift risk | `hodlmm-campaign-entry-runbook` (single-bin profile) |
 | **Inventory-balanced** | one-sided flow pulling your token ratio off target | maintain target ratio (e.g. 50:50) | `hodlmm-inventory-balancing-runbook` |
+| **Volatile major / cash pair** (asymmetric inventory) | pairing a volatile major (V) vs a cash stablecoin (C) — e.g. sBTC/USDCx, STX/USDCx; high divergence, large asymmetric IL | width scales with σ; **V-only** soft/hard caps; hold no idle V beyond a gas buffer | `hodlmm-volatile-pair-mm-runbook` |
 | **Exit / stale recovery** | pool volume dead, position drifted out | withdraw, stand down | `hodlmm-exit-runbook` |
 
 **Hard rules from the handbook (do not override here):**
@@ -87,6 +90,55 @@ the balance to the regime.
 fee accrual**, treat it as an **exit** candidate, not a recenter — especially in a stale pool. Recenter
 preserves a productive position; it doesn't undo realized divergence.
 
+### 3.2 Volatile major / cash-pair profile (asymmetric inventory)
+
+For a volatile major asset **V** vs a cash stablecoin **C** (sBTC/USDCx, STX/USDCx). IL here is large and
+one-directional, so this profile manages **directional inventory risk**, not a symmetric ratio. Doctrine:
+handbook Ch.4 §4.4 (asymmetric inventory) + INV-13 (divergence gate).
+
+**Numéraire.** Measure risk in USD. C ≈ $1 riskless (with a fixed peg-break halt); V carries all drawdown.
+
+**The four continuous knobs (place resting liquidity; cost is gas only):**
+- **Center** on the active bin. Don't offset toward external — that quotes a guess and pays to chase.
+- **Skew** toward selling the overweight leg (lean to the V-selling side when long V). Rebalances
+ passively by waiting to be filled on the favorable side.
+- **Width** scales with σ (wider in higher vol). Floor = max(bin granularity, fee + gas + expected
+ adverse cost); cap so capital isn't uselessly thin.
+- **Size** = deployed fraction; decreases with σ; **never 100%**. Make the floor *conditional* — when
+ expected adverse cost at the floor width exceeds expected fee, the right size is 0 (pull). Reserve = C
+ + gas asset; hold no idle V (except an unavoidable gas buffer when V *is* the gas asset, e.g. STX).
+
+**The V-only risk cap (asymmetric; ordering invariant `f* < f_soft < f_hard`):**
+- `f` = V-value ÷ (V-value + C-value), incl. reserve, **excl.** the gas buffer, marked at `p` (at
+ external while the INV-13 tier is defensive).
+- **Soft cap** (`f ≥ f_soft`): stop adding V — saturate skew to the sell side, widen, reduce size.
+ Passive, costless.
+- **Hard cap** (`f ≥ f_hard`): swap V→C back to `f_soft`, **only when the INV-13 tier is aligned/healthy**
+ (else halt-and-hold). The one deliberately loss-accepting action; apply hysteresis to avoid thrash.
+- **No lower cap on `f`.** Cash-heaviness carries no directional risk; re-accumulate V passively on dips,
+ never market-buy.
+
+**Calibration (starting values, tune on live data):** `f_hard ≈ tolerance ÷ stress` — e.g. tolerate a
+`[15%]` drawdown against a `[30%]` V stress → `f_hard ≈ [50%]`; `f_soft = f_hard − [6%]`;
+`f* = f_hard − [12%]`. A lower tolerance ⇒ lower, more cash-tilted caps.
+
+**Gates & exits (do not override):** run `hodlmm-divergence-safety-runbook` every cycle (INV-13);
+`crisis` regime or `lpSafety: avoid` ⇒ stand aside (Ch.4). When **fee-to-IL is persistently < 1**, this
+is an **exit**, not a recenter (§3.1 / INV-9). At size, an *external* delta-hedge of the V exposure
+(off-venue) is the standard way to neutralize IL — note it adds funding cost and operational surface and
+is outside HODLMM. New-pair setup: run `hodlmm-pair-calibration-runbook` first; width/size floors come
+from `hodlmm-adverse-selection-runbook`; wrapped/bridged peg safety from the shared `peg-monitor-runbook`.
+
+### 3.3 Cross-cutting safety & recovery runbooks (not strategy profiles)
+
+Run alongside whatever profile you pick — the first gates every write, the second recovers a failed one.
+
+| Runbook | Run it | Role |
+|---|---|---|
+| `hodlmm-divergence-safety-runbook` | Every cycle, and before any write | Read-only gate → `proceed` / `force-defensive` / `halt`. Distinguishes feed lag from a decoupled/manipulated pool. |
+| `hodlmm-stuck-transaction-runbook` | A broadcast is stuck / reverted / partial | Triage to root cause (underpriced → RBF; read-ceiling → replace bounded, **not** a fee bump; adversarial → widen/escalate). |
+| `peg-monitor-runbook` (shared) | Any pool with a wrapped/bridged leg | Read-only peg monitor with independent refs → `ok/warn/break`; feeds INV-13. |
+
 ## 4. Capital routing & allocation
 
 - Idle sBTC: compare HODLMM vs other venues before deploying — see the cross-protocol
@@ -103,9 +155,11 @@ preserves a productive position; it doesn't undo realized divergence.
 
 ## 6. When to stop and escalate
 
-Hand off to a human on: repeated tx failures, suspected fund-risk, security/key exposure, or any
-out-of-scope / ambiguous-authority situation. See handbook **Ch.3 §3.6** (agent side) and **Ch.5**
-(operator side). Escalation is a valid end state — never act unilaterally on those.
+Before escalating **repeated tx failures**, triage the root cause with `hodlmm-stuck-transaction-runbook`
+— a read-ceiling or nonce issue has a deterministic fix, not a human one. Hand off to a human on: recovery
+attempts exhausted, suspected fund-risk, security/key exposure, or any out-of-scope / ambiguous-authority
+situation. See handbook **Ch.3 §3.6** (agent side) and **Ch.5** (operator side). Escalation is a valid end
+state — never act unilaterally on those.
 
 ---
 

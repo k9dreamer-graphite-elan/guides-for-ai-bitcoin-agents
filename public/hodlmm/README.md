@@ -40,6 +40,11 @@ failure handling. All conform to the handbook and declare the invariants they en
 | [`hodlmm-inventory-balancing-runbook.md`](./runbooks/hodlmm-inventory-balancing-runbook.md) | Restore target token ratio via corrective swap + redeploy. | draft |
 | [`hodlmm-pnl-runbook.md`](./runbooks/hodlmm-pnl-runbook.md) | End-of-campaign PnL accounting — earned fees vs IL vs DLP m2m (read-only, INV-8). | draft |
 | [`hodlmm-closeout-runbook.md`](./runbooks/hodlmm-closeout-runbook.md) | Post-campaign: assemble + submit the standardized Campaign Closeout issue (the learning loop). | draft |
+| [`hodlmm-divergence-safety-runbook.md`](./runbooks/hodlmm-divergence-safety-runbook.md) | Read-only gate: classify price-divergence + feed health (aligned/defensive/abnormal); disambiguate feed lag from real decoupling; emit the write/halt verdict. | draft |
+| [`hodlmm-stuck-transaction-runbook.md`](./runbooks/hodlmm-stuck-transaction-runbook.md) | Triage a stuck/reverted/partial tx to root cause (underpriced vs read-ceiling vs adversarial) and recover. | draft |
+| [`hodlmm-volatile-pair-mm-runbook.md`](./runbooks/hodlmm-volatile-pair-mm-runbook.md) | One management cycle for a volatile-major/cash pair — composes the knobs, applies the V-only cap, dispatches recenter/rebalance/exit. | draft |
+| [`hodlmm-adverse-selection-runbook.md`](./runbooks/hodlmm-adverse-selection-runbook.md) | Read-only: estimate expected adverse-selection cost + breakeven width floor (feeds width/size). | draft |
+| [`hodlmm-pair-calibration-runbook.md`](./runbooks/hodlmm-pair-calibration-runbook.md) | Pre-launch: derive + validate a new pair's caps/thresholds; enforce the ordering invariants. | draft |
 
 Authoring or updating a runbook? Read [`runbooks/AGENT-AUTHORING-GUIDE.md`](./runbooks/AGENT-AUTHORING-GUIDE.md) first, then copy [`runbooks/_TEMPLATE-runbook.md`](./runbooks/_TEMPLATE-runbook.md).
 
