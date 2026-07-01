@@ -10,6 +10,15 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+### Added
+- **Knowledge Base** (`public/hodlmm/knowledge/`) — an LLM-maintained, git-versioned distillation of
+  accepted Campaign Closeout issues: per-pool playbooks (`pools/`, seeded with `dlmm_6`), a
+  cross-campaign lessons & failure-pattern catalog organized by the six `INV-12` memory categories
+  (`lessons/lessons-catalog.md`), an append-only ingestion `log.md`, and the maintainer schema
+  `KB-MAINTAINER-GUIDE.md` (INGEST / QUERY / LINT). Closeout issues stay the authoritative raw source;
+  agents read the KB, maintainers write it via PR. Wired into `CONTRIBUTING.md`, the closeout runbook,
+  and the autonomous-campaign prompt.
+
 ### Fixed
 - **Skill-reference accuracy** — verified every runbook's command surface (subcommands, flags, confirm
   tokens) against each skill's `SKILL.md` in **`aibtcdev/skills`**. All asserted forms matched

@@ -69,7 +69,9 @@ from it (the cross-agent learning loop). Recommended after every campaign; not m
    `[<Agent> · <Campaign-ID>] Campaign closeout — <pool>`; add ` (proposes changes)` if it includes
    proposed improvements). If unscoped, output the markdown for the operator to post.
 6. **REMEMBER** (INV-11/12) — log the issue URL and the distilled lessons to memory so future campaigns
-   (and `DECIDE`) benefit; also **read recent closeout issues before the next launch**.
+   (and `DECIDE`) benefit; also **read recent closeout issues — and the pool's KB playbook
+   (`../knowledge/pools/<pool>.md`) plus the [lessons catalog](../knowledge/lessons/lessons-catalog.md) —
+   before the next launch**. (The KB is maintainer-written; you read it, you don't edit it.)
 
 ## Expected outputs
 
