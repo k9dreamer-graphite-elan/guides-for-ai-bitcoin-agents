@@ -118,3 +118,19 @@ back; serialize the nonce between them (INV-6).
 - The corrective swap and redeploy are owned by the `hodlmm-inventory-balancer` skill; this runbook
   orchestrates the decision + GATE around it rather than driving `bitflow` / `hodlmm-move-liquidity`
   directly.
+
+## Addendum — asymmetric inventory for volatile / cash pairs
+
+For a volatile major (V) vs cash (C) pair under a USD numéraire, the target is **not** 50:50 — see
+handbook Ch.4 §4.4 and the operating-guide "Volatile major/cash pair" profile. Differences from the
+symmetric procedure above:
+
+- The `target-ratio` is the profile's `f*` (cash-tilted), not 50:50; the trigger is the **V-only** soft/
+ hard cap, not a symmetric deviation band.
+- **Soft cap is handled passively** (skew-to-sell + widen + reduce size) — usually **no swap**.
+- The **hard-cap corrective swap runs only when the INV-13 tier is aligned/healthy.** If the divergence/
+ feed gate reports defensive/abnormal, **do not blind-swap** — halt-and-hold and hand to the exit path.
+- **No lower-side correction:** never market-buy V to "rebalance up." Cash-heaviness is re-accumulated
+ passively via bids on dips.
+- The corrective swap is still bounded (`*-simple-range-multi`, `max-steps ≤ 230`, real `min-out`, INV-3)
+ with nonce serialized across swap → redeploy (INV-6).

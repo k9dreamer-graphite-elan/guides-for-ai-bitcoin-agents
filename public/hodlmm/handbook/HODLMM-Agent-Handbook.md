@@ -1,6 +1,6 @@
 # HODLMM Agent Handbook — Community Edition
 
-> **Community Edition · v0.6.** A public, agent-first guide to trading and providing liquidity on Bitflow **HODLMM** (DLMM) concentrated-liquidity pools on Stacks, *safely*.
+> **Community Edition · v0.7.** A public, agent-first guide to trading and providing liquidity on Bitflow **HODLMM** (DLMM) concentrated-liquidity pools on Stacks, *safely*.
 > **Not financial advice. Mainnet only — real funds are at risk.** Provided "as is", without warranty. **Verify every address, entrypoint, and limit on-chain before signing** — this is a guide, not an oracle.
 > **Scope:** covers public contracts and APIs only. Bitflow internal infrastructure, operational endpoints, and incident runbooks are intentionally omitted.
 > **Read Chapter 0 before any autonomous trade or LP action — it is the safety floor.**
@@ -80,6 +80,31 @@ After every broadcast: verify on-chain status, wait for confirmation (never assu
 **INV-12 — Persist memory across runs.**
 Retain: stale-pool IDs, flaky API patterns, effective recenter targeting, failed-tx patterns, operator approvals/rejections, post-check lessons. Without memory, every rebalance is a cold start.
 
+**INV-13 — Gate every write on the divergence & feed-safety tier.**
+Before any write, classify the pool from the active-bin-vs-external divergence `d = (p − external)/external`
+and feed health into one of three tiers:
+- **aligned** (`|d| ≤ d_warn`, feed fresh, no peg break) → normal operation.
+- **defensive** (`d_warn < |d| ≤ d_halt`, or feed stale below the halt age, or the lag case below) →
+ force conservative params (max width, min size) and **mark inventory at the external price** — the
+ active bin is the suspect quantity, not the fair one.
+- **abnormal** (`|d| > d_halt`, any peg break, feed lost, or pool frozen) → **halt.** A broken-*market*
+ halt (peg / `|d|`) withdraws to reserve but **holds inventory — never blind-swap into untrustworthy
+ prices**; an *operational* halt (feed lost / pool frozen) withdraws and stops.
+
+Load-bearing rules:
+- **Ordering invariant `d_warn < d_halt` MUST always hold.** The *divergence* halt **scales** with
+ volatility (`d_halt = max(halt_floor, k·σ)`) and `d_warn = k'·σ`; a vol spike can otherwise invert the
+ bands and erase the defensive tier — clamp `d_warn` if so.
+- The **peg band is a separate, FIXED, absolute threshold** — a depeg is a different event from
+ pool/feed divergence and does not scale.
+- **A cash- or wrapped-leg depeg cannot be detected from the volatile-asset/USD feed alone.** Independent
+ references (cash-vs-USD, wrapped-vs-underlying) are required inputs, not optional.
+- **Feed lag vs decoupling:** a large `|d|` with high `σ`, a stale feed, and a coherently advancing
+ active bin is *feed lag* → **defensive**, not halt. A large `|d|` with a *fresh* feed, or an active
+ bin sitting in a thin/empty region (it may have been walked across empty bins for gas — §1.3), is
+ *decoupling/manipulation* → **halt**.
+Procedure: `hodlmm-divergence-safety-runbook`.
+
 ### Ground-truth facts every HODLMM agent shares
 
 - **Mainnet-only.** HODLMM has no testnet deployment. Do not branch on network.
@@ -104,6 +129,7 @@ Run top to bottom. Any `NO` aborts the broadcast.
 [ ] Nonce serialized; signer RBF path known?                          (INV-6)
 [ ] LP add: not adding new capital outside scope; active-bin tax ok?  (INV-9/2)
 [ ] Ledger entry prepared; post-check + memory write planned?         (INV-10/11/12)
+[ ] Divergence/feed tier = aligned (or defensive params applied); not abnormal (INV-13)
 ```
 
 ### Approved skill map (use these, by their registry names)
@@ -383,6 +409,21 @@ Escalate to a human (and stop acting) when:
 
 Escalation is a valid terminal state of the loop. Record the diagnosis + where you stopped (INV-11). The operator-side decision matrix for these lives in **Chapter 5 — Operator & Escalation Overlay**.
 
+### 3.7 Root-cause discrimination — the three stuck-tx causes (don't conflate)
+
+A stuck, reverted, or partial transaction has distinct causes that need distinct fixes:
+
+| Signal | Cause | Fix |
+|---|---|---|
+| Fee below market; simply not picked up | **Underpriced** | RBF, same nonce, higher fee (§3.2). |
+| Unbounded `*-simple-multi` / wide pool; passed broadcast then hangs | **Oversized / read-ceiling** | **RBF will NOT help — the tx is too big, not underpriced.** Replace the payload with a bounded `*-simple-range-multi`, `max-steps ≤ 230` (INV-3, R1), same nonce; or cancel (1 µSTX self-transfer at the nonce) then re-issue bounded. |
+| Reverted on a post-condition / min-out | **Adversarial reorder / sandwich** | Refresh, re-quote, retry once; if it persists, widen tolerance / chunk / route private / **escalate** (§3.6). Do not loop. |
+| `(err u5001)` on a native move | **Illegal move geometry** | Withdraw→swap→redeposit; never blind-retry (recenter runbook addendum). |
+| Bounded swap `{in,out}` < requested | **Partial fill (expected)** | Residual vs refreshed state (§3.3). |
+
+**Doctrine:** *RBF only cures underpricing.* A transaction that exceeds the block read budget will never
+mine regardless of fee — replace it, don't reprice it. Procedure: `hodlmm-stuck-transaction-runbook`.
+
 ---
 
 ## Chapter 4 — Strategy & Alpha
@@ -447,6 +488,16 @@ directional position-taker.
 
 > Note its post-condition shape is the **dual-pin Allow envelope** (sender `willSendLte(amount_in)` +
 > pool `willSendGte(min_out)`) — consistent with INV-2's LP form, not a violation of it.
+
+**Asymmetric inventory — volatile / cash pairs.** The symmetric target-ratio balancer above assumes both
+legs carry risk. When the pair is a **volatile major (V) against a cash stablecoin (C)** and you measure
+risk in USD, only V has drawdown — C is ~riskless at $1 and self-corrects. Manage it with a one-sided,
+**V-only** cap: a **soft cap** (stop adding V; saturate skew to the V-selling side; widen; reduce size —
+all passive and costless) and a **hard cap** (a deliberate, loss-accepting V→C swap, run **only when the
+INV-13 tier is aligned/healthy** — otherwise halt-and-hold, never blind-swap). There is **no lower bound**
+on V share: cash-heaviness is re-accumulated **passively on dips**, never by market-buying V (that chases
+the move and forfeits the maker edge). Calibration (`f* < f_soft < f_hard`; `f_hard ≈ tolerance/stress`)
+lives in the operating-guide **"Volatile major/cash pair"** profile.
 
 ### 4.5 Capital allocation & timing
 
@@ -866,6 +917,7 @@ The handbook is **versioned**; skills pin the version they conform to (Ch.8 §8.
 |---|---|
 | v0.6 | First public Community Edition: full Ch.0–8 + appendices; canonical contract IDs (two deployers); bounded-swap and two-form-post-condition invariants; strategy + recovery + supervision + conformance. |
 | v0.6 *(additive)* | Added §6.6 impermanent-loss & net-LP-return doctrine, §4.2 width↔IL note, and verification V5 (out-of-range conversion direction). No constant changed — `handbook: v0.6` pins remain valid; no skill re-verification required. |
+| v0.7 | Added INV-13 (divergence & feed-safety tiering); Ch.3 §3.7 (stuck-tx root-cause discrimination); Ch.4 §4.4 asymmetric-inventory extension. New runbooks: divergence-safety, stuck-transaction, volatile-pair-mm, adverse-selection, pair-calibration; shared peg-monitor. |
 
 ---
 
