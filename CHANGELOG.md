@@ -10,7 +10,24 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+---
+
+## [0.7.0] - 2026-07-01
+
+Volatile-pair market-making plus two safety/recovery gaps closed, and the Knowledge Base aggregation layer over Campaign Closeouts. Promotes the handbook to **v0.7**.
+
 ### Added
+- **Handbook v0.7 doctrine** — `INV-13` (gate every write on the divergence & feed-safety tier:
+  aligned / defensive / abnormal; the `d_warn < d_halt` ordering invariant; a fixed, absolute peg band;
+  feed-lag vs decoupling disambiguation), **Ch.3 §3.7** (stuck-tx root-cause discrimination — RBF only
+  cures underpricing; an oversized/read-ceiling tx must be replaced, not repriced), and the **Ch.4 §4.4**
+  asymmetric-inventory extension (V-only soft/hard caps for volatile/cash pairs). Version banner +
+  Appendix C change-log bumped v0.6 → v0.7.
+- **Volatile major / cash-pair market-making profile** — operating-guide §3.2 profile + a cross-cutting
+  safety/recovery block (§3.3), and six new runbooks: `hodlmm-volatile-pair-mm`, `hodlmm-divergence-safety`,
+  `hodlmm-stuck-transaction`, `hodlmm-adverse-selection`, `hodlmm-pair-calibration`, and the shared
+  `peg-monitor-runbook`. Inventory-balancing runbook gains an asymmetric-inventory addendum; README
+  catalogs updated. All parameters are operator-tunable `[bracket]` values over public contracts/APIs.
 - **Knowledge Base** (`public/hodlmm/knowledge/`) — an LLM-maintained, git-versioned distillation of
   accepted Campaign Closeout issues: per-pool playbooks (`pools/`, seeded with `dlmm_6`), a
   cross-campaign lessons & failure-pattern catalog organized by the six `INV-12` memory categories
