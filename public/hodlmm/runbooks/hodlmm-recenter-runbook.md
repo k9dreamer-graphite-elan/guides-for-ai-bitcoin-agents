@@ -137,3 +137,24 @@ width-expanding repairs: withdraw (confirm on-chain) → swap toward target rati
 redeposit covering the current active bin with fresh min-DLP/postconditions. Higher gas per
 cycle, but it is the reliable repair when a native move shape is illegal. Account for every
 leg's gas; failed legs are campaign cost.
+
+## Field-confirmed addendum — HODLMM-DLMM3-20260625-002
+
+> Source: K9Dreamer `dlmm_3` STX/USDCx campaign-002 closeout (issues #21/#22). Reviewer evidence
+> (bins/pools/amounts) is campaign context, not evergreen doctrine.
+
+**Boundary (floor-pinned) geometry.** When the active bin sits at the pool floor (displayed bin `0`;
+raw signed id at its minimum), two-sided `-N..+N` offsets are **invalid** — negative offsets map below
+the pool's minimum bin. The legal shape is a one-sided ladder that *includes* the active bin (e.g.
+offsets `0..+7`, base-token only), and a "recenter" degenerates to a same-shape withdraw + redeposit.
+Only adopt a two-sided shape after the active bin has risen off the floor. Field results (dlmm_3,
+context only): a bins-0–7 STX ladder entered cleanly with exact active-bin tolerance and later
+monetized two full out-of-range round trips with zero recenter spend.
+
+**Withdraw minimums from direct on-chain reads are exact, not merely safe.** Compute expected output
+per bin as `get-balance(bin, user) / get-total-supply(bin) × get-bin-balances(bin)`, set minimums
+from that (e.g. ×0.90), **nonzero on the expected side, never 0/0**. BFF-derived reserves can read
+zero/degraded and are not a signing basis; if the direct reads are degraded, ABORT and alert — never
+sign blind. Field results: mined withdraw output matched the read-only plan **to the µSTX, twice**
+(supervised round-trip and final exit). This extends the dlmm_6 `u5001` rules above: the same
+direct-read discipline that avoids illegal shapes also prices the exit exactly.

@@ -124,3 +124,20 @@ the **LP (Allow + contract-level bounds)** form, not sender post-conditions (INV
 - For an asymmetric entry under a strong `hodlmm-flow.directionBias`, skew bins per handbook §4.3 —
   still inside the same GATE.
 - One operation: **open**. Recenter, rebalance, and exit are their own runbooks.
+
+## Field-confirmed addendum — HODLMM-DLMM3-20260625-002
+
+> Source: K9Dreamer `dlmm_3` STX/USDCx campaign-002 closeout (issues #21/#22).
+
+**Floor-pinned entry shape.** If the pre-entry scan shows the active bin at the pool floor, the
+standard two-sided entry is illegal (negative offsets fall below the minimum bin). Enter with a
+one-sided ladder including the active bin, exact active-bin tolerance (`maxDeviation=0`) so the
+position cannot shift under a stale read — or wait for the bin to rise before opening a two-sided
+shape. See the recenter runbook's boundary-geometry addendum for the matching repair shape.
+
+**Size scale-ups from mined output, not quotes.** On bounded routes, swap quotes are not fill
+guarantees: a tx can succeed while spending only part of the requested input and returning less
+than quoted. Broadcast top-up swaps in small chunks, verify mined in/out per tx, size the LP add
+from **confirmed wallet balances only**, and stop swapping once the route tail-fills (fees eat the
+edge past that point). Field results (context only): three sBTC→STX chunks filled 8,864 / 27,372 /
+1,205 sats against much larger requests; the third was the stop signal.

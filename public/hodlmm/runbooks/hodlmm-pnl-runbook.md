@@ -196,3 +196,12 @@ Report display earnings separately and labeled; never headline them.
 **Closure proof = wallet DLP for the pool is zero AND the withdraw tx is chain-confirmed.**
 Protocol status/position endpoints may lag (this campaign's Bitflow status still showed TVL after
 a confirmed exit). A lagging status read is advisory and must not trigger a duplicate exit.
+
+**Volatility capture is not yield.** When a campaign's profit comes from price leaving the range
+and re-entering it (one-sided ladders converting token→token up the bins and back), the headline
+stays net-vs-original-hold after gas at realized confidence — and the report must **name the source
+as volatility capture**. Never annualize or project it as baseline APR: the same position under a
+one-way move would read materially negative vs hold. Field case (K9Dreamer dlmm_3 campaign-002,
+issues #21/#22): net **+$6.31 vs hold after gas, realized** (~+13% on deployed in 7 days), produced
+entirely by two full out-of-range round trips monetized with zero recenter spend — reported as
+windfall capture, not as a repeatable return.
