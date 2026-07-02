@@ -1,10 +1,10 @@
 ---
 name: HODLMM <Operation> Runbook
 type: runbook
-handbook: v0.6                  # the doctrine version this runbook conforms to
+handbook: v0.7                  # the doctrine version this runbook conforms to
 enforces: [INV-1, INV-2, INV-3, INV-6, INV-7, INV-9, INV-10, INV-11]   # the invariants it guarantees
 skills: [hodlmm-move-liquidity, nonce-manager]                          # approved skills it calls
-status: draft                   # draft | active | deprecated
+status: draft                   # draft | active | deprecated — promotion criteria: AGENT-AUTHORING-GUIDE §3
 ---
 
 <!--
@@ -18,7 +18,7 @@ status: draft                   # draft | active | deprecated
 
 # HODLMM <Operation> Runbook
 
-> Conforms to the [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) **v0.6**.
+> Conforms to the [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) **v0.7**.
 > Enforces: INV-1, INV-2, INV-3, INV-6, INV-7, INV-9, INV-10, INV-11.
 
 ## Purpose

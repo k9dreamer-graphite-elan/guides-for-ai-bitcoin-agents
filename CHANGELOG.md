@@ -10,6 +10,28 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+### Added
+- **Root `README.md`** — landing page stating what the repo is and its unofficial/community
+  relationship to the protocols it documents, with pointers into `public/`.
+- **`llms.txt`** — machine-readable index (need → document → version) for agent consumers.
+- **Docs lint in CI** (`scripts/lint_docs.py` + `docs-lint` workflow) — validates runbook/KB
+  frontmatter schema, that every `enforces:` invariant exists in the handbook, that each runbook body's
+  conformance line matches its frontmatter pin, and cross-document handbook-version consistency
+  (templates and navigational docs must declare the current version, read from the handbook banner).
+- **Runbook status lifecycle** (authoring guide §3) — `draft` → `active` promotion requires an accepted
+  Campaign Closeout that exercised the procedure end-to-end on mainnet, cited in the promotion PR;
+  demotion rules and `deprecated` successor-naming defined.
+- **`.gitattributes`** — all text normalized to LF (previously mixed CRLF/LF across ten files).
+
+### Fixed
+- **v0.7 version drift** — the v0.7.0 release bumped the handbook but left stale `v0.6` declarations
+  in navigational and template docs. Corrected: `public/hodlmm/README.md` ("currently v0.6"), the
+  operating-guide conformance banner (it already gated on INV-13 doctrine), the authoring guide
+  (`Currently v0.6`, invariant range `INV-1…INV-12` → `INV-13`, example frontmatter), the runbook and
+  KB pool templates' `handbook:` pins, `VERSIONING.md` examples, and the KB maintainer guide's
+  frontmatter schema note. Existing runbooks legitimately written against v0.6 doctrine keep their
+  pins. Also removed the authoring guide's stale "planned runbooks" list (all five now exist).
+
 ---
 
 ## [0.7.0] - 2026-07-01
