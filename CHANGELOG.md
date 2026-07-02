@@ -10,6 +10,33 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+### Changed
+- **Handbook v0.8 (corrective)** — full on-chain verification pass (2026-07-01) of every published
+  address, entrypoint, and limit against live Hiro contract interfaces and source. Three findings
+  corrected, one closed as exact:
+  - **Bin-side rule was inverted** in v0.6/v0.7 (§1.x bins bullet, §1.3, §6.6, Appendix B V5) and in
+    the campaign-entry, recenter, and PnL runbooks. On-chain truth (core `add-liquidity` asserts, and
+    confirmed by live dlmm_3 campaign behavior): **above active = X only, below active = Y only**, at
+    active = both with the imbalance taxed. Ch.2's placement rules already had it right — the docs
+    were internally inconsistent. Agents/skills that encoded the old direction must re-verify.
+  - **Staking does not exist on mainnet** — no `dlmm-staking-{pair}` contract or `dlmm-staking-trait`
+    in the complete deploy history of any Bitflow deployer; §1.2/§1.3/Ch.2 staking references replaced
+    with a not-deployed notice (new verification row V7).
+  - **Router step cap is exact, not approximate** — `MAX_STEPS = u319` constant, asserted on every
+    swap entrypoint; the "≈350–384 bins" estimate is retired (V3). Classic `*-simple-multi` delegate
+    to the range variants with `MAX_STEPS`.
+  - Smaller accuracy fixes: quotes-API pool-contract field is `pool_token` (not `pool-contract`);
+    per-pool naming is `dlmm-pool-{pair}-v-{n}-bps-{bin-step}`; pool read-only functions are
+    `get-bin-balances` / `get-balance` / `get-user-bins` / `get-active-bin-id` (SFT token-id =
+    bin-id + 500, per `NUM_OF_BINS u1001` / `CENTER_BIN_ID`, now V6); traits are
+    `dlmm-core-trait-v-1-1` / `dlmm-pool-trait-v-1-1`.
+  - Verified clean: core/router/liquidity-router contract IDs and deployers, bounded entrypoint names,
+    liquidity entrypoints (`add-relative-liquidity-same-multi`, `move-relative-liquidity-multi`),
+    permissionless `claim-protocol-fees`, active-bin add-liquidity fee taxation, 1,001 bins at ±500,
+    legacy-plane deployer (xyk/stableswap), BFF quotes API base + endpoints.
+  - Campaign-entry, recenter, and PnL runbooks re-pinned `handbook: v0.8` (their corrected text
+    conforms to the fixed doctrine); navigational docs and templates bumped per the docs-lint rules.
+
 ### Added
 - **Root `README.md`** — landing page stating what the repo is and its unofficial/community
   relationship to the protocols it documents, with pointers into `public/`.

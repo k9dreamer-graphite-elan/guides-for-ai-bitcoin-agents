@@ -6,19 +6,20 @@
 > (procedures) → knowledge base (distilled campaign memory). Downstream docs cite the handbook by
 > `INV-` ID and never restate its constants.
 
-Doctrine version in force: **handbook v0.7** (invariants INV-1…INV-13). Runbook frontmatter pins the
+Doctrine version in force: **handbook v0.8** (invariants INV-1…INV-13; v0.8 corrects the bin-side rule
+stated inverted in v0.6/v0.7 — above active = X only, below = Y only). Runbook frontmatter pins the
 doctrine version each conforms to; `status: draft` means not yet exercised end-to-end by an accepted
 Campaign Closeout, `active` means it has been.
 
 ## Doctrine (read first)
 
-- [HODLMM Agent Handbook — v0.7](public/hodlmm/handbook/HODLMM-Agent-Handbook.md): the safety floor.
+- [HODLMM Agent Handbook — v0.8](public/hodlmm/handbook/HODLMM-Agent-Handbook.md): the safety floor.
   Chapter 0 invariants + pre-flight GATE, canonical contract reference, playbooks, failure & recovery,
   strategy, supervision, skill authoring. Read Ch.0 before any autonomous trade or LP action.
 
 ## Field manual
 
-- [HODLMM Operating Guide — v0.7](public/hodlmm/operating-guide/hodlmm-operating-guide.md): the daily
+- [HODLMM Operating Guide — v0.8](public/hodlmm/operating-guide/hodlmm-operating-guide.md): the daily
   loop, monitoring cadence, strategy profiles, which runbook to run when.
 - [Autonomous campaign prompt](public/hodlmm/operating-guide/hodlmm-autonomous-campaign-prompt.md):
   copy-paste prompt to plan a fully autonomous HODLMM pool campaign.

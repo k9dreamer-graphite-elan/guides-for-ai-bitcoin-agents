@@ -1,7 +1,7 @@
 ---
 name: HODLMM Campaign Entry Runbook
 type: runbook
-handbook: v0.6
+handbook: v0.8
 enforces: [INV-1, INV-2, INV-3, INV-6, INV-7, INV-9, INV-10, INV-11, INV-12]
 skills: [hodlmm-signal-allocator, hodlmm-risk, hodlmm-flow, defi-portfolio-scanner, bitflow, bitflow-swap-aggregator, bitflow-hodlmm-deposit, hodlmm-bin-guardian, nonce-manager]
 status: draft
@@ -9,7 +9,7 @@ status: draft
 
 # HODLMM Campaign Entry Runbook
 
-> Conforms to the [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) **v0.6**.
+> Conforms to the [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) **v0.8**.
 > Enforces: INV-1, INV-2, INV-3, INV-6, INV-7, INV-9, INV-10, INV-11, INV-12.
 
 ## Purpose
@@ -83,7 +83,7 @@ the **LP (Allow + contract-level bounds)** form, not sender post-conditions (INV
    `bitflow-swap-aggregator run … --confirm=SWAP`, bounded entrypoint, `max-steps ≤ 230`, real
    `min-out`, handle residual (INV-2/3). Re-scan after (INV-7).
 6. **EXECUTE — deposit** — `bitflow-hodlmm-deposit run … --confirm=DEPOSIT`. Proof path:
-   `dlmm-liquidity-router…add-relative-liquidity-same-multi` (above active = Y only, below = X only, at
+   `dlmm-liquidity-router…add-relative-liquidity-same-multi` (above active = X only, below = Y only, at
    active = both & taxed — handbook §1.3). Serialize the nonce after the prep swap (INV-6).
 7. **VERIFY** — re-scan; confirm the position exists with the intended bins/width and is **in range**.
    `hodlmm-bin-guardian run` → expect `HOLD` (in-range); confirm each tx mined `success` (INV-10).

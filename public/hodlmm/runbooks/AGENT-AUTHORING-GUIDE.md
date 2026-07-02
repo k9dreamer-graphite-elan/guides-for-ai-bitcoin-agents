@@ -10,7 +10,7 @@ Three layers, by purpose. Never blur them:
 
 - **Handbook (doctrine)** — [`../handbook/HODLMM-Agent-Handbook.md`](../handbook/HODLMM-Agent-Handbook.md).
   The canonical source of truth: invariants (`INV-1`…`INV-13`), terminology, contract IDs, fee
-  mechanics, the pre-flight GATE. Currently **v0.7**. You do NOT restate its contents elsewhere — you
+  mechanics, the pre-flight GATE. Currently **v0.8**. You do NOT restate its contents elsewhere — you
   cite it.
 - **Operating guide (field manual)** — [`../operating-guide/hodlmm-operating-guide.md`](../operating-guide/hodlmm-operating-guide.md).
   Daily practice + **strategy selection** (which runbook to run when). References the handbook.
@@ -57,7 +57,7 @@ Every runbook starts with this frontmatter, then follows
 ---
 name: HODLMM <Operation> Runbook
 type: runbook
-handbook: v0.7                 # the doctrine version this conforms to
+handbook: v0.8                 # the doctrine version this conforms to
 enforces: [INV-1, INV-2, ...]  # the invariants this runbook guarantees
 skills: [hodlmm-..., ...]      # approved skills it calls (from aibtc.com/skills)
 status: draft|active|deprecated

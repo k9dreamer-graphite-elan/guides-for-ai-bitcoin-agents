@@ -1,7 +1,7 @@
 ---
 name: HODLMM PnL Runbook
 type: runbook
-handbook: v0.6
+handbook: v0.8
 enforces: [INV-7, INV-8, INV-10, INV-11, INV-12]
 skills: [defi-portfolio-scanner, bitflow, query]
 status: draft
@@ -9,7 +9,7 @@ status: draft
 
 # HODLMM PnL Runbook
 
-> Conforms to the [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) **v0.6**.
+> Conforms to the [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) **v0.8**.
 > Enforces: INV-7, INV-8, INV-10, INV-11, INV-12.
 
 ## Purpose
@@ -174,9 +174,9 @@ Token icons are auto-cached in `tools/earnings-card/icons/` on first run.
 - The `impermanentLossEstimatePct` from `hodlmm-risk` is a **monitoring proxy** (`driftScore × 0.08`,
   handbook §6.3/§6.6), not a true price-ratio IL — use the empirical per-bin computation here for
   reporting, the proxy only for cheap cycle-to-cycle monitoring.
-- Out of range, IL is **realized**: the position has converted to one side (above active = Y only,
-  below = X only — handbook §1.3 / V5). Reflect that in `V_position(no fees)` rather than assuming a
-  balanced pair.
+- Out of range, IL is **realized**: the position has converted to one side (bins above active hold X
+  only, bins below hold Y only — handbook §1.3 / V5; price rising past your range leaves you all-Y).
+  Reflect that in `V_position(no fees)` rather than assuming a balanced pair.
 - Pair with [`hodlmm-exit-runbook.md`](./hodlmm-exit-runbook.md) for end-of-campaign: account first
   (this runbook), then exit.
 
