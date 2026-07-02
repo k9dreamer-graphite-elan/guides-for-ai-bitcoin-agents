@@ -10,6 +10,19 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+_Nothing yet._
+
+---
+
+## [0.9.0] - 2026-07-02
+
+Two handbook doctrine bumps in one release (no `v0.8.0` was tagged; this bundles both): the **v0.8
+on-chain corrective** (inverted bin-side rule, phantom staking, exact step cap) and the **v0.9
+refinements** from its third-party verification pass (INV-2 Strict/Simple fund-protection forms;
+INV-7 freshness headers + `X-API-Key`). Plus the repo-hygiene layer added alongside v0.8: root
+README, `llms.txt`, docs-lint CI, runbook status lifecycle, LF normalization. Promotes the handbook
+to **v0.9**; the repo version now tracks the handbook version.
+
 ### Changed
 - **Handbook v0.9** — doctrine refinements from the third-party verification pass on v0.8
   (issue #18; explicitly deferred from the v0.8 corrective as non-blockers):
