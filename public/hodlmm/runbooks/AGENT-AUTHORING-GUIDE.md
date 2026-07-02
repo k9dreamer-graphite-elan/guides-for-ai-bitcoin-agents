@@ -9,8 +9,8 @@
 Three layers, by purpose. Never blur them:
 
 - **Handbook (doctrine)** — [`../handbook/HODLMM-Agent-Handbook.md`](../handbook/HODLMM-Agent-Handbook.md).
-  The canonical source of truth: invariants (`INV-1`…`INV-12`), terminology, contract IDs, fee
-  mechanics, the pre-flight GATE. Currently **v0.6**. You do NOT restate its contents elsewhere — you
+  The canonical source of truth: invariants (`INV-1`…`INV-13`), terminology, contract IDs, fee
+  mechanics, the pre-flight GATE. Currently **v0.7**. You do NOT restate its contents elsewhere — you
   cite it.
 - **Operating guide (field manual)** — [`../operating-guide/hodlmm-operating-guide.md`](../operating-guide/hodlmm-operating-guide.md).
   Daily practice + **strategy selection** (which runbook to run when). References the handbook.
@@ -57,7 +57,7 @@ Every runbook starts with this frontmatter, then follows
 ---
 name: HODLMM <Operation> Runbook
 type: runbook
-handbook: v0.6                 # the doctrine version this conforms to
+handbook: v0.7                 # the doctrine version this conforms to
 enforces: [INV-1, INV-2, ...]  # the invariants this runbook guarantees
 skills: [hodlmm-..., ...]      # approved skills it calls (from aibtc.com/skills)
 status: draft|active|deprecated
@@ -68,6 +68,22 @@ Required sections (from the template): Purpose · When to run / NOT to run · In
 Scope (INV-1) · Gates (the Ch.0 pre-flight subset that applies) · Procedure (SCAN→…→REMEMBER, dry-run
 before any broadcast) · Expected outputs · Failure handling (map each to Handbook **Ch.3 §3.x**) ·
 Idempotency/cooldown.
+
+### Status lifecycle (what `status:` means)
+
+`status:` carries information only if promotion is earned. The criteria:
+
+- **`draft`** — written to spec and lint-clean, but **not yet exercised end-to-end on mainnet** by an
+  accepted Campaign Closeout. New runbooks always start here.
+- **`active`** — at least one **accepted Campaign Closeout issue** exercised the procedure end-to-end
+  on mainnet with the documented gates in force. The promotion PR **must cite that closeout issue** in
+  its description and in the CHANGELOG entry. (Example: `hodlmm-active-lp-management-runbook` is
+  `active` on the strength of the dlmm_6 closeout, issues #4/#5.)
+- **`deprecated`** — superseded or doctrinally invalidated. The body's header must name the successor
+  runbook (or the handbook section that retired it). Never delete — agents may hold stale links.
+
+Demotion is allowed: if a closeout surfaces a defect that invalidates the procedure as written,
+`active` drops back to `draft` in the same PR that records the finding.
 
 ## 4. When UPDATING an existing runbook
 
@@ -88,13 +104,12 @@ Idempotency/cooldown.
    you call.
 4. Map every failure mode to a Handbook Ch.3 row — don't write new recovery logic that the handbook
    already owns.
-5. Add the new runbook to the catalog table in [`../README.md`](../README.md) (flip `planned` → `active`).
+5. Add the new runbook to the catalog table in [`../README.md`](../README.md) with `status: draft` —
+   promotion to `active` is earned per §3's status lifecycle, never granted at creation.
 6. If it introduces or changes a *strategy choice*, update the strategy-profiles table in the operating
    guide — strategy *selection* lives there; strategy *execution* lives in the runbook.
 
-Planned runbooks to build (copy the template): `hodlmm-campaign-entry-runbook.md`,
-`hodlmm-recenter-runbook.md`, `hodlmm-inventory-balancing-runbook.md`, `hodlmm-exit-runbook.md`,
-`hodlmm-pnl-runbook.md`. Cross-protocol ones (e.g. sBTC yield routing) go in `public/shared/`.
+Cross-protocol runbooks (e.g. sBTC yield routing, peg monitoring) go in `public/shared/`.
 
 ## 6. Pre-commit conformance check
 

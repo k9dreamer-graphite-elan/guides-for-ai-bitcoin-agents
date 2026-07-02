@@ -16,7 +16,7 @@ How versions work in this repo, so contributors and agents can rely on them.
    ---
    version: 1.0          # this document's own version
    updated: 2026-06-03   # ISO date of last change
-   handbook: v0.6        # (docs that conform to the handbook) the doctrine version they target
+   handbook: v0.7        # (docs that conform to the handbook) the doctrine version they target
    status: active        # (runbooks) draft | active | deprecated
    ---
    ```
@@ -26,18 +26,18 @@ changed and which doc versions it contains.
 
 ## Cutting a release
 
-**GitHub UI:** Releases → *Draft a new release* → choose/create tag `v0.6.0` (target `main`) → title
-`HODLMM Agent Guides v0.6.0` → paste the matching `CHANGELOG.md` section → *Publish release*.
+**GitHub UI:** Releases → *Draft a new release* → choose/create tag `v0.7.0` (target `main`) → title
+`HODLMM Agent Guides v0.7.0` → paste the matching `CHANGELOG.md` section → *Publish release*.
 
 **CLI (git):**
 ```bash
-git tag -a v0.6.0 -m "HODLMM Agent Guides v0.6.0"
-git push origin v0.6.0
+git tag -a v0.7.0 -m "HODLMM Agent Guides v0.7.0"
+git push origin v0.7.0
 ```
 
 **CLI (gh):**
 ```bash
-gh release create v0.6.0 --title "HODLMM Agent Guides v0.6.0" --notes-file CHANGELOG.md
+gh release create v0.7.0 --title "HODLMM Agent Guides v0.7.0" --notes-file CHANGELOG.md
 ```
 
 ## Pinning an exact version (for agents / skills)
@@ -45,7 +45,7 @@ gh release create v0.6.0 --title "HODLMM Agent Guides v0.6.0" --notes-file CHANG
 When an agent or skill must reference a *fixed* version of a file, use a **commit- or tag-pinned
 permalink**, never the `main` URL (which moves):
 - On GitHub, open the file and press **`y`** → the URL rewrites to the commit SHA. Copy that.
-- Or reference the tag: `…/blob/v0.6.0/public/hodlmm/handbook/HODLMM-Agent-Handbook.md`.
+- Or reference the tag: `…/blob/v0.7.0/public/hodlmm/handbook/HODLMM-Agent-Handbook.md`.
 
 ## When to bump what
 

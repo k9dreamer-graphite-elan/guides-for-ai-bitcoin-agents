@@ -16,7 +16,7 @@ HODLMM** (DLMM concentrated-liquidity pools on Stacks) safely.
 
 ### Handbook (doctrine)
 [`handbook/`](./handbook/) — canonical safety model, invariants, terminology, contract truths, fee
-mechanics. Versioned (currently **v0.6**). Plus onboarding notes, security policy, contributing, license.
+mechanics. Versioned (currently **v0.7**). Plus onboarding notes, security policy, contributing, license.
 
 ### Operating guide (field manual)
 [`operating-guide/hodlmm-operating-guide.md`](./operating-guide/hodlmm-operating-guide.md) — what to

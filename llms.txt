@@ -1,0 +1,55 @@
+# Guides for AI Bitcoin Agents
+
+> Community field guides, handbooks, and executable runbooks for autonomous agents operating DeFi on
+> Bitcoin / Stacks. Unofficial; public contracts and APIs only; verify everything on-chain before
+> signing. Document model: handbook (doctrine) → operating guide (field manual) → runbooks
+> (procedures) → knowledge base (distilled campaign memory). Downstream docs cite the handbook by
+> `INV-` ID and never restate its constants.
+
+Doctrine version in force: **handbook v0.7** (invariants INV-1…INV-13). Runbook frontmatter pins the
+doctrine version each conforms to; `status: draft` means not yet exercised end-to-end by an accepted
+Campaign Closeout, `active` means it has been.
+
+## Doctrine (read first)
+
+- [HODLMM Agent Handbook — v0.7](public/hodlmm/handbook/HODLMM-Agent-Handbook.md): the safety floor.
+  Chapter 0 invariants + pre-flight GATE, canonical contract reference, playbooks, failure & recovery,
+  strategy, supervision, skill authoring. Read Ch.0 before any autonomous trade or LP action.
+
+## Field manual
+
+- [HODLMM Operating Guide — v0.7](public/hodlmm/operating-guide/hodlmm-operating-guide.md): the daily
+  loop, monitoring cadence, strategy profiles, which runbook to run when.
+- [Autonomous campaign prompt](public/hodlmm/operating-guide/hodlmm-autonomous-campaign-prompt.md):
+  copy-paste prompt to plan a fully autonomous HODLMM pool campaign.
+
+## Runbooks (one operation each; frontmatter pins doctrine version + status)
+
+- [Campaign entry](public/hodlmm/runbooks/hodlmm-campaign-entry-runbook.md): select pool, grant scope, place initial LP.
+- [Active LP management](public/hodlmm/runbooks/hodlmm-active-lp-management-runbook.md): scan → recenter loop (status: active).
+- [Recenter](public/hodlmm/runbooks/hodlmm-recenter-runbook.md): atomic recenter of drifted bins.
+- [Inventory balancing](public/hodlmm/runbooks/hodlmm-inventory-balancing-runbook.md): restore target token ratio.
+- [Divergence & feed safety](public/hodlmm/runbooks/hodlmm-divergence-safety-runbook.md): read-only INV-13 gate (aligned/defensive/abnormal).
+- [Volatile-pair MM](public/hodlmm/runbooks/hodlmm-volatile-pair-mm-runbook.md): one management cycle for a volatile-major/cash pair.
+- [Adverse selection](public/hodlmm/runbooks/hodlmm-adverse-selection-runbook.md): read-only expected-cost + breakeven width floor.
+- [Pair calibration](public/hodlmm/runbooks/hodlmm-pair-calibration-runbook.md): pre-launch caps/thresholds derivation.
+- [Stuck transaction](public/hodlmm/runbooks/hodlmm-stuck-transaction-runbook.md): root-cause triage (RBF only cures underpricing).
+- [Exit](public/hodlmm/runbooks/hodlmm-exit-runbook.md): withdraw and stand down; stale-pool recovery.
+- [PnL accounting](public/hodlmm/runbooks/hodlmm-pnl-runbook.md): fees vs IL vs DLP mark-to-market (read-only).
+- [Campaign closeout](public/hodlmm/runbooks/hodlmm-closeout-runbook.md): assemble + submit the Campaign Closeout issue.
+- [sBTC yield routing](public/shared/sbtc-yield-routing-runbook.md): cross-protocol (shared).
+- [Peg monitor](public/shared/peg-monitor-runbook.md): cross-protocol (shared).
+
+## Knowledge base (agents read; maintainers write)
+
+- [KB index](public/hodlmm/knowledge/README.md): what the KB is and how to query it.
+- [Pool playbooks](public/hodlmm/knowledge/pools/): per-pool distillations of accepted closeouts (seeded: dlmm_6).
+- [Lessons catalog](public/hodlmm/knowledge/lessons/lessons-catalog.md): cross-campaign failure patterns by INV-12 memory category.
+
+## Authoring & governance
+
+- [Agent authoring guide](public/hodlmm/runbooks/AGENT-AUTHORING-GUIDE.md): how to write/update a runbook; status lifecycle.
+- [Runbook template](public/hodlmm/runbooks/_TEMPLATE-runbook.md)
+- [KB maintainer guide](public/hodlmm/knowledge/KB-MAINTAINER-GUIDE.md): INGEST / QUERY / LINT.
+- [Contributing](CONTRIBUTING.md): agents submit closeout issues; maintainers open PRs.
+- [Versioning](VERSIONING.md) · [Changelog](CHANGELOG.md)
