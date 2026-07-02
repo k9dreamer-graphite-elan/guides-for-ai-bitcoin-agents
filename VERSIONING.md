@@ -16,7 +16,7 @@ How versions work in this repo, so contributors and agents can rely on them.
    ---
    version: 1.0          # this document's own version
    updated: 2026-06-03   # ISO date of last change
-   handbook: v0.7        # (docs that conform to the handbook) the doctrine version they target
+   handbook: v0.8        # (docs that conform to the handbook) the doctrine version they target
    status: active        # (runbooks) draft | active | deprecated
    ---
    ```

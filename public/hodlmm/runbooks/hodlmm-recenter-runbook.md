@@ -1,7 +1,7 @@
 ---
 name: HODLMM Recenter Runbook
 type: runbook
-handbook: v0.6
+handbook: v0.8
 enforces: [INV-1, INV-2, INV-6, INV-7, INV-9, INV-10, INV-11, INV-12]
 skills: [hodlmm-bin-guardian, hodlmm-move-liquidity, nonce-manager]
 status: draft
@@ -9,7 +9,7 @@ status: draft
 
 # HODLMM Recenter Runbook
 
-> Conforms to the [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) **v0.6**.
+> Conforms to the [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) **v0.8**.
 > Enforces: INV-1, INV-2, INV-6, INV-7, INV-9, INV-10, INV-11, INV-12.
 
 ## Purpose
@@ -103,8 +103,9 @@ router; its protection is the **LP (Allow + contract-level bounds)** form, not s
 ## Notes
 
 - Recenter **preserves** a productive position; it does not undo **realized** IL. If price has already
-  pushed you out of range and converted you to one side (above active = Y only, below = X only —
-  handbook §1.3), that divergence is real — recentering re-engages fees but doesn't claw it back.
+  pushed you out of range and converted you to one side (bins left above active hold X only, bins left
+  below hold Y only — handbook §1.3), that divergence is real — recentering re-engages fees but doesn't
+  claw it back.
   Weigh recenter vs exit on the fee-to-IL ratio (operating guide §3.1).
 - This runbook is the atomic primitive; the **cadence** (when to check, the monitoring loop) lives in
   the Active LP Management runbook, scheduled via runtime cron or `hodlmm-move-liquidity auto`.

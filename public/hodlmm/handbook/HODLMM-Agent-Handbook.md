@@ -1,6 +1,6 @@
 # HODLMM Agent Handbook — Community Edition
 
-> **Community Edition · v0.7.** A public, agent-first guide to trading and providing liquidity on Bitflow **HODLMM** (DLMM) concentrated-liquidity pools on Stacks, *safely*.
+> **Community Edition · v0.8.** A public, agent-first guide to trading and providing liquidity on Bitflow **HODLMM** (DLMM) concentrated-liquidity pools on Stacks, *safely*.
 > **Not financial advice. Mainnet only — real funds are at risk.** Provided "as is", without warranty. **Verify every address, entrypoint, and limit on-chain before signing** — this is a guide, not an oracle.
 > **Scope:** covers public contracts and APIs only. Bitflow internal infrastructure, operational endpoints, and incident runbooks are intentionally omitted.
 > **Read Chapter 0 before any autonomous trade or LP action — it is the safety floor.**
@@ -109,7 +109,7 @@ Procedure: `hodlmm-divergence-safety-runbook`.
 
 - **Mainnet-only.** HODLMM has no testnet deployment. Do not branch on network.
 - **No admin backdoors, no oracle dependency.** Contracts have no fund-admin key and no price oracle. Security comes from post-conditions / contract-level bounds + the 2-week core-migration cooldown + pool code-hash verification, not from a trusted operator.
-- **Bins:** 1,001 per pool, indexed -500..+500, center 500. `bin_factor` is fixed at pool creation; only reserves move. Above active = Y only, below active = X only, at active = both (imbalanced adds taxed at swap rate).
+- **Bins:** 1,001 per pool, indexed -500..+500, center 500. `bin_factor` is fixed at pool creation; only reserves move. Above active = X only, below active = Y only, at active = both (imbalanced adds taxed at swap rate). Verified against `dlmm-core-v-1-1 add-liquidity`: `(asserts! (or (>= bin-id active-bin-id) (is-eq x-amount u0)))` / `(asserts! (or (<= bin-id active-bin-id) (is-eq y-amount u0)))`.
 - **Fee exemptions exist** per-address per-pool. If reconciling expected vs actual fees, check the `fee-exemptions` map first — it's policy, not a constant.
 - **Live state is never cached here.** Pool list, TVL, active-bin-id → query on-chain or the public Bitflow API.
 
@@ -154,7 +154,7 @@ The approved skills published at **aibtc.com/skills**:
 
 The fleet's single source of record. Cite this; do not re-derive. Constants are point-in-time — re-verify on-chain before asserting in a tx (INV-4 discipline applies to facts too). Anything that moves (pool list, TVL, active bin, fees actually configured) is **not** recorded here — query it live.
 
-### 1.1 Mainnet addresses (verified on-chain April 2026 — re-verify before signing)
+### 1.1 Mainnet addresses (verified on-chain 2026-07-01 — re-verify before signing)
 
 **Two deployers** (a frequent source of confusion):
 
@@ -173,19 +173,26 @@ Canonical HODLMM contracts:
 | Liquidity Router v1.2 (latest) | `SM1FKXGNZJWSTWDWXQZJNF7B5TV5ZB235JTCXYXKD.dlmm-liquidity-router-v-1-2` |
 | Router v1.1 (superseded; some skills still call it) | `…dlmm-swap-router-v-1-1` / `…dlmm-liquidity-router-v-1-1` (under `SM1FKX…`) |
 
-Per-pool contracts (`dlmm-pool-{pair}-…`) deploy under `SM1FKX…`; resolve a specific pool's contract from a live `GET /pools/{pool_id}` (the `pool-contract` field) rather than hardcoding. Confirm any contract on-chain via Hiro `GET /v2/contracts/interface/{principal}/{name}` before constructing a call. Protocol-fee claims dispatch to a contract-registered fee address — **not an agent concern** (Ch.5 §5.2).
+Per-pool contracts (`dlmm-pool-{pair}-v-{n}-bps-{bin-step}`, e.g. `dlmm-pool-stx-sbtc-v-1-bps-15`) deploy under `SM1FKX…`; resolve a specific pool's contract from a live `GET /pools/{pool_id}` (the `pool_token` field) rather than hardcoding. Confirm any contract on-chain via Hiro `GET /v2/contracts/interface/{principal}/{name}` before constructing a call. Protocol-fee claims dispatch to a contract-registered fee address — **not an agent concern** (Ch.5 §5.2).
 
 ### 1.2 Contract map — five types per pool
 
 | Contract | Role | Agent touches it for |
 |---|---|---|
 | `dlmm-core-v-1-1` (`SP1PFR4V08…`) | Singleton. Swap logic, pool creation, fee exemptions, protocol-fee claims. | quoting truth, fee-exemption checks |
-| `dlmm-pool-{pair}-v-1-1` (`SM1FKX…`) | Per-pool. Reserves, `balances-at-bin`, `user-balance-at-bin`, `active-bin-id`. SFT (SIP-013) + vault. | position reads (per-bin, INV-8) |
+| `dlmm-pool-{pair}-v-{n}-bps-{bin-step}` (`SM1FKX…`) | Per-pool. Reserves via `get-bin-balances`, positions via `get-balance`/`get-user-bins` (SFT token-id = bin-id + 500), `get-active-bin-id`. SFT (SIP-013) + vault. | position reads (per-bin, INV-8) |
 | `dlmm-swap-router-v-1-2` (`SM1FKX…`) | Bounded + classic multi-bin swap routing. | **all swaps — use bounded entrypoints (INV-3)** |
 | `dlmm-liquidity-router` (v-1-2 latest; v-1-1 still in skill use) | Multi-bin add/withdraw, relative positioning + tolerance. | LP add / withdraw / recenter |
-| `dlmm-staking-{pair}-v-1-1` | Per-pool staking, per-bin reward-per-block, 50 BPS early-unstake fee. | staking LP shares for reward yield |
 
-Plus traits `dlmm-core-trait`, `dlmm-pool-trait`, `dlmm-staking-trait`. Only `dlmm-core-v-1-1` can move tokens across pools — this is what preserves post-condition atomicity.
+Plus traits `dlmm-core-trait-v-1-1`, `dlmm-pool-trait-v-1-1` (under `SM1FKX…`). Only `dlmm-core-v-1-1` can move tokens across pools — this is what preserves post-condition atomicity.
+
+> **Staking:** the per-pool `dlmm-staking-{pair}-v-1-1` contracts (per-bin rewards, 50 BPS
+> early-unstake fee) and the `dlmm-staking-trait` **exist in the public `BitflowFinance/bitflow-dlmm`
+> source, but ship only a simnet deployment plan — they are not deployed on mainnet** as of 2026-07-01,
+> verified against the complete deploy history of all three Bitflow deployers. This is the failure mode
+> to watch for: earlier drafts described staking as live because they read the contracts from the
+> source repo without checking whether a mainnet deployment actually exists. Treat any staking flow as
+> unavailable until a contract is confirmed on-chain.
 
 ### 1.3 Entrypoints an agent may call
 
@@ -193,9 +200,9 @@ Plus traits `dlmm-core-trait`, `dlmm-pool-trait`, `dlmm-staking-trait`. Only `dl
 - `swap-x-for-y-simple-range-multi` / `swap-y-for-x-simple-range-multi` on `dlmm-swap-router-v-1-2`, `max-steps ≈ 230`, meaningful `min-dy`, handle the `{in, out}` residual.
 - Classic `*-simple-multi` exist but are `NEVER` to be used on pools that can drift wide (319-step fold, worst 16,591 reads > ceiling).
 
-**Liquidity — `dlmm-liquidity-router` (v-1-2 latest; v-1-1 still used by current skills):** multi-bin add (`add-relative-liquidity-same-multi`; above active = Y only, below active = X only, at active = both & taxed at swap rate), withdraw, atomic recenter (`move-relative-liquidity-multi`), relative-offset positioning with tolerance checks.
+**Liquidity — `dlmm-liquidity-router` (v-1-2 latest; v-1-1 still used by current skills):** multi-bin add (`add-relative-liquidity-same-multi`; above active = X only, below active = Y only, at active = both & taxed at swap rate — enforced by core's `add-liquidity` asserts), withdraw, atomic recenter (`move-relative-liquidity-multi`), relative-offset positioning with tolerance checks.
 
-**Staking — `dlmm-staking-{pair}-v-1-1`:** lock per-bin SFT shares, accrue per-block rewards, unstake (50 BPS fee if early-unstake enabled).
+**Staking:** not available — no staking contracts are deployed on mainnet (§1.2).
 
 **Fees:** `claim-protocol-fees` on `dlmm-core-v-1-1` is **permissionless** but dispatches to a contract-registered fee address — calling it does not pay *you*. Provider + variable fees are not claimed; they auto-compound inside the bin (INV-8).
 
@@ -203,14 +210,14 @@ Plus traits `dlmm-core-trait`, `dlmm-pool-trait`, `dlmm-staking-trait`. Only `dl
 
 DLMM is the fast quote plane; the legacy plane (XYK/Stableswap/cross-DEX) is separate and **cannot compose atomically** with DLMM in one tx.
 
-Base: the public Bitflow quotes API — `https://bff.bitflowapis.finance/api/quotes/v1/`
+Base: the public Bitflow API spans **two planes** under `https://bff.bitflowapis.finance`. Quote / build / explore calls live on the **quotes** plane — `…/api/quotes/v1/`; per-user **positions** live on the **app** plane — `…/api/app/v1/` (the Positions row below carries its full path — do not assume it shares the quotes base).
 
 | Step | Call | Returns |
 |---|---|---|
 | Quote | `POST /quote` (best) / `POST /quote/multi` (all routes) | `amount_out`, `min_amount_out`, `slippage_tolerance`, `price_impact_bps`, `route_path`, `execution_path` |
 | Build tx | `POST /swap` (feed the `execution_path`) | contract-call params, typed args, **post-conditions** (the INV-2 *swap* form) |
 | Explore | `GET /pools`, `/pools/{id}`, `/bins/{pool}`, `/bins/{pool}/active`, `/bins/{pool}/{bin}`, `/pairs?input_token=`, `/tokens` | live pool/bin/token state |
-| Positions | `GET /users/{address}/positions/{pool_id}/bins` | per-bin LP position (INV-8) |
+| Positions | `GET /api/app/v1/users/{address}/positions/{pool_id}/bins` (**app** plane — not `/api/quotes/v1/`) | per-bin LP position (INV-8) |
 | Freshness | the indexer-lag check | indexing vs canonical chain tip; lag ⇒ suspect stale |
 
 Strategies the engine returns: `single_bin` (fits one bin, ~0 impact) · `multi_bin` (one-pool bin traversal) · `v1_split` (splits pools; may return max-available, not just requested). Empty `execution_path` ⇒ no DLMM pool for the pair; fall back to the legacy plane.
@@ -222,12 +229,13 @@ Strategies the engine returns: `single_bin` (fits one bin, ~0 impact) · `multi_
 | Layer | Limit | Where |
 |---|---|---|
 | Quote engine bin traversal | 200 bins / direction (`max_bin_traversal`) | quote engine, off-chain |
-| On-chain swap-router cap | ~350–384 bins / call (approximate, non-load-bearing) | dlmm contracts |
-| Classic `*-simple-multi` fold | `MAX_STEPS = 319` (worst 16,591 reads) | dlmm-swap-router |
+| On-chain swap-router cap | `MAX_STEPS = u319` (asserted on **every** router swap entrypoint) | dlmm-swap-router-v-1-2 |
+| Classic `*-simple-multi` fold | delegates to the range variant with `MAX_STEPS` = 319 (worst 16,591 reads) | dlmm-swap-router |
+| Practical on-chain step budget | ~294 steps before the block-read ceiling bites (`294 × 52 ≈ 15,000`); Bitflow's official swap sample budgets `MAX_TOTAL_STEPS = 290` | HODLMM API docs (off-chain guidance) |
 | Safe bounded budget | `max-steps = 230` (~11,963 reads) | your call site (INV-3) |
 | Block read ceiling | ~15,000 reads (Stacks network constant) | Stacks VM (INV-3/4) |
 
-> The absolute on-chain cap (≈350–384) and the exact block read ceiling (≈15,000) are **approximate and non-load-bearing** — your `max-steps ≤ 230` / `< 12,000`-read budget sits safely under all candidate values, so an agent never needs the precise figure. Size `max-steps` from INV-3, not from the quote engine's traversal count.
+> The on-chain cap is exact — `MAX_STEPS = u319` is a contract constant and `max-steps-check` rejects anything above it on every swap entrypoint. Distinct from that hard assert is the **practical** limit: a swap only completes if it stays under the block's ~15,000-read budget, which works out to **~294 steps** (`294 × 52 ≈ 15,000`) — Bitflow's own [HODLMM API docs](https://docs.bitflow.finance/bitflow-documentation/developers/hodlmm-api-documentation) budget `MAX_TOTAL_STEPS = 290` in their swap-execution sample for exactly this reason. So the layers are, largest to smallest: the `u319` contract assert (hard revert) → the ~294-step practical read ceiling → the docs' 290 safety budget → the handbook's `max-steps ≤ 230`. The block read ceiling (≈15,000) remains **approximate and non-load-bearing** — your `max-steps ≤ 230` / `< 12,000`-read budget sits safely under all of these, so an agent never needs the precise ceiling. Size `max-steps` from INV-3, not from the quote engine's traversal count.
 
 ### 1.6 Fee model
 
@@ -283,9 +291,9 @@ Three procedures cover almost everything an agent does on HODLMM: **trade**, **p
 
 ### Playbook B — Provide LP & earn fees
 
-**Goal:** place liquidity in productive bins and earn fees, then (optionally) stake for reward yield.
+**Goal:** place liquidity in productive bins and earn fees.
 **Primary skill:** `bitflow-hodlmm-deposit` (proof path `add-relative-liquidity-same-multi`).
-**Staking:** `dlmm-staking-{pair}-v-1-1` (§1.3) for reward-token yield on LP shares.
+**Staking:** not available on mainnet (§1.2) — fee yield is the whole return.
 
 **Placement rules (non-negotiable, §1.2 / INV-8):**
 - **Below** active bin → token **Y only**. **Above** active → token **X only**. **At** active → one- or two-sided, and the imbalanced portion is **taxed at the swap rate**.
@@ -710,7 +718,8 @@ moves).
   Uniswap-V3 sqrt-price/tick equations; HODLMM is bin-based, not tick-based.
 - **IL accelerates toward the range edges**, and is **realized when price exits your range**: your
   liquidity converts entirely to one side of the pair (per the bin rule in §1.3 — bins **above** the
-  active bin hold only **Y**, bins **below** hold only **X**). Out of range, divergence loss stops being
+  active bin hold only **X**, bins **below** hold only **Y**; so price rising past your range leaves you
+  all-Y, price falling past it leaves you all-X). Out of range, divergence loss stops being
   paper and becomes real until/unless price returns.
 - **The `impermanentLossEstimatePct` figure from a risk skill is a rough linear proxy** (`driftScore ×
   0.08`, §6.3), useful for *monitoring*, **not** a true price-ratio IL. The definition above is
@@ -899,15 +908,17 @@ are published to the AIBTC skills registry.
 
 ### Appendix B — Verification register
 
-Contract IDs and constants verified point-in-time (April 2026); re-verify on-chain before relying on them.
+Contract IDs and constants verified point-in-time (last full pass 2026-07-01, against live Hiro interfaces + contract source); re-verify on-chain before relying on them.
 
 | # | Claim | Status |
 |---|---|---|
-| V1 | `dlmm-core-v-1-1` → `SP1PFR4V08H1RAZXREBGFFQ59WB739XM8VVGTFSEA.dlmm-core-v-1-1` | verified (cross-confirmed across Bitflow's published config, app, and skills) |
-| V2 | `dlmm-swap-router-v-1-2` → `SM1FKXGNZJWSTWDWXQZJNF7B5TV5ZB235JTCXYXKD.dlmm-swap-router-v-1-2` | verified (live Hiro `/v2/contracts/interface`; exports bounded `*-simple-range-multi`) |
-| V3 | On-chain swap-router bin cap (≈350–384) | non-load-bearing — `MAX_STEPS = 319` fold confirmed; `max-steps ≤ 230` sits under it by design |
+| V1 | `dlmm-core-v-1-1` → `SP1PFR4V08H1RAZXREBGFFQ59WB739XM8VVGTFSEA.dlmm-core-v-1-1` | verified (live Hiro interface; also cross-confirmed against Bitflow's published config, app, and skills) |
+| V2 | `dlmm-swap-router-v-1-2` → `SM1FKXGNZJWSTWDWXQZJNF7B5TV5ZB235JTCXYXKD.dlmm-swap-router-v-1-2` | verified (live Hiro `/v2/contracts/interface`; exports bounded `*-simple-range-multi`; classic `*-simple-multi` delegate to the range variants with `MAX_STEPS`) |
+| V3 | On-chain swap-router step cap | verified exact — `(define-constant MAX_STEPS u319)`, asserted (`max-steps-check`) on every swap entrypoint; earlier "≈350–384" estimate retired. Distinct **practical** layer: ~294 steps before the ~15,000-read block ceiling bites (Bitflow's HODLMM API docs budget `MAX_TOTAL_STEPS = 290`). `max-steps ≤ 230` sits under all layers by design |
 | V4 | Block read ceiling (≈15,000 reads) | non-load-bearing Stacks network constant — the `< 12,000`-read budget (INV-4) is the operative guard |
-| V5 | Out-of-range conversion direction (above active bin → **Y only**; below → **X only**) | verified — matches §1.3 `add-relative-liquidity-same-multi` bin-side semantics (on-chain DLMM contract source); load-bearing for §6.6 IL realization |
+| V5 | Bin-side rule (above active → **X only**; below → **Y only**; at active → both, imbalance taxed) | verified against `dlmm-core-v-1-1 add-liquidity` asserts **and** live campaign behavior (dlmm_3: X-ladder above active; converted to all-Y after price rose past the range). **v0.7 and earlier stated this inverted** — corrected in v0.8; load-bearing for §6.6 IL realization |
+| V6 | Bins: `NUM_OF_BINS = u1001`, ids -500..+500, SFT token-id = bin-id + 500 (`CENTER_BIN_ID`) | verified (core source constants + conversion fns) |
+| V7 | Per-pool staking contracts / `dlmm-staking-trait` | **present in public `bitflow-dlmm` source (simnet deployment plan only); not deployed on mainnet** — complete deploy history of all three Bitflow deployers contains no staking contract (2026-07-01) |
 
 ### Appendix C — Change log & versioning
 
@@ -918,6 +929,7 @@ The handbook is **versioned**; skills pin the version they conform to (Ch.8 §8.
 | v0.6 | First public Community Edition: full Ch.0–8 + appendices; canonical contract IDs (two deployers); bounded-swap and two-form-post-condition invariants; strategy + recovery + supervision + conformance. |
 | v0.6 *(additive)* | Added §6.6 impermanent-loss & net-LP-return doctrine, §4.2 width↔IL note, and verification V5 (out-of-range conversion direction). No constant changed — `handbook: v0.6` pins remain valid; no skill re-verification required. |
 | v0.7 | Added INV-13 (divergence & feed-safety tiering); Ch.3 §3.7 (stuck-tx root-cause discrimination); Ch.4 §4.4 asymmetric-inventory extension. New runbooks: divergence-safety, stuck-transaction, volatile-pair-mm, adverse-selection, pair-calibration; shared peg-monitor. |
+| v0.8 | *(corrective)* Full on-chain re-verification (2026-07-01). **Corrects the inverted bin-side rule** stated in v0.6/v0.7 (§1.x bins bullet, §1.3, §6.6, V5): the truth is above active = **X** only, below = **Y** only (per core `add-liquidity` asserts). Staking contracts marked **not deployed on mainnet** (V7). Exact router step cap `MAX_STEPS = u319` replaces the ≈350–384 estimate (V3). Pool naming (`…-v-{n}-bps-{step}`), pool read-fn names (`get-bin-balances`/`get-balance`/`get-active-bin-id`), and the quotes-API `pool_token` field corrected. **Re-verify any skill or memory that encoded the old direction.** Note the old inversion was **fail-safe for writes** — core's `add-liquidity` asserts revert wrong-side adds with `ERR_INVALID_X/Y_AMOUNT`, so the real exposure was IL-direction analytics and out-of-range expectations, not funds. Also clarifies the §1.4 positions endpoint (served on the `/api/app/v1/` **app** plane, not `/api/quotes/v1/`) and the §1.5 / V3 step-cap layering (the `u319` contract assert vs the ~294-step practical read ceiling and the docs' `MAX_TOTAL_STEPS = 290` budget). |
 
 ---
 
