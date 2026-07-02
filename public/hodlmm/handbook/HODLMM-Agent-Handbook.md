@@ -1,6 +1,6 @@
 # HODLMM Agent Handbook — Community Edition
 
-> **Community Edition · v0.8.** A public, agent-first guide to trading and providing liquidity on Bitflow **HODLMM** (DLMM) concentrated-liquidity pools on Stacks, *safely*.
+> **Community Edition · v0.9.** A public, agent-first guide to trading and providing liquidity on Bitflow **HODLMM** (DLMM) concentrated-liquidity pools on Stacks, *safely*.
 > **Not financial advice. Mainnet only — real funds are at risk.** Provided "as is", without warranty. **Verify every address, entrypoint, and limit on-chain before signing** — this is a guide, not an oracle.
 > **Scope:** covers public contracts and APIs only. Bitflow internal infrastructure, operational endpoints, and incident runbooks are intentionally omitted.
 > **Read Chapter 0 before any autonomous trade or LP action — it is the safety floor.**
@@ -40,12 +40,19 @@ These are non-negotiable. A run that violates any `INV` rule is a **defect**, re
 **INV-1 — Act only inside an explicit Approval Scope.**
 A scope defines: pool(s) + ID, duration (days), permissions (`manage-existing` / `add-new` / `withdraw` / `swap`), and constraints (what is prohibited). `MUST NOT` sign any transaction outside the active scope. Expired scope → execution permission reverts to **read-only**; scanning continues; request re-approval. Anything ambiguous → escalate to a human, do not infer authority.
 
-**INV-2 — NEVER broadcast without the correct fund-protection for the operation type.**
-Funds are protected by what you sign — and the right form depends on the operation. Using the wrong form, or none, discards the safety model. There are **two forms**:
+**INV-2 — NEVER broadcast without the correct fund-protection *form* for the entrypoint you call.**
+Funds are protected by what you sign — and the right form depends on the **variant**, not just the operation type. Using the wrong form, or none, discards the safety model. There are **three forms**:
 - **Swaps →** sender-side Clarity post-conditions in `PostConditionMode.Deny`: `max-in` on the token sent, a real `min-out`/`min-dy` on the token received (**never `u1`**). The `POST /swap` endpoint (§1.4) generates these — use them, do not strip them.
-- **LP add / move / withdraw →** HODLMM mints **and** burns DLP tokens in the same tx, which **cannot** be expressed as sender-side post-conditions. Protection moves into the contract-call arguments and runs in `PostConditionMode.Allow`: `min-dlp` (≥ ~95% of expected DLP shares back), `max-x-liquidity-fee` / `max-y-liquidity-fee` (cap the active-bin liquidity fee, ~5%), and an active-bin deviation tolerance that aborts if the active bin moved. A violated bound **reverts on-chain**.
+- **LP Strict** (`add-liquidity-multi` / `withdraw-liquidity-multi` / `move-liquidity-multi` on the liquidity router) **→** these take **absolute** bin-ids and **exact** per-bin amounts, so the transfers *are* expressible as sender-side post-conditions: broadcast in `PostConditionMode.Deny` **with** sender FT bounds plus exact per-bin conditions. The strict args still carry `min-dlp` and the liquidity-fee caps, and strict withdraw takes per-bin `min-x-amount` / `min-y-amount` — set those too; Deny mode complements the contract bounds, it does not replace them.
+- **LP Simple/relative** (`add-relative-liquidity-same-multi`, `move-relative-liquidity-multi`, and the other `*-relative-*` / `*-same-multi` variants the approved skills call) **→** amounts are computed on-chain from relative offsets, and HODLMM mints **and** burns DLP tokens in the same tx, so exact sender-side post-conditions **cannot** be pre-stated. Protection moves into the contract-call arguments and runs in `PostConditionMode.Allow`: `min-dlp` (≥ ~95% of expected DLP shares back), `max-x-liquidity-fee` / `max-y-liquidity-fee` (cap the active-bin liquidity fee, ~5%), and an active-bin deviation tolerance that aborts if the active bin moved. A violated bound **reverts on-chain**.
 
-`MUST NOT` broadcast a swap without Deny-mode post-conditions; `MUST NOT` broadcast an LP op without those contract-level bounds set. "I'm in Allow mode" is only acceptable for LP ops *with* the bounds, never for swaps.
+| Form | Entrypoints | Mode | Protection |
+|---|---|---|---|
+| **Swap** | `*-simple-range-multi` (swap router) | `Deny` | sender PCs: `max-in` + real `min-out` |
+| **Strict LP** | `add/withdraw/move-liquidity-multi` | `Deny` | sender PCs (FT bounds + per-bin) **and** `min-dlp` / fee caps / strict-withdraw `min-x/y-amount` |
+| **Simple LP** | `add-relative-liquidity-same-multi`, `move-relative-liquidity-multi`, other relative/same variants | `Allow` | contract bounds: `min-dlp`, fee caps, active-bin deviation |
+
+`MUST NOT` broadcast a swap without Deny-mode post-conditions; `MUST NOT` broadcast an LP op without the protection form matching its variant. "I'm in Allow mode" is only acceptable for **Simple-form** LP ops *with* the contract bounds — never for swaps, and never as a shortcut on a Strict entrypoint whose exact amounts you already know.
 
 **INV-3 — Use bounded swap entrypoints. This is the #1 footgun.**
 Stacks blocks have a hard **~15,000 storage-read ceiling** (a network constant; budget under it, don't depend on the exact value). The classic unbounded entrypoints `swap-x-for-y-simple-multi` / `swap-y-for-x-simple-multi` `fold` over 319 steps (`MAX_STEPS = 319`); worst case `3 + 319×52 = 16,591` reads — **over the ceiling by design**. When exceeded, the tx pays its fee, **passes broadcast**, then fails only at mining time (`CostBalanceExceeded` → dropped per-miner) and can sit `pending` indefinitely.
@@ -63,7 +70,7 @@ Read cost is dominated by pool *shape* (how many active bins the fold traverses)
 Stacks enforces strict per-sender nonce order. One tx stuck behind INV-3 stalls **every** later tx from that signer. `MUST` serialize nonces (a cross-process nonce oracle / `nonce-manager`-class skill) to prevent mempool collisions. Canonical unstick for an already-stuck head nonce: a 1 µSTX self-transfer at that nonce with bumped fee (RBF). Custody that doesn't expose RBF ergonomically makes this harder — know your signer's RBF story *before* you broadcast. (Recovery procedure in Ch.3.)
 
 **INV-7 — Fresh scan before every broadcast.**
-Active bins move continuously. A plan valid 20 minutes ago may be stale at signing time. Before `EXECUTE`: re-scan positions + active bin, recompute drift, re-simulate the target range, and confirm the action is still warranted. A stale plan `MUST` be re-derived, not broadcast. Quotes can serve **stale data silently** when indexing lags — corroborate with the freshness/lag check (§1.4).
+Active bins move continuously. A plan valid 20 minutes ago may be stale at signing time. Before `EXECUTE`: re-scan positions + active bin, recompute drift, re-simulate the target range, and confirm the action is still warranted. A stale plan `MUST` be re-derived, not broadcast. Quotes can serve **stale data silently** when indexing lags — but staleness is *detectable and controllable*, not only inferable: read the freshness response headers (`X-Data-Fallback-Applied`, and the data-source/age headers where served) and opt into the on-chain fallback with `X-Allow-Fallback` when live-indexed data is suspect (§1.4). Headers inform the decision; they do not waive the obligation — the fresh scan before broadcast holds regardless. Corroborate with the freshness/lag check (§1.4).
 
 **INV-8 — Per-bin accounting; and DLP balance ≠ earned fees.**
 LP positions are stored per `(user, bin_id)` — a 50-bin position is 50 map entries. `MUST NOT` write logic that assumes one position per `(user, pool)`; it will under-count. Provider + variable fees accrue *inside the bin* (auto-compounding into `x_balance`/`y_balance`); protocol fees are a separate, permissionless claim that dispatches to a contract-registered fee address, not to you. When reporting performance, `MUST` separate mark-to-market DLP value from attributed fee income — never conflate them.
@@ -124,7 +131,8 @@ Run top to bottom. Any `NO` aborts the broadcast.
 [ ] Swap uses *-simple-range-multi with max-steps <= 230?             (INV-3)
 [ ] Estimated reads < 12,000 (treated as advisory, not a gate)?       (INV-4)
 [ ] Swap: Deny-mode post-conditions — max-in + real min-out (not u1)? (INV-2)
-[ ] LP op: min-dlp + liquidity-fee caps + active-bin deviation set?   (INV-2)
+[ ] LP op: protection form matches variant — Strict: Deny + sender    (INV-2)
+    PCs; Simple: min-dlp + liquidity-fee caps + active-bin deviation?
 [ ] Bounded/partial-fill residual handled?                           (INV-3)
 [ ] Nonce serialized; signer RBF path known?                          (INV-6)
 [ ] LP add: not adding new capital outside scope; active-bin tax ok?  (INV-9/2)
@@ -200,7 +208,9 @@ Plus traits `dlmm-core-trait-v-1-1`, `dlmm-pool-trait-v-1-1` (under `SM1FKX…`)
 - `swap-x-for-y-simple-range-multi` / `swap-y-for-x-simple-range-multi` on `dlmm-swap-router-v-1-2`, `max-steps ≈ 230`, meaningful `min-dy`, handle the `{in, out}` residual.
 - Classic `*-simple-multi` exist but are `NEVER` to be used on pools that can drift wide (319-step fold, worst 16,591 reads > ceiling).
 
-**Liquidity — `dlmm-liquidity-router` (v-1-2 latest; v-1-1 still used by current skills):** multi-bin add (`add-relative-liquidity-same-multi`; above active = X only, below active = Y only, at active = both & taxed at swap rate — enforced by core's `add-liquidity` asserts), withdraw, atomic recenter (`move-relative-liquidity-multi`), relative-offset positioning with tolerance checks.
+**Liquidity — `dlmm-liquidity-router` (v-1-2 latest; v-1-1 still used by current skills):** two families, one per INV-2 LP form (verified on-chain, Appendix B V8):
+- **Simple/relative** (what the approved skills call): multi-bin add (`add-relative-liquidity-same-multi`; above active = X only, below active = Y only, at active = both & taxed at swap rate — enforced by core's `add-liquidity` asserts), withdraw, atomic recenter (`move-relative-liquidity-multi`), relative-offset positioning with tolerance checks. Amounts computed on-chain → `Allow` + contract bounds (INV-2 Simple).
+- **Strict**: `add-liquidity-multi` / `withdraw-liquidity-multi` / `move-liquidity-multi` — absolute bin-ids, exact per-bin amounts (strict withdraw also takes per-bin `min-x-amount`/`min-y-amount`) → `Deny` + sender post-conditions (INV-2 Strict). Prefer these when you can pre-compute exact amounts and want post-condition-level fund protection.
 
 **Staking:** not available — no staking contracts are deployed on mainnet (§1.2).
 
@@ -218,11 +228,18 @@ Base: the public Bitflow API spans **two planes** under `https://bff.bitflowapis
 | Build tx | `POST /swap` (feed the `execution_path`) | contract-call params, typed args, **post-conditions** (the INV-2 *swap* form) |
 | Explore | `GET /pools`, `/pools/{id}`, `/bins/{pool}`, `/bins/{pool}/active`, `/bins/{pool}/{bin}`, `/pairs?input_token=`, `/tokens` | live pool/bin/token state |
 | Positions | `GET /api/app/v1/users/{address}/positions/{pool_id}/bins` (**app** plane — not `/api/quotes/v1/`) | per-bin LP position (INV-8) |
-| Freshness | the indexer-lag check | indexing vs canonical chain tip; lag ⇒ suspect stale |
+| Freshness | the indexer-lag check **+ the freshness headers (below)** | indexing vs canonical chain tip; lag ⇒ suspect stale |
 
 Strategies the engine returns: `single_bin` (fits one bin, ~0 impact) · `multi_bin` (one-pool bin traversal) · `v1_split` (splits pools; may return max-available, not just requested). Empty `execution_path` ⇒ no DLMM pool for the pair; fall back to the legacy plane.
 
-> Quotes can serve **stale data silently** when indexing lags — they do not error. This is why INV-7 (fresh scan) and the lag check exist. Do not assume the API rate-limits you — **self-throttle**.
+**Freshness headers & fallback (INV-7's detection surface).** Staleness is not only inferable from the lag check — the API exposes it:
+- **Request:** send `X-Allow-Fallback` to permit the API to serve **on-chain fallback** data when its live index is degraded — slower but canonical.
+- **Response:** `X-Data-Fallback-Applied` reports whether fallback data was served (verified live on the bins endpoints, 2026-07-02); the API docs also describe data-**source** and data-**age** headers (observed live as `x-bins-price-source`, e.g. `live_redis`, on the bins plane; an age header may only appear when data is not fresh — treat its absence on a healthy path as normal, not as proof of freshness).
+Use these to *detect and control* staleness instead of only inferring it. They do **not** replace INV-7: the fresh-scan-before-broadcast obligation holds regardless of what the headers say.
+
+**Auth (`X-API-Key`).** The API documents `X-API-Key` as **not required during BETA but required later**. A skill that omits it works today and **breaks silently at the flag-flip**. Send it now: config-driven, **empty-tolerant** (absent/empty config ⇒ omit the header, never send an empty value), so the change is a config update, not a code change.
+
+> Quotes can serve **stale data silently** when indexing lags — they do not error. This is why INV-7 (fresh scan), the lag check, and the freshness headers above exist. Do not assume the API rate-limits you — **self-throttle**.
 
 ### 1.5 Traversal & cost limits (distinct layers — do not conflate)
 
@@ -267,7 +284,7 @@ Three procedures cover almost everything an agent does on HODLMM: **trade**, **p
 
 - **Read-only stages never sign.** `doctor` / `scan` / `quote` / `status` / `plan` are safe to run with no write authority. Only the explicit-confirm step broadcasts.
 - **Skills are dry-run by default.** Execution requires a deliberate confirm token — `--confirm` (move), `--confirm=DEPOSIT`, `--confirm=SWAP`. No token ⇒ you get a plan, not a tx.
-- **Post-conditions have two forms — see INV-2.** Swaps → `PostConditionMode.Deny` + `min-out`. LP add/move/withdraw → `PostConditionMode.Allow` + contract-level bounds (`min-dlp`, `max-x/y-liquidity-fee`, active-bin deviation). Wrong form = unsafe.
+- **Post-conditions have three forms — see INV-2.** Swaps → `PostConditionMode.Deny` + `min-out`. Strict LP (`add/withdraw/move-liquidity-multi`) → `Deny` + sender PCs (plus the contract bounds). Simple LP (relative/same variants — what the skills below call) → `PostConditionMode.Allow` + contract-level bounds (`min-dlp`, `max-x/y-liquidity-fee`, active-bin deviation). Wrong form = unsafe.
 - **Always:** serialize the nonce (INV-6), re-scan immediately before signing (INV-7), verify mined `success` after (INV-10), write both ledgers (INV-11).
 
 ### Playbook A — Trade safely (swap)
@@ -303,16 +320,16 @@ Three procedures cover almost everything an agent does on HODLMM: **trade**, **p
 |---|---|---|
 | SCAN | `doctor --wallet <addr> --pool-id <id>` → router/token/balance/gas/pending checks | INV-1 (scope includes `add-new`), INV-9 (pool liveness: volume/fees/TVL/active-bin moving) |
 | DECIDE | choose range via one selector: `--offsets -1,0,1` / `--range -2:2` / `--bin-ids` / `--plan-json`; default = active bin | INV-9 (don't fund a stale pool) |
-| DRY-RUN | `status … --amount-x <n> --amount-y <n>` → preview bins, offsets, **min-dlp, fee bounds**, balance needs, active-bin tolerance | INV-2-LP (bounds set), INV-7 (active bin fresh) |
+| DRY-RUN | `status … --amount-x <n> --amount-y <n>` → preview bins, offsets, **min-dlp, fee bounds**, balance needs, active-bin tolerance | INV-2 Simple-LP (bounds set), INV-7 (active bin fresh) |
 | EXECUTE | `run … --confirm=DEPOSIT` (re-checks live state, then broadcasts) | INV-6 (nonce), `--active-bin-max-deviation` (default 0 = exact match) |
 | VERIFY | wait for inclusion; re-read positions `GET /users/{addr}/positions/{pool}/bins` | INV-10, INV-8 (per-bin) |
 | REMEMBER / MEASURE | log deposited bins + DLP minted; track DLP value **separately** from earned fees | INV-8 (DLP ≠ fees), INV-11 |
 
 **Width is a strategy choice (deepened in Ch.4):** narrower range = more fee share but faster drift out of range; wider = more durable but diluted. Start modest around the active bin; let Ch.4 tune it against flow toxicity / bin velocity.
 
-**Earning & staking**
+**Earning**
 - Provider + variable fees **auto-compound inside the bin** — there is no claim step; your bin reserves grow (INV-8). Protocol fees are not yours.
-- To stack reward-token yield, stake LP (SFT) shares into `dlmm-staking-{pair}-v-1-1`. Early unstake costs **50 BPS** if enabled. Staked shares are committed — factor that into exit planning.
+- There is no staking layer on mainnet (§1.2, Appendix B V7) — fee yield is the entire LP return. Plan exits on that basis; nothing is locked beyond the bins themselves.
 
 ### Playbook C — Manage / recenter a range
 
@@ -333,7 +350,7 @@ scope expired                                            → read-only; request 
 |---|---|---|
 | SCAN | `scan --wallet <addr>` → per-pool in-range / bin range / active bin / drift | INV-7, INV-8 |
 | DECIDE | apply the tree; pick `--spread` (±N around active, default 5, max 10) | INV-9, INV-1 (`manage-existing`) |
-| DRY-RUN | `run --wallet <addr> --pool <id>` → preview plan (old_range → new_range, per-bin moves, gas) | INV-2-LP (min-dlp ≥95%, fee cap 5%) |
+| DRY-RUN | `run --wallet <addr> --pool <id>` → preview plan (old_range → new_range, per-bin moves, gas) | INV-2 Simple-LP (min-dlp ≥95%, fee cap 5%) |
 | EXECUTE | `run … --confirm` (signer unlocked via env, never argv) | INV-6 (nonce); **4-hour per-pool cooldown** enforced & persisted |
 | VERIFY | re-`scan`; confirm mined `success` and new range straddles active | INV-10 |
 | REMEMBER / MEASURE | log move, txid, new range; remember effective targeting + cooldown | INV-11, INV-12 |
@@ -368,7 +385,7 @@ When a protection trips or the network misbehaves, recover **deterministically**
 | R1 | Swap fee-paid but stuck `pending` indefinitely | Unbounded `*-simple-multi` blew the ~15k read ceiling; dropped at mining time | §3.2 RBF unstick + re-issue as `*-simple-range-multi` (`max-steps ≤ 230`) | INV-3/6 |
 | R2 | Every new tx from the signer stalls | Stuck **head** nonce; strict per-sender ordering | §3.2 unstick the head nonce first; serialize nonces | INV-6 |
 | R3 | Swap returned a partial fill (`{in,out}` < requested) | Bounded entrypoint hit `max-steps`, or sparse bins | §3.3 follow up on residual vs refreshed state | INV-3/10 |
-| R4 | Quote looks wrong / price off, multiple attempts | Quote served **stale** (indexing lag); never errors | §3.4 check freshness/lag; wait or refresh, do not act on stale | INV-7 |
+| R4 | Quote looks wrong / price off, multiple attempts | Quote served **stale** (indexing lag); never errors | §3.4 check freshness headers + lag; wait, refresh, or `X-Allow-Fallback`; do not act on stale | INV-7 |
 | R5 | Position shows old values after a confirmed tx | Indexing/settlement latency (~15–30s+) | §3.4 re-read after lag clears; **do not re-submit** | INV-10 |
 | R6 | Skill returns `blocked` (cooldown / confirmation) | Safe stop by design | §3.5 wait out cooldown or re-run with confirm token | INV-1 |
 | R7 | Deposit/move aborted on active-bin deviation | Active bin moved between plan and broadcast | §3.5 re-scan, re-plan, re-broadcast | INV-7 |
@@ -395,7 +412,7 @@ Bounded swaps trade completeness for safety — a partial fill is **normal**, no
 
 ### 3.4 Stale data vs settlement latency (two different things)
 
-- **Stale quote (R4):** quotes can **fail silently** when indexing lags. Before acting on a surprising quote, run the freshness/lag check. Materially behind ⇒ treat quotes as stale: wait for catch-up or refresh; do not size a trade off stale prices (INV-7).
+- **Stale quote (R4):** quotes can **fail silently** when indexing lags. Before acting on a surprising quote, run the freshness/lag check **and read the freshness headers** (§1.4): `X-Data-Fallback-Applied` tells you whether fallback data was served, and re-requesting with `X-Allow-Fallback` gets you canonical on-chain data instead of the lagging index. Materially behind ⇒ treat quotes as stale: wait for catch-up, refresh, or fall back; do not size a trade off stale prices (INV-7).
 - **Position latency (R5):** after a confirmed tx, the position view trails on-chain truth by the indexing delay (~15–30s+, longer for earnings). The tx *did* land — re-read after the lag clears. **Do not** re-submit because the endpoint hasn't caught up (INV-10).
 
 ### 3.5 Skill-level blocks are safe stops
@@ -495,7 +512,7 @@ one flow event). Managing symmetric exposure is what separates a market maker fr
 directional position-taker.
 
 > Note its post-condition shape is the **dual-pin Allow envelope** (sender `willSendLte(amount_in)` +
-> pool `willSendGte(min_out)`) — consistent with INV-2's LP form, not a violation of it.
+> pool `willSendGte(min_out)`) — consistent with INV-2's Simple LP form, not a violation of it.
 
 **Asymmetric inventory — volatile / cash pairs.** The symmetric target-ratio balancer above assumes both
 legs carry risk. When the pair is a **volatile major (V) against a cash stablecoin (C)** and you measure
@@ -566,7 +583,7 @@ and is out of scope for fleet agents — surfacing a problem there is an *escala
 |---|---|---|
 | Read-only scans / quotes / risk + flow reads | **SAFE** | always allowed, no scope |
 | Scoped swap with INV-2/3 protections | **SAFE-in-scope** | only if the pre-flight GATE passes |
-| Scoped LP add / withdraw | **SAFE-in-scope** | INV-2-LP bounds set; `add-new` granted for adds |
+| Scoped LP add / withdraw | **SAFE-in-scope** | INV-2 LP form matches variant (Strict PCs or Simple bounds); `add-new` granted for adds |
 | Recenter via `move-liquidity` | **CAUTION** | atomic, but respect 4h cooldown; `manage-existing` only |
 | Adding capital outside the scope | **FORBIDDEN** | needs explicit `add-new` (INV-1/9) |
 | Claiming protocol fees | **REQUIRES AUTHORITY** | dispatches to the contract fee address — not yours to call for gain |
@@ -805,7 +822,7 @@ bar mapped back to Chapter 0.
 ### 8.1 The import pattern — cite, don't copy
 
 - **Reference, don't duplicate.** `AGENT.md` decision rules cite the invariants they depend on
-  (e.g. "swaps obey INV-3 bounded entrypoints"; "LP writes use the INV-2 LP form"), they do not paste
+  (e.g. "swaps obey INV-3 bounded entrypoints"; "LP writes use the INV-2 form matching their variant"), they do not paste
   constants. When the handbook updates a number, the skill inherits it.
 - **No hardcoded mutable state.** Addresses/limits live in Ch.1; live state (pool list, active bin,
   fee rates, TVL) is read at runtime, never baked in. A skill that hardcodes `max-steps` or a fee rate
@@ -856,7 +873,7 @@ metadata:
 | **HODLMM integration** | correct Ch.1 entrypoints + INV-2/3 forms |
 
 **A write skill MUST implement the Chapter 0 pre-flight GATE before broadcast** — scope check,
-post-condition *form* (swap Deny vs LP Allow+bounds), bounded swap + `max-steps` + residual, nonce
+post-condition *form* (swap Deny vs Strict-LP Deny+PCs vs Simple-LP Allow+bounds), bounded swap + `max-steps` + residual, nonce
 serialization, ledger write. A read-only skill is tagged `read-only` and never signs.
 
 ### 8.5 Validate & submit
@@ -919,6 +936,8 @@ Contract IDs and constants verified point-in-time (last full pass 2026-07-01, ag
 | V5 | Bin-side rule (above active → **X only**; below → **Y only**; at active → both, imbalance taxed) | verified against `dlmm-core-v-1-1 add-liquidity` asserts **and** live campaign behavior (dlmm_3: X-ladder above active; converted to all-Y after price rose past the range). **v0.7 and earlier stated this inverted** — corrected in v0.8; load-bearing for §6.6 IL realization |
 | V6 | Bins: `NUM_OF_BINS = u1001`, ids -500..+500, SFT token-id = bin-id + 500 (`CENTER_BIN_ID`) | verified (core source constants + conversion fns) |
 | V7 | Per-pool staking contracts / `dlmm-staking-trait` | **present in public `bitflow-dlmm` source (simnet deployment plan only); not deployed on mainnet** — complete deploy history of all three Bitflow deployers contains no staking contract (2026-07-01) |
+| V8 | Strict liquidity entrypoints `add-liquidity-multi` / `withdraw-liquidity-multi` / `move-liquidity-multi` on `dlmm-liquidity-router-v-1-2` | verified (live Hiro contract interface, 2026-07-02): absolute `bin-id`s, exact `x-amount`/`y-amount`/`amount`, per-position `min-dlp` + fee caps; strict withdraw carries per-bin `min-x-amount`/`min-y-amount` — exact amounts ⇒ sender post-conditions expressible ⇒ INV-2 Strict form |
+| V9 | Freshness/fallback headers | `X-Data-Fallback-Applied` + `x-bins-price-source` (`live_redis`) observed live on quotes-plane bins endpoints with and without request header `X-Allow-Fallback` (2026-07-02); data-age header **docs-attributed, not yet observed** on a healthy path — expect it only when data is not fresh. `X-API-Key` BETA status is docs-attributed |
 
 ### Appendix C — Change log & versioning
 
@@ -930,6 +949,7 @@ The handbook is **versioned**; skills pin the version they conform to (Ch.8 §8.
 | v0.6 *(additive)* | Added §6.6 impermanent-loss & net-LP-return doctrine, §4.2 width↔IL note, and verification V5 (out-of-range conversion direction). No constant changed — `handbook: v0.6` pins remain valid; no skill re-verification required. |
 | v0.7 | Added INV-13 (divergence & feed-safety tiering); Ch.3 §3.7 (stuck-tx root-cause discrimination); Ch.4 §4.4 asymmetric-inventory extension. New runbooks: divergence-safety, stuck-transaction, volatile-pair-mm, adverse-selection, pair-calibration; shared peg-monitor. |
 | v0.8 | *(corrective)* Full on-chain re-verification (2026-07-01). **Corrects the inverted bin-side rule** stated in v0.6/v0.7 (§1.x bins bullet, §1.3, §6.6, V5): the truth is above active = **X** only, below = **Y** only (per core `add-liquidity` asserts). Staking contracts marked **not deployed on mainnet** (V7). Exact router step cap `MAX_STEPS = u319` replaces the ≈350–384 estimate (V3). Pool naming (`…-v-{n}-bps-{step}`), pool read-fn names (`get-bin-balances`/`get-balance`/`get-active-bin-id`), and the quotes-API `pool_token` field corrected. **Re-verify any skill or memory that encoded the old direction.** Note the old inversion was **fail-safe for writes** — core's `add-liquidity` asserts revert wrong-side adds with `ERR_INVALID_X/Y_AMOUNT`, so the real exposure was IL-direction analytics and out-of-range expectations, not funds. Also clarifies the §1.4 positions endpoint (served on the `/api/app/v1/` **app** plane, not `/api/quotes/v1/`) and the §1.5 / V3 step-cap layering (the `u319` contract assert vs the ~294-step practical read ceiling and the docs' `MAX_TOTAL_STEPS = 290` budget). |
+| v0.9 | Doctrine refinements from the third-party verification pass on v0.8 (issue #18). **INV-2 reframed as "use the correct protection form for the variant you call"** — three forms, adopting the official Strict/Simple terminology: swaps stay Deny+PCs; **Strict LP** entrypoints (`add/withdraw/move-liquidity-multi`, verified on-chain, V8) take absolute bin-ids + exact amounts and broadcast **Deny with sender post-conditions**; **Simple/relative LP** variants (what the approved skills call) keep Allow + contract bounds. The old claim "LP ops cannot be expressed as sender PCs" held only for the Simple variants. **INV-7 gains a detection surface** (V9): request `X-Allow-Fallback` opts into on-chain fallback; response `X-Data-Fallback-Applied` (+ source/age headers) makes staleness detectable and controllable — headers inform, the fresh-scan obligation is unchanged. **`X-API-Key`**: not required during BETA but will be — skills send it now, config-driven and empty-tolerant, or break silently at the flag-flip. Drift fix: Playbook B's leftover staking bullet removed (contradicted §1.2/V7). No entrypoint, address, or limit changed — `handbook: v0.8` pins remain safe; skills adding Strict-form LP writes or the auth/freshness headers should re-pin v0.9. |
 
 ---
 

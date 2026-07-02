@@ -11,6 +11,31 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 ## [Unreleased]
 
 ### Changed
+- **Handbook v0.9** — doctrine refinements from the third-party verification pass on v0.8
+  (issue #18; explicitly deferred from the v0.8 corrective as non-blockers):
+  - **INV-2 reframed** as *"use the correct fund-protection form for the variant you call"*, adopting
+    the official **Strict vs Simple** LP terminology. The v0.6–v0.8 claim that LP ops *cannot* be
+    expressed as sender-side post-conditions held only for the relative/simple variants the approved
+    skills call. The **Strict** entrypoints — `add-liquidity-multi` / `withdraw-liquidity-multi` /
+    `move-liquidity-multi`, verified on-chain against the live `dlmm-liquidity-router-v-1-2` interface
+    (new verification row V8) — take absolute bin-ids and exact per-bin amounts, so they broadcast in
+    `PostConditionMode.Deny` **with** sender post-conditions (FT bounds + per-bin conditions), while
+    still carrying `min-dlp` / fee-cap args (strict withdraw adds per-bin `min-x/y-amount`). The
+    **Simple** variants keep `Allow` + contract bounds. §1.3, §2.0, the pre-flight GATE, Playbooks
+    B/C rows, §4.4, §5.2, and §8 updated to the three-form terminology.
+  - **INV-7 gains a detection surface** (new verification row V9): request header `X-Allow-Fallback`
+    opts into the API's on-chain fallback; response header `X-Data-Fallback-Applied` (observed live,
+    2026-07-02, alongside `x-bins-price-source`) plus the docs' data-source/age headers make staleness
+    **detectable and controllable** rather than only inferable from the indexer-lag check. The
+    fresh-scan-before-broadcast obligation is unchanged. §1.4, §3.1 R4, and §3.4 updated.
+  - **`X-API-Key`** — documented as not required during BETA but required later; skills should send it
+    now (config-driven, empty-tolerant) or they break silently at the flag-flip (§1.4). Upstream note
+    for `aibtcdev/skills` to be filed separately.
+  - **Drift fix:** Playbook B still carried a v0.7-era "stake LP shares into `dlmm-staking-…`" bullet
+    contradicting v0.8's finding that no staking contracts exist on mainnet (V7); removed.
+  - No entrypoint, address, or limit changed — existing `handbook: v0.8` pins remain safe; skills
+    adding Strict-form LP writes or the auth/freshness headers should re-pin v0.9. Navigational docs
+    and templates bumped to v0.9 per the docs-lint rules.
 - **Handbook v0.8 (corrective)** — full on-chain verification pass (2026-07-01) of every published
   address, entrypoint, and limit against live Hiro contract interfaces and source. Three findings
   corrected, one closed as exact:
