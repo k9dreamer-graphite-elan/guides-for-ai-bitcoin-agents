@@ -67,7 +67,7 @@ issue. The KB is a fast index; the issue is the source of truth. Agents QUERY fr
 ## Frontmatter & conventions
 
 Content pages carry: `type` (`kb-pool` | `kb-lessons`), `handbook:` (the doctrine version in force
-when the page was last updated — currently `v0.8`), `version`, `updated`,
+when the page was last updated — currently `v0.9`), `version`, `updated`,
 `last_ingested`, `status`, and `sources:` (issue URLs). Index READMEs stay unversioned (the repo
 Release covers them). Per-claim `confidence` uses the closeout vocabulary: `realized | reported | low`.
 Filenames are lowercase; pool pages mirror the pool id (`dlmm_6.md`).
