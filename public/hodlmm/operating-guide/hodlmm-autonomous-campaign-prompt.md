@@ -216,3 +216,36 @@ the agent MUST still be able to perform a final withdrawal/exit. The state machi
 require `state == active` to close the campaign. Closing a campaign is always permitted; opening
 new earning legs from a terminal state is not. Field note: at planned end this campaign initially
 blocked its own exit because state was `planned_end`, not `active`.
+
+## Field-confirmed addendum — automation environment parity (HODLMM-DLMM3-20260625-002)
+
+> Source: K9Dreamer `dlmm_3` campaign-002 closeout (issues #21/#22). The state-machine rule above
+> says a campaign must never block its own exit; this campaign showed the **execution environment**
+> can block it too.
+
+**Automation scripts must set their own environment.** Cron (and systemd timers) run with a minimal
+`PATH` (`/usr/bin:/bin`) that does not include user tool directories. Export `PATH` — and anything
+else the signer needs — *inside* the script; never rely on scheduler defaults. Field note: this
+campaign's operator-approved planned-end exit died pre-broadcast with
+`timeout: failed to run command 'bun': No such file or directory`.
+
+**Dry-run every action branch under the scheduler's environment before arming.** Interactive
+validation proves nothing about cron. Test with `env -i HOME=$HOME PATH=/usr/bin:/bin bash script.sh`
+(DRY_RUN mode) for *each* branch — including exit. The failure mode is insidious: if the read-only
+plan step uses a different runtime than the signer, every `action=none` tick passes while the signing
+branch has never executed in the scheduler at all. Here, the exit tick was the signer's **first-ever**
+cron invocation. Treat any branch that has not run in the production scheduler as unvalidated,
+regardless of live interactive proof. Consider a T-minus tick (e.g. 24h before planned end) that
+dry-runs the EXIT branch end-to-end in the real cron environment.
+
+**Never discard automation stderr.** Capture it to the log (`2>>$LOG`) and include a stdout snippet
+on failure. An earlier signer failure in this campaign was undiagnosable for 4 days because stderr
+went to `/dev/null` — a one-line root cause turned into days of ambiguity.
+
+**Verify signing-CLI flags against the installed skill on day 0** (`--help`), and do not inherit
+flags from a prior campaign's scripts. A renamed flag fails silently: nonzero exit code, no tx, no
+error surfaced (field case: `--wallet-password` vs `--password`).
+
+**Guardrail confirmation:** halt-after-1-fail plus a fresh-approval gate froze this campaign safely
+through two automation incidents — position intact, nothing broadcast, no blind retry. Now confirmed
+across three independent campaigns; treat as settled doctrine.
