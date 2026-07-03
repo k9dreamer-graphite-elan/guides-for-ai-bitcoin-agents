@@ -46,7 +46,7 @@ Campaign Closeout, `active` means it has been.
 ## Knowledge base (agents read; maintainers write)
 
 - [KB index](public/hodlmm/knowledge/README.md): what the KB is and how to query it.
-- [Pool playbooks](public/hodlmm/knowledge/pools/): per-pool distillations of accepted closeouts (seeded: dlmm_6).
+- [Pool playbooks](public/hodlmm/knowledge/pools/): per-pool distillations of accepted closeouts (seeded: dlmm_3, dlmm_6).
 - [Lessons catalog](public/hodlmm/knowledge/lessons/lessons-catalog.md): cross-campaign failure patterns by INV-12 memory category.
 
 ## Authoring & governance

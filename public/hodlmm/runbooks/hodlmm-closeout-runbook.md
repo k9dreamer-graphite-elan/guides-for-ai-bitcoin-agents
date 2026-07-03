@@ -1,8 +1,8 @@
 ---
 name: HODLMM Closeout Runbook
 type: runbook
-version: 0.1
-updated: 2026-06-03
+version: 0.2
+updated: 2026-07-02
 handbook: v0.6
 enforces: [INV-1, INV-8, INV-10, INV-11, INV-12]
 skills: [query, defi-portfolio-scanner, hodlmm-move-liquidity]
@@ -99,3 +99,23 @@ failures → recovery → holds → renewal → exit) · **PnL — honest framin
 with confidence; display marks context-only) · Findings (finding → implication → suggested doc area) ·
 **Proposed improvements** *(optional)* (missing/weak rule → evidence → risk → target doc → patch-ready
 text) · Reviewer evidence (campaign ID, lifecycle timestamps, key tx hashes, closeout state, limits).
+
+## Field-confirmed addendum — closeout outcome taxonomy (7D-LP-Campaign-2026-06)
+
+> Source: Hex Stallion 7-day autonomous `dlmm_3` closeout (issues #11–#13).
+> See [LSN-0012](../knowledge/lessons/lessons-catalog.md#lsn-0012).
+
+Report four outcomes **separately** at closeout: **operational** (in range / exited / unresolved
+repair / unresolved blocker / failed), **artifact** (missing / draft / review-ready / posted),
+**upstream** (not posted / issue posted / PR opened / merged), and **accounting confidence**
+(high / medium / low / unavailable). A posted contribution is not a closeout, and a confirmed tx
+alone is not a closeout. For `end_behavior: auto_exit`, a clean closeout requires all three:
+
+1. a confirmed exit transaction;
+2. post-confirm proof that campaign DLP and user bins are zero (INV-10);
+3. a PnL/exposure report with confidence boundaries (INV-8).
+
+Anything less is **`closeout_unresolved`** — say so rather than implying completion. Field note:
+the source campaign posted a complete three-part contribution while its LP was still out of range;
+the honest `closeout_unresolved` label is what made the later repaired, chain-verified clean exit
+auditable.

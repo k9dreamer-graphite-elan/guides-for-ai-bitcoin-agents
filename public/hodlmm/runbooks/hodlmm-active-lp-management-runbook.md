@@ -140,3 +140,27 @@ is acceptable **only** while a repair design is genuinely uncertain and the bin 
 returning to range. Record it as `pause_with_blocker` with an explicit watch condition — never as
 ordinary `hold`. Field note: out-of-range holds earned fees on natural bin return at zero gas, but
 an unbounded sit is just an unmanaged out-of-range LP.
+
+## Field-confirmed addendum — actuator failure states (Hex Stallion campaigns)
+
+> Source: Hex Stallion closeouts (issues #1–#3, #11–#13). Two campaigns on this failure surface —
+> one operator-intervened, one fully autonomous — failed the same way: correct repair intent that
+> never became durable range proof. See [LSN-0011](../knowledge/lessons/lessons-catalog.md#lsn-0011).
+
+**Strict range proof is the earning condition, checked recurringly:**
+`wallet_bin_min <= active_bin <= wallet_bin_max`. Entry-time proof does not persist; an LP can look
+managed while earning nothing (`INV-9`).
+
+**Track the actuator chain, not just the intent:**
+`required_action → plan_built → signer_gated → tx_confirmed → post_confirm_range_proven` (or exit
+proven). A repair is complete only when the last link holds — in the field, several confirmed
+transactions still left the LP out of strict range. Plan-builder failure is an **actuator incident**,
+not an ordinary pause. A retry loop preserves intent; it does not repair. If the same required action
+stays blocked across repeated cycles, open an incident record: blocker, target pool/action, failed
+tx or preflight shape, diagnosis, fix or archive/supersede path, and the post-fix proof required.
+
+**Keep proof fields separate:** latest monitor, last complete in-range proof, last complete
+out-of-range proof, and incomplete-monitor blocker. A fresh-but-incomplete read must not erase the
+last complete proof; a complete out-of-range proof keeps `rebalance` / bounded-`exit` intent alive
+until repaired, exited, or explicitly incident-archived
+([LSN-0008](../knowledge/lessons/lessons-catalog.md#lsn-0008)).

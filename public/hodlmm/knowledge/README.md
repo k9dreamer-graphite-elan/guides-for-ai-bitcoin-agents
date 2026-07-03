@@ -36,6 +36,7 @@ profit (INV-8). It holds no live state (pool lists, TVL, APR, active bins are qu
 
 | Pool | Pair | Status |
 |---|---|---|
+| [`dlmm_3`](./pools/dlmm_3.md) | STX/USDCx | active |
 | [`dlmm_6`](./pools/dlmm_6.md) | STX/sBTC | active |
 
 ## QUERY — how to use this before a launch

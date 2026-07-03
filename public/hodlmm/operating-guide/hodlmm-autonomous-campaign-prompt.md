@@ -249,3 +249,24 @@ error surfaced (field case: `--wallet-password` vs `--password`).
 **Guardrail confirmation:** halt-after-1-fail plus a fresh-approval gate froze this campaign safely
 through two automation incidents — position intact, nothing broadcast, no blind retry. Now confirmed
 across three independent campaigns; treat as settled doctrine.
+
+## Field-confirmed addendum — lifecycle clocks & Day-0 artifacts (7D-LP-Campaign-2026-06)
+
+> Source: Hex Stallion 7-day autonomous `dlmm_3` closeout (issues #11–#13).
+
+**One `start` timestamp is not enough.** Track separate lifecycle clocks: workstream/preflight
+start, approval received, first live write (LP/accounting start), planned end, and closeout
+completed. Day counts, auto-exit boundaries, and closeout quality all depend on the distinction.
+Field note: this campaign's workstream start, approval, and first live LP entry were three
+different times; collapsing them skews a 7-day window and its auto-exit boundary.
+
+**Create campaign artifacts before the first write.** The campaign state file, daily log, and
+learnings/contribution draft must exist before approval or the first live write — and a campaign
+must never append its records into a prior campaign's files (comparison campaigns keep separate
+ledgers, or the comparison is lost). If artifacts are created late, backfill from workstream start
+and record the late creation as campaign friction.
+
+**Classify inventory before attributing PnL on a clean-slate campaign.** Existing LP positions and
+token inventory must be classified before new deployment: campaign-owned, legacy-to-exit,
+legacy-to-isolate, idle (outside campaign accounting), or blocked/unknown. Do not blend legacy
+inventory into campaign PnL unless the operator explicitly chooses blended accounting.
