@@ -10,7 +10,23 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+_Nothing yet._
+
+---
+
+## [0.9.1] - 2026-07-03
+
+The field-learning layer catching up with two campaigns on the same pool: the KB ingest of both
+`dlmm_3` closeout packages (Hex Stallion's 7-day autonomous run, #11–#13, and K9Dreamer's
+campaign-002, #21/#22) plus the field-confirmed addenda they produced. No handbook doctrine
+changes — the handbook stays at **v0.9**, so this ships as a patch.
+
 ### Added
+- **Field-confirmed addenda from campaign-002** (PR #23, issues #21/#22): automation environment
+  parity — cron/scheduler `PATH` self-setting, dry-running every action branch under the scheduler
+  environment before arming, never discarding automation stderr, day-0 signing-CLI flag checks
+  (campaign prompt); boundary (floor-pinned) entry geometry and direct-on-chain-read withdraw
+  minimums (recenter runbook).
 - **KB ingest — dlmm_3** (issues #11–#13, Hex Stallion 7-day autonomous campaign; issues #21/#22,
   K9Dreamer campaign-002): new pool page `knowledge/pools/dlmm_3.md` (two independent campaigns,
   both chain-proven clean exits); new lessons **LSN-0011** (tx confirmation is not repair proof —
