@@ -10,7 +10,17 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+- **KB ingest — dlmm_3** (issues #11–#13, Hex Stallion 7-day autonomous campaign; issues #21/#22,
+  K9Dreamer campaign-002): new pool page `knowledge/pools/dlmm_3.md` (two independent campaigns,
+  both chain-proven clean exits); new lessons **LSN-0011** (tx confirmation is not repair proof —
+  prove the actuator chain end-to-end) and **LSN-0012** (a posted contribution is not a closeout —
+  report operational / artifact / upstream / accounting-confidence outcomes separately);
+  LSN-0005/-0006/-0008 confirmed from a second campaign.
+- **Field-confirmed addenda** from the Hex Stallion 7D closeout (#11–#13): lifecycle clocks &
+  Day-0 artifacts + clean-slate inventory classification (campaign prompt), actuator failure
+  states & separate proof fields (active-LP runbook), staged-repair continuation state machine
+  (recenter runbook), closeout outcome taxonomy with `closeout_unresolved` (closeout runbook).
 
 ---
 

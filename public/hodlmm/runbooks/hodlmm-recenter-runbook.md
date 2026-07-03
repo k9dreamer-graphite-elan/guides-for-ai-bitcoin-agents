@@ -158,3 +158,18 @@ zero/degraded and are not a signing basis; if the direct reads are degraded, ABO
 sign blind. Field results: mined withdraw output matched the read-only plan **to the µSTX, twice**
 (supervised round-trip and final exit). This extends the dlmm_6 `u5001` rules above: the same
 direct-read discipline that avoids illegal shapes also prices the exit exactly.
+
+## Field-confirmed addendum — staged repair is a continuation state machine (Hex Stallion campaigns)
+
+> Source: Hex Stallion closeouts (issues #1–#3, #11–#13).
+> See [LSN-0006](../knowledge/lessons/lessons-catalog.md#lsn-0006).
+
+Staged withdraw/add repair is a state machine, not a fresh strategy prompt each cycle. After a
+staged withdraw begins, the valid states are: withdraw pending → withdraw confirmed / add required →
+add submitted → add confirmed / post-confirm proof required → **completed with strict range proof** —
+or **archived/superseded as an incident**. Field pattern (two campaigns): staged repair restored
+range exactly once, then stale continuation state froze the actuator and blocked unrelated repairs
+through closeout. Do not let stale staged state block indefinitely: diagnose, add a pre-broadcast
+guard or patch if needed, then archive or supersede the staged state before new strategy selection
+resumes. Tx success mid-chain is not LP recovery until post-confirm proof exists
+([LSN-0011](../knowledge/lessons/lessons-catalog.md#lsn-0011)).
