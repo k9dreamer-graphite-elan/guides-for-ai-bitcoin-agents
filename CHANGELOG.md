@@ -10,6 +10,19 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+### Added
+- **New runbook: `hodlmm-unattended-automation-runbook`** (`draft`) — the harness doctrine for
+  scheduled monitor/executor loops: day-0 environment parity (explicit PATH, `env -i` dry-run of
+  every action branch, flag verification against the installed skill), per-tick write gates
+  (INV-7/INV-13, N-scan confirmation, charter caps, serialized nonces), external watchdog +
+  failure alerts, actuator-chain verification (LSN-0011), halt-after-N-fail with operator-only
+  resume, terminal-trigger rehearsal, and disarm-at-close. Consolidates the automation lessons
+  from closeouts [#21](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/21)/[#22](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/22)
+  (dlmm_3 campaign-002 scheduled-exit failure), [#11–#13](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11)
+  (actuator chain), and [#4](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/4)/[#5](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/5),
+  previously scattered as addenda. Starts `draft` per the §3 lifecycle; the dlmm_1 campaign's
+  scheduled exit (2026-07-10) is its first promotion candidate.
+
 ### Changed
 - **Runbook status promotions** (`draft` → `active`, per the AGENT-AUTHORING-GUIDE §3 lifecycle —
   each promotion cites the accepted Campaign Closeout issue(s) that exercised the procedure
