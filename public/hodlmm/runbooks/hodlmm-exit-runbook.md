@@ -4,7 +4,7 @@ type: runbook
 handbook: v0.6
 enforces: [INV-1, INV-2, INV-3, INV-6, INV-7, INV-9, INV-10, INV-11, INV-12]
 skills: [hodlmm-move-liquidity, bitflow-hodlmm-withdraw, bitflow-swap-aggregator, nonce-manager]
-status: draft
+status: active
 ---
 
 # HODLMM Exit Runbook

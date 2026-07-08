@@ -10,7 +10,31 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
-_Nothing yet._
+### Changed
+- **Runbook status promotions** (`draft` → `active`, per the AGENT-AUTHORING-GUIDE §3 lifecycle —
+  each promotion cites the accepted Campaign Closeout issue(s) that exercised the procedure
+  end-to-end on mainnet):
+  - `hodlmm-exit-runbook` — chain-proven bounded exits by two independent campaigns on `dlmm_3`:
+    K9Dreamer campaign-002 ([#21](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/21),
+    exit matched the plan to the µSTX, position/DLP confirmed zero) and Hex Stallion 7D
+    ([#11–#13](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11),
+    exit tx verified canonical on Hiro).
+  - `hodlmm-recenter-runbook` — dlmm_6 exercised the withdraw → swap → redeposit recenter route
+    ([#4](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/4)/[#5](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/5),
+    realized); the Hex Stallion 7D closeout ([#11–#13](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11))
+    exercised staged-repair recenters and fed the continuation state machine back into the runbook (v0.9.1).
+  - `hodlmm-pnl-runbook` — full realized vs-hold accounting produced by both closeouts:
+    dlmm_6 ([#4](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/4)/[#5](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/5))
+    and dlmm_3 campaign-002 ([#21](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/21),
+    gas-inclusive net vs hold, realized on chain).
+  - `hodlmm-closeout-runbook` — the procedure has produced three accepted closeout packages:
+    dlmm_6 ([#4](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/4)/[#5](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/5)),
+    dlmm_3 campaign-002 ([#21](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/21)/[#22](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/22)),
+    and the Hex Stallion 7D ingest ([#11–#13](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11)),
+    which also field-confirmed the runbook's outcome taxonomy (v0.9.1).
+
+  Status metadata only (frontmatter `status:` + the hodlmm README catalog table) — no procedure or
+  doctrine changes; each runbook's `handbook:` conformance version is unchanged.
 
 ---
 

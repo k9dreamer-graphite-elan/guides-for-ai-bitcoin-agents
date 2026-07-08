@@ -4,7 +4,7 @@ type: runbook
 handbook: v0.8
 enforces: [INV-7, INV-8, INV-10, INV-11, INV-12]
 skills: [defi-portfolio-scanner, bitflow, query]
-status: draft
+status: active
 ---
 
 # HODLMM PnL Runbook
