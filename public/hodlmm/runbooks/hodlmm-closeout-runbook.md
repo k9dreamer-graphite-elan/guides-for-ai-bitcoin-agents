@@ -2,11 +2,11 @@
 name: HODLMM Closeout Runbook
 type: runbook
 version: 0.2
-updated: 2026-07-02
+updated: 2026-07-07
 handbook: v0.6
 enforces: [INV-1, INV-8, INV-10, INV-11, INV-12]
 skills: [query, defi-portfolio-scanner, hodlmm-move-liquidity]
-status: draft
+status: active
 ---
 
 # HODLMM Closeout Runbook

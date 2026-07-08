@@ -34,12 +34,12 @@ failure handling. All conform to the handbook and declare the invariants they en
 | Runbook | Purpose | Status |
 |---|---|---|
 | [`hodlmm-active-lp-management-runbook.md`](./runbooks/hodlmm-active-lp-management-runbook.md) | Manage concentrated liquidity near the active bin under approval (scan → recenter loop). | active |
-| [`hodlmm-exit-runbook.md`](./runbooks/hodlmm-exit-runbook.md) | Exit / stale-pool recovery — withdraw a position and stand down. | draft |
+| [`hodlmm-exit-runbook.md`](./runbooks/hodlmm-exit-runbook.md) | Exit / stale-pool recovery — withdraw a position and stand down. | active |
 | [`hodlmm-campaign-entry-runbook.md`](./runbooks/hodlmm-campaign-entry-runbook.md) | Select a pool, grant scope, place the initial LP position. | draft |
-| [`hodlmm-recenter-runbook.md`](./runbooks/hodlmm-recenter-runbook.md) | The atomic recenter procedure (move drifted bins around active). | draft |
+| [`hodlmm-recenter-runbook.md`](./runbooks/hodlmm-recenter-runbook.md) | The atomic recenter procedure (move drifted bins around active). | active |
 | [`hodlmm-inventory-balancing-runbook.md`](./runbooks/hodlmm-inventory-balancing-runbook.md) | Restore target token ratio via corrective swap + redeploy. | draft |
-| [`hodlmm-pnl-runbook.md`](./runbooks/hodlmm-pnl-runbook.md) | End-of-campaign PnL accounting — earned fees vs IL vs DLP m2m (read-only, INV-8). | draft |
-| [`hodlmm-closeout-runbook.md`](./runbooks/hodlmm-closeout-runbook.md) | Post-campaign: assemble + submit the standardized Campaign Closeout issue (the learning loop). | draft |
+| [`hodlmm-pnl-runbook.md`](./runbooks/hodlmm-pnl-runbook.md) | End-of-campaign PnL accounting — earned fees vs IL vs DLP m2m (read-only, INV-8). | active |
+| [`hodlmm-closeout-runbook.md`](./runbooks/hodlmm-closeout-runbook.md) | Post-campaign: assemble + submit the standardized Campaign Closeout issue (the learning loop). | active |
 | [`hodlmm-divergence-safety-runbook.md`](./runbooks/hodlmm-divergence-safety-runbook.md) | Read-only gate: classify price-divergence + feed health (aligned/defensive/abnormal); disambiguate feed lag from real decoupling; emit the write/halt verdict. | draft |
 | [`hodlmm-stuck-transaction-runbook.md`](./runbooks/hodlmm-stuck-transaction-runbook.md) | Triage a stuck/reverted/partial tx to root cause (underpriced vs read-ceiling vs adversarial) and recover. | draft |
 | [`hodlmm-volatile-pair-mm-runbook.md`](./runbooks/hodlmm-volatile-pair-mm-runbook.md) | One management cycle for a volatile-major/cash pair — composes the knobs, applies the V-only cap, dispatches recenter/rebalance/exit. | draft |
