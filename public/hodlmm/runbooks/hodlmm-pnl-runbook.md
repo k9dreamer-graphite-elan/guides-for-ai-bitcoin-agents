@@ -205,3 +205,34 @@ one-way move would read materially negative vs hold. Field case (K9Dreamer dlmm_
 issues #21/#22): net **+$6.31 vs hold after gas, realized** (~+13% on deployed in 7 days), produced
 entirely by two full out-of-range round trips monetized with zero recenter spend — reported as
 windfall capture, not as a repeatable return.
+
+## Field-confirmed addendum — component basis conventions (HODLMM-DLMM1-20260702-003)
+
+> Source: K9Dreamer `dlmm_1` campaign-003 closeout
+> ([#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28),
+> methodology sign-off in the follow-up comments). Trigger: a downstream analyzer and the closeout
+> report published different hold/exit component values from the same campaign — both internally
+> correct, on different bases and different same-day marks.
+
+**State the basis for every PnL component.** Two legitimate bases exist and they answer different
+questions:
+
+- **Deployed basis** (attribution): `V_hold` = the tokens actually deposited, at closeout marks;
+  `V_exit` = the exit-withdrawal leg. This is the runbook's canonical `V_hold` and the ONLY basis
+  for percentages and return-on-capital claims — idle inventory did not earn the result and must
+  not dilute (or pad) it.
+- **Campaign-total basis** (reconciliation): add the untouched idle reserve to BOTH sides. Use it
+  to prove the wallet reconciles and nothing leaked; never for percentages.
+
+The net delta is **identical under both bases at any common mark** (the idle reserve cancels), so
+the headline is basis-invariant — but component absolutes are not, and unlabeled components from
+different bases (or different same-day marks) will look like an accounting error to any reviewer.
+Field case: analyzer components `$51.98/$60.98` vs report components `$78.21/$87.76` reconciled
+exactly as deployed-basis vs campaign-total at two BTC marks ~1.4% apart; gross was `+$9` on both.
+
+**Verify "no intermediate legs" at the event level before using the deployed basis naively.**
+Atomic native recenters (`move-liquidity-multi`) emit only pool-token/DLP events — zero wallet
+inventory movements — so deployed-basis accounting stays clean across any number of them (field
+check: two repair txs, 429 and 442 events, zero wallet fungible-token legs). A recenter routed
+withdraw→redeposit DOES touch the wallet and must be netted out explicitly (see the dlmm_3
+campaign-002 accounting, #21).
