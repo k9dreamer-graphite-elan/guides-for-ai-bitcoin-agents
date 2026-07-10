@@ -1,9 +1,9 @@
 ---
 type: kb-lessons
 handbook: v0.6
-version: 0.2
-updated: 2026-07-02
-last_ingested: 2026-07-02
+version: 0.3
+updated: 2026-07-10
+last_ingested: 2026-07-10
 status: active
 sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1
@@ -15,6 +15,7 @@ sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/12
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/13
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/21
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28
 ---
 
 # HODLMM cross-campaign lessons & failure patterns
@@ -45,7 +46,8 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 
 - **Category:** flaky-API patterns
 - **Pattern:** after a withdraw is chain-confirmed, Bitflow status/position endpoints can still show
-  stale TVL / an open position for a while.
+  stale TVL / an open position for a while. Variant (dlmm_1): the position endpoint showed
+  zero-liquidity rows *before* exit and no-position/404 *after* exit — misleading in both directions.
 - **Mitigation:** closure proof = wallet DLP zero **and** chain-confirmed withdraw tx (Hiro). Treat
   protocol status/position reads as advisory; a lagging read must **not** trigger a duplicate exit or a
   false "still open" alarm (`INV-10`).
@@ -56,6 +58,21 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 ---
 
 ## effective recenter targeting
+
+<a id="lsn-0013"></a>
+### LSN-0013 — Single-source active-bin reads jitter; require multi-source agreement before any write
+
+- **Category:** flaky-API patterns
+- **Pattern:** transient wrong active-bin values from a single source (two occurrences in one
+  campaign, from different read paths), each far from the true bin. Either one, trusted alone, would
+  have produced a wrong-destination recenter.
+- **Mitigation:** gate every write on **multi-source active-bin agreement** (direct contract read +
+  protocol quote endpoint + the planning tool's own read). On divergence, block the write and re-read
+  until convergence — **even when the position is clearly out of range**; a delayed correct move beats
+  a prompt wrong one. Log discarded outliers. (Recenter runbook; `INV-7`.)
+- **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
+- **Evidence:** [#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-10
 
 <a id="lsn-0005"></a>
 ### LSN-0005 — Out-of-range nonzero LP is a required repair/pause, never ordinary "hold"
@@ -137,6 +154,36 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 
 ---
 
+<a id="lsn-0014"></a>
+### LSN-0014 — Fee bumping is a new approval scope, not an agent convenience
+
+- **Category:** operator approvals/rejections
+- **Pattern:** on micro-notional campaigns, silent or automatic tx-fee bumps can erase the entire
+  edge. One campaign deliberately stepped its repair fee target down three times — each step a
+  separate, explicit operator approval — and the lowest target cleared every recenter and the final
+  planned-end exit on mainnet.
+- **Mitigation:** if the configured fee target fails, **stop and alert**. Raising the fee is a new
+  approval decision unless a fee-bump ladder was explicitly authorized in the campaign charter
+  (`INV-1`). Record the fee policy and its history in campaign state. (Exit + recenter runbook addenda.)
+- **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
+- **Evidence:** [#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-10
+
+<a id="lsn-0015"></a>
+### LSN-0015 — Autonomous repair loops must read campaign lifecycle before signing
+
+- **Category:** operator approvals/rejections
+- **Pattern:** a repair daemon that ignores lifecycle state can repair a **closed** campaign —
+  re-entering a pool the operator believes is exited, outside any approval scope.
+- **Mitigation:** every autonomous write path reads campaign lifecycle first and **refuses repairs at
+  or after planned end unless a renewal scope is present**; the terminal exit runs an explicit renewal
+  check before withdrawing; the loop is disarmed immediately after closure. Field-proven: the source
+  campaign's one unattended auto-repair was lifecycle-gated, its scheduled exit ran the renewal check,
+  and the monitor was disarmed post-close. (`INV-1`; active-LP + unattended-automation runbooks.)
+- **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
+- **Evidence:** [#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-10
+
 ## post-check lessons
 
 <a id="lsn-0004"></a>
@@ -159,10 +206,12 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   not `active` — capital can be stranded by a state machine that can't close.
 - **Mitigation:** define an **exit-only terminal state** that permits final withdrawal from non-`active`
   states (`planned_end`, `halted`, `incident`). Closing is always permitted; opening new earning legs
-  from a terminal state is not. (Campaign prompt.)
-- **Pools seen on:** [dlmm_6](../pools/dlmm_6.md)
-- **Evidence:** [#4](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/4), [#5](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/5)
-- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-06-26
+  from a terminal state is not. (Campaign prompt.) Confirmed from the healthy side on dlmm_1: a
+  scheduled planned-end exit ran an explicit renewal check, withdrew cleanly, and the automation
+  refused any post-end repair ([LSN-0015](#lsn-0015)).
+- **Pools seen on:** [dlmm_6](../pools/dlmm_6.md), [dlmm_1](../pools/dlmm_1.md)
+- **Evidence:** [#4](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/4), [#5](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/5), [#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-10
 
 <a id="lsn-0008"></a>
 ### LSN-0008 — Monitor freshness ≠ completeness
@@ -205,9 +254,10 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   required action stays blocked across repeated cycles, open an incident record with blocker, failed
   tx/preflight shape, diagnosis, fix or archive/supersede path, and the post-fix proof required.
   (Active-LP runbook addendum; `INV-9`, `INV-10`.)
-- **Pools seen on:** [dlmm_3](../pools/dlmm_3.md); Hex Stallion multi-pool campaign
-- **Evidence:** [#11](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11), [#12](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/12), [#1](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1), [#2](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/2)
-- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-02
+- **Pools seen on:** [dlmm_3](../pools/dlmm_3.md); [dlmm_1](../pools/dlmm_1.md) (confirmed from the
+  healthy side: 16 repairs + exit, each with post-confirm direct-read range/closure proof, 0 broken links)
+- **Evidence:** [#11](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11), [#12](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/12), [#1](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1), [#2](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/2), [#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-10
 
 <a id="lsn-0012"></a>
 ### LSN-0012 — A posted contribution is not a closeout: report closeout outcomes separately
