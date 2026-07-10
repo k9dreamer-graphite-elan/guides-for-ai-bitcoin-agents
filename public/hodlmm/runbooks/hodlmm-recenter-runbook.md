@@ -173,3 +173,26 @@ through closeout. Do not let stale staged state block indefinitely: diagnose, ad
 guard or patch if needed, then archive or supersede the staged state before new strategy selection
 resumes. Tx success mid-chain is not LP recovery until post-confirm proof exists
 ([LSN-0011](../knowledge/lessons/lessons-catalog.md#lsn-0011)).
+
+## Field-confirmed addendum — HODLMM-DLMM1-20260702-003
+
+> Source: K9Dreamer `dlmm_1` sBTC/USDCx campaign-003 closeout
+> ([#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)).
+
+**Fee bumping is a new approval scope.** If the configured fee target fails, stop and alert; raising
+the tx fee is a new approval decision unless a fee-bump ladder was explicitly authorized in the
+campaign charter (INV-1). Field results (context only): `0.10 STX` cleared 8 consecutive recenters
+and the exit; the step-downs `0.25 → 0.15 → 0.10` were each operator-approved, never automatic.
+
+**Repair-count caps are campaign policy, not the safety invariant.** A narrow band on a volatile
+pair legitimately needed 16 gated recenters in 7 days; a fixed repair-count ceiling would have forced
+days of out-of-range idle. The safety invariant is the gate stack — N-scan confirmation + cooldown +
+gas cap + slippage/mempool/source-agreement gates — with any repair-count limit a deliberate charter
+choice on top.
+
+**Enforce invariants at sign time, not only at dry-run time.** A signer that refreshes the active
+bin immediately before signing may execute a different destination range than the dry-run showed
+(field case: dry-run `445-450`, executed `437-442` after a pre-sign refresh). That is acceptable
+only because the invariants — same pool, same existing inventory, correct side-offset rule — were
+enforced in the signing path itself. Log both the dry-run target and the executed target; a
+dry-run/execution divergence with invariants enforced is an audit note, without them it is an incident.

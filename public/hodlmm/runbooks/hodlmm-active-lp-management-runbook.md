@@ -164,3 +164,21 @@ out-of-range proof, and incomplete-monitor blocker. A fresh-but-incomplete read 
 last complete proof; a complete out-of-range proof keeps `rebalance` / bounded-`exit` intent alive
 until repaired, exited, or explicitly incident-archived
 ([LSN-0008](../knowledge/lessons/lessons-catalog.md#lsn-0008)).
+
+## Field-confirmed addendum — lifecycle-gated automation (HODLMM-DLMM1-20260702-003)
+
+> Source: K9Dreamer `dlmm_1` sBTC/USDCx campaign-003 closeout
+> ([#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)).
+
+**Every autonomous repair loop must read campaign lifecycle before signing** and must refuse repairs
+at or after planned end unless a renewal scope is present. A daemon that ignores lifecycle state can
+repair a closed campaign — re-entering a pool the operator believes is exited. Field results: the
+campaign's guarded auto-repair checked lifecycle each tick, the planned-end exit ran an explicit
+renewal check before withdrawing, and the monitor was disarmed immediately after closure.
+
+**Guarded repair daemon = the narrow shape that works.** Same pool only, existing LP inventory only,
+two consecutive out-of-range scans, cooldown, mempool zero, slippage cap, multi-source active-bin
+agreement, dry-run/execution agreement on invariants, explicit fee target, lifecycle check. The full
+harness doctrine (day-0 validation, watchdog, halt/recover, disarm) lives in the
+[Unattended Automation Runbook](./hodlmm-unattended-automation-runbook.md); this loop is its
+per-tick write branch.

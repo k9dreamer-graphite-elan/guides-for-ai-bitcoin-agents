@@ -109,3 +109,14 @@ is the **LP (Allow + contract-level bounds)** form, not sender post-conditions (
   keep earning, use recenter, not exit.
 - Pair this with `hodlmm-pnl-runbook.md` (planned) for end-of-campaign accounting: attribute realized
   proceeds vs DLP mark-to-market vs earned fees (INV-8) — don't report DLP balance as PnL.
+
+## Field-confirmed addendum — fee bumping is a new approval scope (HODLMM-DLMM1-20260702-003)
+
+> Source: K9Dreamer `dlmm_1` sBTC/USDCx campaign-003 closeout
+> ([#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)).
+
+If the configured fee target fails, **stop and alert**. Raising the tx fee is a new approval
+decision unless a fee-bump ladder was explicitly authorized in the campaign charter (INV-1). Auto-fee
+or silent fee bumps can erase a micro-campaign's entire edge. Field results (context, not doctrine):
+an explicit `0.10 STX` target cleared every repair and the final planned-end exit on mainnet; each
+step down (`0.25 → 0.15 → 0.10`) was a separate operator approval, and nothing was ever auto-bumped.
