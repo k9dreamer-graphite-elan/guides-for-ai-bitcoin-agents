@@ -1,7 +1,7 @@
 ---
 type: kb-lessons
 handbook: v0.6
-version: 0.3
+version: 0.4
 updated: 2026-07-10
 last_ingested: 2026-07-10
 status: active
@@ -72,6 +72,26 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   a prompt wrong one. Log discarded outliers. (Recenter runbook; `INV-7`.)
 - **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
 - **Evidence:** [#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-10
+
+<a id="lsn-0016"></a>
+### LSN-0016 — Auxiliary-data failures must not block a bounded terminal exit
+
+- **Category:** flaky-API patterns
+- **Pattern:** a mature campaign-end `exit` was blocked by optional infrastructure/market-data
+  errors even though the target-pool withdrawal proof and write gates were clean; separately,
+  post-exit closure was misclassified as incomplete because "no active LP inventory + zero user
+  bins + absent/zero DLP" was not accepted as closure input. Both faults delayed a clean closeout
+  past the planned end.
+- **Mitigation:** define the gate hierarchy explicitly. A bounded terminal exit requires ONLY:
+  direct-read withdrawal proof (per-bin shares, nonzero expected-side minimums), clean write gates
+  (mempool, nonce, gas), and lifecycle state. Auxiliary reads — market data, display/positions
+  endpoints, price cards — **degrade to alert, never block**. And closure-proof acceptance is:
+  chain-confirmed withdraw + direct-read zero user bins + zero/absent DLP (a missing DLP row for an
+  empty position is zero, not unknown — extends [LSN-0002](#lsn-0002)). (`INV-9`, `INV-10`;
+  exit + unattended-automation runbooks.)
+- **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
+- **Evidence:** [#11 campaign-2 update](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11#issuecomment-4931652170) (exit tx `0xbb118b51…0987` verified success/canonical, block 8518497)
 - **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-10
 
 <a id="lsn-0005"></a>
@@ -177,11 +197,16 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   re-entering a pool the operator believes is exited, outside any approval scope.
 - **Mitigation:** every autonomous write path reads campaign lifecycle first and **refuses repairs at
   or after planned end unless a renewal scope is present**; the terminal exit runs an explicit renewal
-  check before withdrawing; the loop is disarmed immediately after closure. Field-proven: the source
-  campaign's one unattended auto-repair was lifecycle-gated, its scheduled exit ran the renewal check,
-  and the monitor was disarmed post-close. (`INV-1`; active-LP + unattended-automation runbooks.)
+  check before withdrawing; the loop is disarmed immediately after closure. The gate must cover **ALL
+  write paths — including missing-LP re-entry and top-up repairs — not just recenters**: once the
+  window closes, `auto_exit` dominates everything. Field-proven from both sides: the healthy case
+  (#28: one lifecycle-gated unattended auto-repair, renewal-checked scheduled exit, post-close disarm)
+  and the failure case (Hex Stallion `7D-LP-Campaign-2`, dlmm_1: a post-deadline repair path
+  re-entered the pool **three times on-chain** after `campaign_ends_at` before the recovered exit —
+  adds `0x164d439c…`/`0xec45f224…`/`0xf1b950e9…` interleaved with withdrawals, 2026-07-10).
+  (`INV-1`; active-LP + unattended-automation runbooks.)
 - **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
-- **Evidence:** [#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)
+- **Evidence:** [#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28), [#11 campaign-2 update](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11#issuecomment-4931652170)
 - **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-10
 
 ## post-check lessons
