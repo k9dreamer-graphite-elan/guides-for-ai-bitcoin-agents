@@ -137,3 +137,43 @@ loop — the field campaign finished its exit and PnL cards before any closeout 
 only the checklist rule closed that gap. This extends the outcome-taxonomy addendum above: the
 **artifact** and **upstream** axes are not optional trailers; at least the artifact axis must reach
 `review-ready` before `operationally_closed` is claimed.
+
+## Field-confirmed addendum — campaign tx attribution without extra gas (HODLMM-DLMM1-20260702-003)
+
+> Source: follow-up on closeout
+> [#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28).
+
+Explorer history alone cannot distinguish a terminal exit from a full withdrawal used for a
+rebalance. Fix this in **reporting, not on chain**:
+
+**Zero-gas default.** Never send standalone marker transactions just for labeling. Attribution is a
+report-layer convention: every closeout report (and any PnL card or issue that cites transactions)
+includes, per relevant tx: `campaign_id`, `tx_role`, and `campaign_state_after_tx`. Campaign ledgers
+should record `tx_role` at signing time so the closeout can copy rather than reconstruct it.
+
+**Role vocabulary:**
+
+- `OPEN` — first LP deposit / campaign start
+- `REPAIR` — same-campaign recenter or range repair
+- `WITHDRAW` — liquidity removed but the campaign may continue
+- `MOVE` / `REBAL` — full withdrawal plus redeposit where the campaign remains active
+- `EXIT` — terminal withdrawal: the campaign ends and no renewal scope is present
+- `CLOSE` — accounting/reporting finalized after exit verification (usually no tx of its own)
+
+The load-bearing distinction: **`EXIT` means terminal campaign completion.** A full-liquidity
+withdrawal that feeds a rebalance or pool move is `WITHDRAW`/`MOVE`/`REBAL`, never `EXIT` — labeling
+it `EXIT` would make routine moves read as closeouts (and vice versa).
+
+**Optional near-zero-cost memo rule.** Only put a campaign marker in a STX memo when a memo-bearing
+transaction is already being sent for another reason, or the operator explicitly approves a tiny
+marker transfer. Memo strings stay within the practical STX memo limit and use deterministic IDs
+(`<CAMPAIGN-ID>`, `<CAMPAIGN-ID>-EXIT`, `<CAMPAIGN-ID>-CLOSE`). Marker txs are never mandatory.
+
+Worked example (this campaign's terminal tx):
+
+```text
+campaign_id: HODLMM-DLMM1-20260702-003
+tx_role: EXIT
+tx: 0xe1b385610b5993a98eae69cee6417302c0709f2b303314d9a0fafbc2310b2ed4
+campaign_state_after_tx: closed=true, DLP=0, userBins=[]
+```

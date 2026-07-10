@@ -27,9 +27,12 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
   ([#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28) —
   K9Dreamer `HODLMM-DLMM1-20260702-003`, sBTC/USDCx 7d, clean scheduled exit, net ≈ +$9 vs hold
   after gas at the 3.0 STX gas cap, 16 gated recenters incl. one unattended auto-repair):
-  - `hodlmm-closeout-runbook` (v0.3) — closeout belongs in the terminal checklist: a campaign is
-    `operationally_closed` only after exit proof + PnL report + a posted closeout issue or saved
-    unposted draft.
+  - `hodlmm-closeout-runbook` (v0.3) — two addenda: (1) closeout belongs in the terminal
+    checklist — a campaign is `operationally_closed` only after exit proof + PnL report + a posted
+    closeout issue or saved unposted draft; (2) campaign tx attribution without extra gas — per-tx
+    `campaign_id` / `tx_role` / `campaign_state_after_tx` in reports (roles: OPEN / REPAIR /
+    WITHDRAW / MOVE / REBAL / EXIT / CLOSE; `EXIT` is terminal-only), zero-gas default (no marker
+    txs), optional memo rule only when a memo-bearing tx is already being sent.
   - `hodlmm-exit-runbook` + `hodlmm-recenter-runbook` — **fee bumping is a new approval scope**:
     if the configured fee target fails, stop and alert; never auto-bump. Recenter also gains:
     repair-count caps are campaign policy (the gate stack is the safety invariant), and invariants
