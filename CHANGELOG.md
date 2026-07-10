@@ -10,7 +10,13 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+- `hodlmm-pnl-runbook` — field-confirmed addendum: **component basis conventions** (from the
+  [#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)
+  methodology sign-off). Every PnL component states its basis: deployed basis for attribution and
+  all percentages (canonical `V_hold`), campaign-total basis for wallet reconciliation only; the
+  net headline is basis-invariant but component absolutes are not. Includes the event-level
+  "no intermediate legs" check that atomic native recenters emit only DLP events.
 
 ---
 
