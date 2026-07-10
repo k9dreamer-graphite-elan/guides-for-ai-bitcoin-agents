@@ -10,6 +10,20 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+_Nothing yet._
+
+---
+
+## [0.9.2] - 2026-07-10
+
+The unattended-automation release: the harness doctrine for scheduled monitor/executor loops arrives
+as a new runbook and earns `active` within the same cycle, proven end-to-end by the dlmm_1
+campaign-003 closeout (#28) — the first campaign with an unattended gated auto-repair and a clean
+scheduled planned-end exit. Bundles the #26 runbook status promotions, the campaign's
+field-confirmed addenda (incl. the campaign tx-attribution convention), and its KB ingest (first
+sBTC/USDCx pool page, LSN-0013–0015). No handbook doctrine changes — the handbook stays at
+**v0.9**, so this ships as a patch.
+
 ### Added
 - **New runbook: `hodlmm-unattended-automation-runbook`** (`draft`) — the harness doctrine for
   scheduled monitor/executor loops: day-0 environment parity (explicit PATH, `env -i` dry-run of
