@@ -1,7 +1,7 @@
 ---
 type: kb-lessons
 handbook: v0.6
-version: 0.4
+version: 0.5
 updated: 2026-07-10
 last_ingested: 2026-07-10
 status: active
@@ -16,6 +16,7 @@ sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/13
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/21
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/35
 ---
 
 # HODLMM cross-campaign lessons & failure patterns
@@ -300,3 +301,27 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 - **Pools seen on:** [dlmm_3](../pools/dlmm_3.md)
 - **Evidence:** [#11](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11) (incl. follow-up comments), [#12](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/12), [#13](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/13)
 - **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-02
+
+<a id="lsn-0017"></a>
+### LSN-0017 — Disarm is host-level: no signer-enabled process may outlive campaign closure
+
+- **Category:** post-check lessons
+- **Pattern:** a campaign's dedicated exit, zero-DLP/zero-user-bin proof, and PnL were all valid, yet
+  the execution **host** was not cleanly disarmed. A **generic, signer-enabled resident** —
+  autonomous mode, `rebalance,exit` scope, 6h interval — was still loaded against a *separate,
+  already-ended* campaign via an **implicit campaign default** (not a campaign-specific schedule
+  anyone remembered arming). Its latest cycle timed out and submitted no tx, and the wallet had no
+  pending HODLMM tx, but stale write authority survived closure. Position-level closure ≠
+  control-plane closure.
+- **Mitigation:** disarm proof is **host-level, and it is a proof, not an intent**. At close: (a)
+  enumerate **both campaign-specific and generic** monitors/executors/repair loops/watchdogs; (b)
+  disable/unload every schedule that can target the ended campaign; (c) verify no signer-enabled
+  process still references it; (d) verify no in-flight tx remains; (e) **reconcile repository ↔
+  installed ↔ loaded** scheduler config to a dormant, signer-disabled, campaign-unbound template; and
+  (f) prove the runtime **fails closed** — a closure-proven campaign state is rejected *before* any
+  heartbeat/loop can start, and generic services require an explicit campaign-state binding rather
+  than an implicit default. Extends [LSN-0015](#lsn-0015) from the campaign-specific write-path gate
+  to the shared control plane. (`INV-1`; closeout + unattended-automation runbooks.)
+- **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
+- **Evidence:** [#35](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/35) (Hex Stallion control-plane closeout addendum; post-close source refresh at HODLMM `main` `b4af6777`; terminal exit tx `0xbb118b51…0987` unaffected, still success/canonical)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-10

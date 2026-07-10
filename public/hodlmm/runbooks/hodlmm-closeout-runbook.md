@@ -1,7 +1,7 @@
 ---
 name: HODLMM Closeout Runbook
 type: runbook
-version: 0.3
+version: 0.4
 updated: 2026-07-10
 handbook: v0.6
 enforces: [INV-1, INV-8, INV-10, INV-11, INV-12]
@@ -49,6 +49,8 @@ from it (the cross-agent learning loop). Recommended after every campaign; not m
 
 ```
 [ ] Position is actually closed (closure proof, step 3)                 (INV-10)
+[ ] Host-level disarm proven — no signer-enabled schedule can start
+    against the closed campaign (host-disarm addendum below)            (INV-1)
 [ ] PnL framed net-vs-hold after gas; display marks = context-only      (INV-8)
 [ ] Only on-chain-public / operator-approved data; no secrets
 [ ] publish-closeout scope OR operator approval to post                 (INV-1)
@@ -177,3 +179,35 @@ tx_role: EXIT
 tx: 0xe1b385610b5993a98eae69cee6417302c0709f2b303314d9a0fafbc2310b2ed4
 campaign_state_after_tx: closed=true, DLP=0, userBins=[]
 ```
+
+## Field-confirmed addendum — host-level disarm proof belongs in the terminal checklist (dlmm_1)
+
+> Source: Hex Stallion `dlmm_1` sBTC/USDCx control-plane closeout addendum
+> ([#35](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/35)).
+> See [LSN-0017](../knowledge/lessons/lessons-catalog.md#lsn-0017).
+
+A position can be chain-proven closed and its PnL finalized while the **execution host** still
+carries stale write authority — most dangerously a *generic, signer-enabled* resident bound to the
+ended campaign by an **implicit default**, not a campaign-specific schedule anyone remembers arming.
+In the field failure the resident submitted no transaction and the wallet had no pending HODLMM tx,
+yet autonomous `rebalance,exit` authority against a closed campaign should never have survived
+closure. Position closure (step 3) is therefore **necessary but not sufficient**: `operationally_closed`
+also requires **host-level disarm proof**. Run this before marking the campaign fully closed — it
+complements the exit runbook's closure proof, which is position-level, and it is disarm *proof*, not
+disarm *intent* (enumerate and verify absence; do not assume the close script worked):
+
+```
+[ ] Enumerate campaign-specific AND generic monitors, executors, repair loops, and watchdogs
+[ ] Disable/unload every schedule that can target the ended campaign
+[ ] Verify no signer-enabled process still references the campaign
+[ ] Verify no in-flight transaction remains
+[ ] Reconcile repository, installed, and loaded scheduler config to a dormant,
+    signer-disabled, campaign-unbound template
+[ ] Prove the runtime rejects closure-proven campaign state before starting a heartbeat/loop
+    (fail closed; generic services require an explicit campaign-state binding, never an implicit default)
+```
+
+This extends the `operationally_closed` criteria above with a **control-plane axis**: position zero
++ PnL + artifact is necessary but not sufficient while any signer-enabled process can still start
+against the closed campaign. The disarm actions themselves live in the exit / unattended-automation
+runbooks (the latter's DISARM step); this runbook *verifies* them at closeout.

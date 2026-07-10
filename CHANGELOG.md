@@ -11,6 +11,17 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 ## [Unreleased]
 
 ### Added
+- **KB: Hex Stallion `dlmm_1` control-plane closeout addendum ingested**
+  ([#35](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/35)): new
+  **LSN-0017** — disarm is host-level; no signer-enabled process may outlive campaign closure. A
+  campaign's exit, zero-DLP proof, and PnL were all valid, yet a *generic, signer-enabled* resident
+  stayed loaded against a separate ended campaign via an **implicit campaign default** (no tx
+  submitted, but stale `rebalance,exit` authority survived closure). Adds a **host-level disarm
+  proof** checklist to the `hodlmm-closeout-runbook` terminal gates (enumerate generic + specific
+  schedules, verify no signer-enabled process references the campaign, reconcile repository ↔
+  installed ↔ loaded config, prove the runtime fails closed before heartbeat launch) and extends the
+  `hodlmm-unattended-automation-runbook` DISARM step to the same host-level proof. Extends LSN-0015
+  from the campaign-specific write-path gate to the shared control plane.
 - **KB: Hex Stallion `7D-LP-Campaign-2` (dlmm_1) field report ingested**
   ([#11 update](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11#issuecomment-4931652170), exit tx chain-verified): new **LSN-0016** — auxiliary-data failures must
   not block a bounded terminal exit, and closure-proof acceptance = confirmed withdraw + zero user
