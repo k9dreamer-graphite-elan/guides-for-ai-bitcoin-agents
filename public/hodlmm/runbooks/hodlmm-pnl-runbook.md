@@ -161,6 +161,31 @@ DLP/display-derived rather than realized, the `Earnings` line carries an explici
 **context-only, not realized** label (the dlmm_6 rule below). A card must never render a
 realized-looking earnings figure that the report would caveat.
 
+### Data provenance — the ledger is authoritative, the endpoint is context-only
+
+There is **no endpoint for net-vs-hold** — Bitflow does not know your cost basis, deployed baseline,
+gas, or campaign clock. Those come from the agent's **Transaction Ledger + memory** (INV-11/12),
+written at OPEN and EXIT. Every field of the report maps to exactly one source, and the hierarchy is
+strict:
+
+| Report field | Source | Authority |
+|---|---|---|
+| net PnL after gas · `% vs hold` · deployed hold baseline (native amounts) · gas · entry/exit timestamps → period · final inventory | **agent ledger + memory** (OPEN/EXIT rows) | **authoritative — hero + core rows** |
+| current per-bin token amounts · closeout price marks | on-chain reads + live quote | values the ledger amounts |
+| `earningsUsd` / `feeTvl` / `tvlUsd` | **BFF `earnings/pnl` endpoint** | **subordinate context chips — optional** |
+
+**Generator input contract.** The earnings-card script consumes the **Step-6 report object** (which
+is ledger-derived) as its input; the BFF call is an *optional enrichment* for the two context chips
+only. It **must not** derive the hero or any core row from the endpoint. If BFF is unavailable, times
+out, or returns display-only figures, render the net-PnL card from the ledger alone and omit/grey the
+earnings chip — never block, and never let the load-bearing number depend on an endpoint.
+
+**Ledger prerequisite (OPEN/EXIT).** The closeout report/card is only constructible if the campaign
+lifecycle wrote: at **OPEN** — deposited native amounts (cost basis), entry bins, entry timestamp;
+across the run — cumulative gas; at **EXIT** — withdrawn/final amounts and exit timestamp. These are
+INV-11 ledger fields; the entry and exit runbooks' `REMEMBER` steps persist them. A missing field is
+a **reported low-confidence caveat**, never a fabricated value (INV-8).
+
 ## Failure handling
 
 | Symptom | Handbook |
@@ -196,9 +221,12 @@ GET https://bff.bitflowapis.finance/api/app/v1/users/{wallet}/earnings/pnl/{pool
 ```
 
 Periods: `1d`, `7d`, `30d`. Returns `earningsUsd`, `earningsBtc`, `feeTvl`, `tvlUsd`, range, binStep,
-baseFee. **The displayed period is never hardcoded** — it is derived per the report contract's
-period-label rule (campaign basis = entry→exit/report timestamps; report basis = the selected preset
-or custom range), and the card records the period source (`campaign` / `report`).
+baseFee. **This endpoint supplies only the subordinate context chips** (`Earnings`, `Fee/TVL`) — it
+knows nothing of your cost basis, hold baseline, gas, or campaign clock, so the hero and core rows
+come from the ledger, never from here (see "Data provenance" above). **The displayed period is never
+hardcoded** — it is derived per the report contract's period-label rule (campaign basis =
+entry→exit timestamps from the ledger; report basis = the selected preset or custom range), and the
+card records the period source (`campaign` / `report`).
 
 ### Generation
 
@@ -209,11 +237,13 @@ python3 generate_card.py --wallet <SP-address> --pool <pool-id> --period <1d|7d|
 
 Output: `output/earnings-card-{pool}-{period}.png`
 
-The script fetches live data → caches token icons → renders the card (1200×675 dark theme, overlapping
-token icons). Per the report contract, the **hero is `NET PnL after gas`** with a `vs hold, after gas`
-supporting line; the deployed hold baseline and final inventory are core rows; and
-`Earnings` / `Fee/TVL %` / `Gas` are **subordinate footer chips laid out so they cannot read as
-additive to net**. Spell the label **`Fee/TVL`** everywhere (no `Feel/TVL`).
+The script takes the **Step-6 report object** (ledger-derived) as its input, *optionally* calls the
+BFF endpoint above for the two context chips, caches token icons, and renders the card (1200×675 dark
+theme, overlapping token icons). Per the report contract, the **hero is `NET PnL after gas`** (from
+the ledger) with a `vs hold, after gas` supporting line; the deployed hold baseline and final
+inventory are core rows; and `Earnings` / `Fee/TVL %` / `Gas` are **subordinate footer chips laid out
+so they cannot read as additive to net**. If the BFF call fails, render from the ledger and omit/grey
+the earnings chip — never block. Spell the label **`Fee/TVL`** everywhere (no `Feel/TVL`).
 
 ### When to generate
 

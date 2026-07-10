@@ -78,7 +78,10 @@ is the **LP (Allow + contract-level bounds)** form, not sender post-conditions (
 6. **VERIFY** — re-scan; confirm the position is **empty** (no remaining bins / DLP) and tokens are in
    the wallet; confirm each tx mined `success` (INV-10).
 7. **REMEMBER** — write both ledgers (txids, before/after, gas); in memory, **mark the pool as exited /
-   stale** so the monitoring loop doesn't re-engage it (INV-11/12).
+   stale** so the monitoring loop doesn't re-engage it (INV-11/12). Record the **withdrawn/final
+   amounts and the exit timestamp** explicitly: the closeout PnL report/card reads the final inventory
+   mark and closes the campaign-period clock from them (INV-11; [PnL runbook](./hodlmm-pnl-runbook.md)
+   data-provenance).
 
 ## Expected outputs
 

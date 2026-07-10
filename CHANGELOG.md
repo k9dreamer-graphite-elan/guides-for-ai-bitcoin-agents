@@ -22,8 +22,14 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
   of that same object, image-channels only (TG/Discord/social)** and never a substitute for the text
   report. Adds the period-label rule (never hardcode `7D`; derive from campaign vs report basis and
   record the source), the low-confidence/display-only earnings guardrail, `Fee/TVL` spelling, and
-  `report_period`/`period_source`/`final_inventory_mark` output fields. Card layout, dynamic-period
-  code, and renderer tests remain in the agent-workspace generator script, out of scope for this repo.
+  `report_period`/`period_source`/`final_inventory_mark` output fields. Adds a **data-provenance**
+  rule: net-vs-hold has **no endpoint** — the hero and all core rows come from the agent's Transaction
+  Ledger + memory (INV-11/12), while the BFF `earnings/pnl` endpoint supplies only the subordinate,
+  optional `Earnings`/`Fee-TVL` chips (the generator consumes the ledger-derived report object and
+  degrades gracefully if BFF is absent). `hodlmm-campaign-entry-runbook` and `hodlmm-exit-runbook`
+  `REMEMBER` steps now explicitly persist the deposited/withdrawn native amounts and entry/exit
+  timestamps the closeout report/card depends on. Card layout, dynamic-period code, and renderer tests
+  remain in the agent-workspace generator script, out of scope for this repo.
 
 ### Added
 - **KB: Hex Stallion `dlmm_1` control-plane closeout addendum ingested**
