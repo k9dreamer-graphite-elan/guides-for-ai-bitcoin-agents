@@ -42,6 +42,13 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
     before signing and refuse post-planned-end writes without a renewal scope; codifies the
     guarded-repair-daemon shape as the unattended-automation runbook's per-tick write branch.
 
+- **KB ingest: dlmm_1 campaign-003 closeout ([#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28))** —
+  `knowledge/pools/dlmm_1.md` (new, first sBTC/USDCx pool page), three new lessons
+  (LSN-0013 single-source active-bin read jitter → multi-source agreement gate; LSN-0014 fee bumping
+  is a new approval scope; LSN-0015 autonomous repair loops must read campaign lifecycle before
+  signing), confirmations of LSN-0002/-0007/-0011 from an additional campaign, KB log row, and the
+  KB README pool-catalog row.
+
 ### Changed
 - **Runbook status promotions** (`draft` → `active`, per the AGENT-AUTHORING-GUIDE §3 lifecycle —
   each promotion cites the accepted Campaign Closeout issue(s) that exercised the procedure
