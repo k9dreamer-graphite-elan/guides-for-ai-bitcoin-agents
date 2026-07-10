@@ -10,6 +10,17 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+_Nothing yet._
+
+---
+
+## [0.9.3] - 2026-07-10
+
+Accounting-precision patch: the component-basis convention from the campaign-003 methodology
+sign-off, prompted by a downstream analyzer and the closeout report publishing different (both
+correct) hold/exit component values from the same campaign. No handbook doctrine changes — the
+handbook stays at **v0.9**.
+
 ### Added
 - `hodlmm-pnl-runbook` — field-confirmed addendum: **component basis conventions** (from the
   [#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)
