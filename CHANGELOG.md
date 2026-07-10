@@ -20,8 +20,24 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
   from closeouts [#21](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/21)/[#22](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/22)
   (dlmm_3 campaign-002 scheduled-exit failure), [#11–#13](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11)
   (actuator chain), and [#4](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/4)/[#5](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/5),
-  previously scattered as addenda. Starts `draft` per the §3 lifecycle; the dlmm_1 campaign's
-  scheduled exit (2026-07-10) is its first promotion candidate.
+  previously scattered as addenda. Started `draft` per the §3 lifecycle; promoted to `active` in
+  this same cycle on the dlmm_1 campaign-003 closeout (see Changed below).
+
+- **Field-confirmed addenda from the dlmm_1 campaign-003 closeout**
+  ([#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28) —
+  K9Dreamer `HODLMM-DLMM1-20260702-003`, sBTC/USDCx 7d, clean scheduled exit, net ≈ +$9 vs hold
+  after gas at the 3.0 STX gas cap, 16 gated recenters incl. one unattended auto-repair):
+  - `hodlmm-closeout-runbook` (v0.3) — closeout belongs in the terminal checklist: a campaign is
+    `operationally_closed` only after exit proof + PnL report + a posted closeout issue or saved
+    unposted draft.
+  - `hodlmm-exit-runbook` + `hodlmm-recenter-runbook` — **fee bumping is a new approval scope**:
+    if the configured fee target fails, stop and alert; never auto-bump. Recenter also gains:
+    repair-count caps are campaign policy (the gate stack is the safety invariant), and invariants
+    must be enforced at sign time, not only at dry-run time (a pre-sign active-bin refresh can
+    shift the executed destination).
+  - `hodlmm-active-lp-management-runbook` — autonomous repair loops must read campaign lifecycle
+    before signing and refuse post-planned-end writes without a renewal scope; codifies the
+    guarded-repair-daemon shape as the unattended-automation runbook's per-tick write branch.
 
 ### Changed
 - **Runbook status promotions** (`draft` → `active`, per the AGENT-AUTHORING-GUIDE §3 lifecycle —
@@ -45,6 +61,13 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
     dlmm_3 campaign-002 ([#21](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/21)/[#22](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/22)),
     and the Hex Stallion 7D ingest ([#11–#13](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11)),
     which also field-confirmed the runbook's outcome taxonomy (v0.9.1).
+  - `hodlmm-unattended-automation-runbook` — promoted on the strength of closeout
+    [#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28):
+    the dlmm_1 campaign-003 ran the doctrine end-to-end on mainnet — day-0-validated script
+    monitor, per-tick gated writes, one unattended auto-repair (all gates passed), planned-end
+    scheduled exit with renewal check, disarm at close, zero failed broadcasts — including a live
+    degraded-LLM fallback (model outage → deterministic zero-LLM monitor), the runbook's own
+    prescribed failure mode. README catalog row updated to match.
 
   Status metadata only (frontmatter `status:` + the hodlmm README catalog table) — no procedure or
   doctrine changes; each runbook's `handbook:` conformance version is unchanged.

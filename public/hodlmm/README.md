@@ -35,7 +35,7 @@ failure handling. All conform to the handbook and declare the invariants they en
 |---|---|---|
 | [`hodlmm-active-lp-management-runbook.md`](./runbooks/hodlmm-active-lp-management-runbook.md) | Manage concentrated liquidity near the active bin under approval (scan → recenter loop). | active |
 | [`hodlmm-exit-runbook.md`](./runbooks/hodlmm-exit-runbook.md) | Exit / stale-pool recovery — withdraw a position and stand down. | active |
-| [`hodlmm-unattended-automation-runbook.md`](./runbooks/hodlmm-unattended-automation-runbook.md) | Arm + operate an unattended monitor/executor loop for a campaign — day-0 environment parity, per-tick write gates, watchdog, halt/recover, rehearsal, disarm. | draft |
+| [`hodlmm-unattended-automation-runbook.md`](./runbooks/hodlmm-unattended-automation-runbook.md) | Arm + operate an unattended monitor/executor loop for a campaign — day-0 environment parity, per-tick write gates, watchdog, halt/recover, rehearsal, disarm. | active |
 | [`hodlmm-campaign-entry-runbook.md`](./runbooks/hodlmm-campaign-entry-runbook.md) | Select a pool, grant scope, place the initial LP position. | draft |
 | [`hodlmm-recenter-runbook.md`](./runbooks/hodlmm-recenter-runbook.md) | The atomic recenter procedure (move drifted bins around active). | active |
 | [`hodlmm-inventory-balancing-runbook.md`](./runbooks/hodlmm-inventory-balancing-runbook.md) | Restore target token ratio via corrective swap + redeploy. | draft |

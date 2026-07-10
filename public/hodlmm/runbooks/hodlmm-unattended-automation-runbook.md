@@ -4,7 +4,7 @@ type: runbook
 handbook: v0.9
 enforces: [INV-1, INV-6, INV-7, INV-10, INV-11, INV-12, INV-13]
 skills: [hodlmm-move-liquidity, bitflow, nonce-manager]
-status: draft
+status: active
 ---
 
 # HODLMM Unattended Automation Runbook
@@ -163,8 +163,10 @@ Map each failure to **Handbook Chapter 3** (don't restate the recovery):
 
 - **Evidence base:** accepted Campaign Closeouts #4/#5 (dlmm_6), #21/#22 (dlmm_3 campaign-002 —
   the scheduled-exit failure and recovery this runbook exists to prevent), #11–#13 (Hex Stallion 7D
-  — staged-repair and actuator-chain lessons), plus the dlmm_1 live campaign's monitor-outage
-  incidents. KB lessons: LSN-0007, LSN-0008, LSN-0011.
+  — staged-repair and actuator-chain lessons), and **#28 (dlmm_1 campaign-003 — the promotion
+  citation: a scheduled loop ran this doctrine end-to-end on mainnet: day-0 validated script monitor,
+  per-tick gated auto-repair, planned-end exit with renewal check, and disarm at close, with a
+  degraded-LLM fallback exercised mid-campaign)**. KB lessons: LSN-0007, LSN-0008, LSN-0011.
 - **Relationship to other runbooks:** this runbook owns the harness (schedules, gates, halts,
   alerts, rehearsal, disarm). The write branches themselves are the recenter and exit runbooks;
   nothing here overrides their procedures. If a conflict appears, the operation runbook wins for

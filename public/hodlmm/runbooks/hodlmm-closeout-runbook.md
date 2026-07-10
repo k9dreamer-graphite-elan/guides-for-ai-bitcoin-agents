@@ -1,8 +1,8 @@
 ---
 name: HODLMM Closeout Runbook
 type: runbook
-version: 0.2
-updated: 2026-07-07
+version: 0.3
+updated: 2026-07-10
 handbook: v0.6
 enforces: [INV-1, INV-8, INV-10, INV-11, INV-12]
 skills: [query, defi-portfolio-scanner, hodlmm-move-liquidity]
@@ -119,3 +119,21 @@ Anything less is **`closeout_unresolved`** — say so rather than implying compl
 the source campaign posted a complete three-part contribution while its LP was still out of range;
 the honest `closeout_unresolved` label is what made the later repaired, chain-verified clean exit
 auditable.
+
+## Field-confirmed addendum — HODLMM-DLMM1-20260702-003 (closeout belongs in the terminal checklist)
+
+> Source: K9Dreamer `dlmm_1` sBTC/USDCx campaign-003 closeout
+> ([#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)).
+
+After confirmed exit and PnL card generation, run this closeout runbook **before** marking the
+campaign fully closed. A campaign is **`operationally_closed`** only after all three exist:
+
+1. exit proof (confirmed withdraw tx + direct-read DLP zero / user bins empty — INV-10);
+2. a PnL report with confidence boundaries (INV-8);
+3. either a **posted closeout issue** or a **saved unposted issue draft**.
+
+A campaign can be mechanically closed (position zero, crons disarmed) and still fail the learning
+loop — the field campaign finished its exit and PnL cards before any closeout report existed, and
+only the checklist rule closed that gap. This extends the outcome-taxonomy addendum above: the
+**artifact** and **upstream** axes are not optional trailers; at least the artifact axis must reach
+`review-ready` before `operationally_closed` is claimed.
