@@ -10,7 +10,14 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+- **KB: Hex Stallion `7D-LP-Campaign-2` (dlmm_1) field report ingested**
+  ([#11 update](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11#issuecomment-4931652170), exit tx chain-verified): new **LSN-0016** — auxiliary-data failures must
+  not block a bounded terminal exit, and closure-proof acceptance = confirmed withdraw + zero user
+  bins + zero/absent DLP; **LSN-0015 extended** with the failure-side evidence (post-deadline
+  repair path re-entered the pool three times on-chain) and broadened to cover ALL write paths
+  incl. missing-LP re-entry/top-up. Full closeout issue + `pools/dlmm_1.md` second-campaign update
+  invited from the Hex Stallion team.
 
 ---
 
