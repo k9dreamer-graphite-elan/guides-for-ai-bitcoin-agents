@@ -72,15 +72,19 @@ Read-only — no `--confirm`, no broadcast. Cites handbook §6.6 for the IL defi
    record a **`fee_confidence`** (§6.2, INV-8). There is no claim/FT-transfer event — attribution is
    derived. **Never read DLP balance as fees.**
 5. **NET PnL** = `IL-only PnL + Fee PnL − gas` (cumulative gas from the Transaction Ledger).
-6. **REPORT** — emit every component **separately** plus the headline ratios. `MUST NOT` collapse them
-   into one number or present DLP mark-to-market as profit (INV-8). Re-read once if indexer lag is
-   suspected rather than trusting a single snapshot (INV-10).
-7. **EARNINGS CARD** *(optional, recommended for sharing)* — generate a visual Bitflow-style earnings
-   card for the position. This is a branded PNG matching the official Bitflow app "share" card
-   layout (see procedure below). Generate when the user asks for earnings, for periodic campaign
-   reports, or for social sharing. The card shows **Bitflow app-level fee attribution only** — always
-   pair it with the full component breakdown from step 6 so DLP mark-to-market is never presented
-   as profit (INV-8).
+6. **REPORT** — emit the **Campaign PnL Report** (medium-agnostic text/markdown; see "Report
+   contract" below). This is the **primary, always-shipped deliverable** whenever the operator asks
+   to run PnL or see campaign results, in **every** channel (CLI, Claude Code, an LLM turn, a GitHub
+   issue, chat). Emit every component **separately** plus the headline ratios; `MUST NOT` collapse
+   them into one number or present DLP mark-to-market as profit (INV-8). Re-read once if indexer lag
+   is suspected rather than trusting a single snapshot (INV-10).
+7. **EARNINGS CARD** *(optional; image channels only — TG/Discord/social)* — render the Step-6 report
+   object as a branded Bitflow-style PNG. The card is **one renderer of the same object**, never a
+   substitute for the text report: a PNG can only be seen where images render, so it must never be
+   the sole output in a text channel. It is subordinate garnish, and it must show the **same
+   hierarchy** as the report (net-vs-hold-after-gas as the hero; earnings/Fee-TVL as subordinate,
+   non-additive context). See "Earnings Card" below. The card shows **Bitflow app-level fee
+   attribution only** — always paired with the full component breakdown from step 6 (INV-8).
 8. **REMEMBER** — write the Performance Ledger row + memory (running cost basis, `fee_confidence`
    trend, time-in-range) (INV-11/12).
 
@@ -91,12 +95,71 @@ A PnL report object — components never netted into one figure:
 ```
 { cost_basis, v_hold, v_position_no_fees, il_only_pnl,
   fee_pnl, fee_confidence, gas, net_pnl,
-  fee_to_il_ratio, time_in_range_pct }
+  fee_to_il_ratio, time_in_range_pct,
+  final_inventory_mark, report_period, period_source }
 ```
+
+- `v_hold` here is the **deployed-basis** value (the sole basis for `net_pnl` percentages — see the
+  component-basis addendum). `report_period` is the elapsed/labeled window; `period_source` is
+  `campaign` or `report`. `final_inventory_mark` is the exit/withdrawal-leg value.
 
 - `fee_to_il_ratio > 1` ⇒ fees are covering divergence (the health signal the operating guide §3.1
   tracks).
 - A **low `fee_confidence`** or missing cost basis is a reported caveat, not a fabricated number.
+
+## Campaign PnL Report — contract (canonical output)
+
+> The **honesty lives in the report, not in the card.** The card is only viewable where images
+> render (TG/Discord); in CLI, Claude Code, an LLM turn, or a GitHub issue a PNG cannot be seen.
+> So the text/markdown report below is the **primary deliverable** every time the operator asks to
+> run PnL or see results, and the card (if any) renders this same object. Source: campaign-003
+> closeout methodology sign-off ([#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)) and card-semantics proposal ([#37](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/37)).
+
+**Visual/textual hierarchy — the same in every medium:**
+
+1. **Hero — the sole headline metric:** `NET PnL after gas`, in the numeraire, with sign.
+2. **Supporting line:** the percentage, explicitly labeled **`vs hold, after gas`**. The percentage
+   denominator is the **deployed-basis `V_hold`** (tokens actually deposited, at closeout marks) —
+   the only basis for percentages per the component-basis addendum below. Never the notional/intended
+   size, never campaign-total basis.
+3. **Core campaign rows:** campaign ID · report period + elapsed duration (see period label) ·
+   **deployed hold baseline** (both the USD mark *and* the original native token inventory) · final
+   inventory mark.
+4. **Subordinate context — visibly non-additive to net:** `Earnings` (Bitflow app fee attribution) ·
+   `Fee/TVL %` · `Gas` (STX *and* its marked USD value when price is available).
+
+**Non-additivity is load-bearing.** `Earnings` and `Fee/TVL` are Bitflow's app-reported
+fee-attribution flow, **not** components of campaign PnL, and must never be laid out so a reader
+could add them to (or read them as) net. The canonical worked example makes this self-evident
+precisely because earnings ≫ net:
+
+```
+HODLMM-DLMM1-20260702-003 · Campaign earnings · Jul 3–Jul 9 (6d 20h)
+
+  NET PnL after gas:  +$9.05   (+11.6% vs hold, after gas)      ← hero
+  Deployed hold baseline: $78.21   (123,853 sats + 0.111788 USDCx)
+  Final inventory:        $87.76
+  ── context — Bitflow attribution, NOT additive to net ──
+  Earnings: $24.16    Fee/TVL: 39.70%    Gas: 3.0 STX (~$0.49)
+
+  fee_confidence: <level>   ·   period source: campaign
+```
+
+Note `Earnings $24.16` ≫ `NET $9.05`: earnings is gross attributed fee flow; net is after IL and
+gas. Presenting them as peers or summable would overstate the result.
+
+**Period label — never hardcode `7D`.** Derive it from the source and record which:
+
+- **Campaign basis** — entry timestamp → exit/report timestamp, e.g. `Campaign earnings · 6d 20h`.
+- **Report basis** — the selected `1d`/`7d`/`30d` or a custom date range, e.g. `Report earnings · 7D`
+  or `Report earnings · Jul 3–Jul 9`.
+- The report header (and any card metadata) records the **period source** as `campaign` or `report`
+  so a reviewer can tell which clock produced the earnings figure.
+
+**Low-confidence / display-only guardrail.** If `fee_confidence` is low, or the earnings figure is
+DLP/display-derived rather than realized, the `Earnings` line carries an explicit
+**context-only, not realized** label (the dlmm_6 rule below). A card must never render a
+realized-looking earnings figure that the report would caveat.
 
 ## Failure handling
 
@@ -109,12 +172,22 @@ A PnL report object — components never netted into one figure:
 
 ## Earnings Card — Visual Reporting
 
-Generate a branded PNG card matching the Bitflow app "share earnings" style. Read-only — uses the
-same `GET /users/{wallet}/earnings/pnl/{pool}?period_type={period}` endpoint as step 4.
+Render a branded PNG of the **Step-6 Campaign PnL Report object** in the Bitflow app "share earnings"
+style. Read-only — uses the same `GET /users/{wallet}/earnings/pnl/{pool}?period_type={period}`
+endpoint as step 4. The card is **one renderer of the report, not a second source of truth**: it
+must show the same hierarchy as the report contract (net-vs-hold-after-gas hero; earnings/Fee-TVL
+subordinate and non-additive) so the two can never diverge.
+
+> **Optional, and image-channels only.** A PNG is viewable only where images render (TG, Discord,
+> social, a human opening the file). It is **never** the deliverable on its own in CLI, Claude Code,
+> an LLM turn, or a GitHub issue — there the text report from step 6 is what ships. Generate the card
+> as an *addition* when the channel supports images, never as a substitute.
 
 > **Not a registry skill.** The card is produced directly from the BFF API below by a self-contained
 > local render script (Pillow) — there is no `bitflow-earnings-card` entry in `aibtcdev/skills`, so it
-> is not listed in this runbook's `skills:` frontmatter.
+> is not listed in this runbook's `skills:` frontmatter. Card layout, dynamic period label, spelling,
+> and renderer tests live in that script (agent workspace `tools/earnings-card/`), not in this repo;
+> this runbook governs the **data semantics** the script must honor.
 
 ### API
 
@@ -123,7 +196,9 @@ GET https://bff.bitflowapis.finance/api/app/v1/users/{wallet}/earnings/pnl/{pool
 ```
 
 Periods: `1d`, `7d`, `30d`. Returns `earningsUsd`, `earningsBtc`, `feeTvl`, `tvlUsd`, range, binStep,
-baseFee.
+baseFee. **The displayed period is never hardcoded** — it is derived per the report contract's
+period-label rule (campaign basis = entry→exit/report timestamps; report basis = the selected preset
+or custom range), and the card records the period source (`campaign` / `report`).
 
 ### Generation
 
@@ -134,21 +209,31 @@ python3 generate_card.py --wallet <SP-address> --pool <pool-id> --period <1d|7d|
 
 Output: `output/earnings-card-{pool}-{period}.png`
 
-The script fetches live data → caches token icons → renders the card (1200×675 dark theme, green hero
-earnings figure, overlapping token icons, footer stat chips: FEE/TVL %, YOUR TVL, RANGE, BIN STEP, FEE).
+The script fetches live data → caches token icons → renders the card (1200×675 dark theme, overlapping
+token icons). Per the report contract, the **hero is `NET PnL after gas`** with a `vs hold, after gas`
+supporting line; the deployed hold baseline and final inventory are core rows; and
+`Earnings` / `Fee/TVL %` / `Gas` are **subordinate footer chips laid out so they cannot read as
+additive to net**. Spell the label **`Fee/TVL`** everywhere (no `Feel/TVL`).
 
 ### When to generate
 
-- User asks for earnings, PnL, or "share my performance"
-- End-of-campaign wrap-up (pair with the full PnL component breakdown)
-- Periodic reports (daily/weekly summaries)
-- Social content (X threads, Discord, Telegram)
+Only as an *addition* to the step-6 text report, and only in an image-capable channel:
+
+- User asks to "share my performance" / wants a visual for TG, Discord, or a social thread
+- End-of-campaign wrap-up posted to an image channel (the text report still leads)
+- Periodic visual summaries where images render
+
+Do **not** generate a card as the answer in CLI, Claude Code, an LLM turn, or a GitHub issue — ship
+the text report there. The card never travels without its report.
 
 ### Guardrails
 
-- The card shows **Bitflow app fee attribution** — it is NOT the full PnL picture.
-- **Always pair** the card image with the component PnL report from step 6 (IL, fees, gas, net).
+- The card's `Earnings`/`Fee/TVL` show **Bitflow app fee attribution** — NOT the full PnL picture and
+  NOT additive to net (they are subordinate chips; net-vs-hold-after-gas is the only hero).
+- **Always pair** the card image with the component PnL report from step 6 (IL, fees, gas, net); the
+  card renders that same object and must not diverge from it.
 - Never present the card's earnings figure as campaign profit without the hold-baseline context (INV-8).
+- Period label is derived, never assumed `7D`; the card records the period source (`campaign`/`report`).
 - The API is read-only and keyless (beta). Cache results ≥5 min to be respectful of rate limits.
 
 ### Dependencies
