@@ -127,6 +127,16 @@ evidence chain stays auditable.
 9. **DISARM** — at campaign close: disable all schedules and the watchdog, confirm closed state
    per the exit runbook's closure proof, write the final ledger entry, and mark `campaign-state`
    closed. Leftover live schedules against a closed campaign are an incident, not litter.
+   Disarm is **host-level, and it is a proof, not an intent**: enumerate *generic/shared* residents
+   too, not only campaign-specific ones — a signer-enabled service still bound to the ended campaign
+   by an **implicit default** is the dangerous case (field-seen: no tx submitted, but stale
+   `rebalance,exit` authority survived closure). Verify (a) no signer-enabled process still
+   references the campaign, (b) no in-flight tx remains, (c) repository ↔ installed ↔ loaded
+   scheduler config reconcile to a dormant, signer-disabled, campaign-unbound template, and (d) the
+   runtime **fails closed** — a closure-proven campaign state is rejected before any heartbeat/loop
+   can start (require an explicit campaign-state binding; never an implicit campaign default). See
+   [LSN-0017](../knowledge/lessons/lessons-catalog.md#lsn-0017) and the closeout runbook's
+   host-disarm checklist. (LSN-0015 covers the write-path lifecycle gate; this covers the host.)
 
 ## Expected outputs
 
@@ -166,7 +176,10 @@ Map each failure to **Handbook Chapter 3** (don't restate the recovery):
   — staged-repair and actuator-chain lessons), and **#28 (dlmm_1 campaign-003 — the promotion
   citation: a scheduled loop ran this doctrine end-to-end on mainnet: day-0 validated script monitor,
   per-tick gated auto-repair, planned-end exit with renewal check, and disarm at close, with a
-  degraded-LLM fallback exercised mid-campaign)**. KB lessons: LSN-0007, LSN-0008, LSN-0011.
+  degraded-LLM fallback exercised mid-campaign)**, and **#35 (Hex Stallion dlmm_1 control-plane
+  addendum — a generic signer-enabled resident survived closure via an implicit campaign default;
+  the DISARM step's host-level proof exists to catch exactly this)**. KB lessons: LSN-0007,
+  LSN-0008, LSN-0011, LSN-0015, LSN-0017.
 - **Relationship to other runbooks:** this runbook owns the harness (schedules, gates, halts,
   alerts, rehearsal, disarm). The write branches themselves are the recenter and exit runbooks;
   nothing here overrides their procedures. If a conflict appears, the operation runbook wins for
