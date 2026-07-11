@@ -6,7 +6,7 @@ private local memory (`memory/hodlmm-lessons.md`).
 
 > **Read this before launching a campaign on a pool.** Then read that pool's playbook and the lessons
 > catalog. This is the operationalized "read recent closeout issues before the next launch" step
-> (closeout runbook §6).
+> (closeout runbook §7).
 
 ## How it works (the three layers)
 

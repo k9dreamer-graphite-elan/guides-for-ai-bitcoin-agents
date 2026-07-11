@@ -32,6 +32,25 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
   remain in the agent-workspace generator script, out of scope for this repo.
 
 ### Added
+- **NEW spec: `campaign-memo-tags` v1 (draft) — on-chain campaign boundary demarcation**
+  ([#39](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/39); origin:
+  Bitflow / BFF Army dashboard handoff 2026-07-10; consumer: BFF Army episode-level accounting,
+  BitflowFinance/bff-army#44). One 1 µSTX self-transfer memo per campaign boundary
+  (`H1[E|R|X]:<pool>-<yymmdd start>-<nnn>[:txid8]`, ≤34 bytes) so chain data can express where one
+  campaign ends and the next begins — permanent, parse-later, purely additive. Adopted with four
+  amendments over the handed-off grammar: full 3-digit canonical counter (no truncation), `:txid8`
+  allowed on all roles and **required on retroactive tags**, retroactive emission legal (unattended
+  loops never tag — write-path minimalism per LSN-0015/0017; catch-up tags at the next supervised
+  cycle), and `X` is terminal (supersedes a dangling `R` from an abandoned staged recenter,
+  LSN-0016). Trust model: tags label, transfers measure — memos never feed PnL math; closure proof
+  unchanged; declared intent, never inferred (resolves the 100%-withdraw ambiguity). Runbook hooks:
+  `campaign-entry` gains a **TAG** Day-0 step (`E` mints the campaign id after the deposit
+  confirms); `recenter` notes `R` on both legs of non-atomic recenters (atomic `move-*` untagged);
+  `closeout` (v0.4→0.5) gains the **STAMP** deferred-exit step — the one carve-out to its
+  read-only contract, a labeling step and **not** a closure gate — and its zero-gas marker addendum
+  is reconciled (the spec is the standing operator-approved marker; its grammar supersedes the
+  ad-hoc `<CAMPAIGN-ID>-EXIT` memo IDs while the `tx_role` report-layer vocabulary is unchanged);
+  `unattended-automation` notes the loop-never-tags rule. `llms.txt` gains a Specs section.
 - **KB: Hex Stallion `dlmm_1` control-plane closeout addendum ingested**
   ([#35](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/35)): new
   **LSN-0017** — disarm is host-level; no signer-enabled process may outlive campaign closure. A

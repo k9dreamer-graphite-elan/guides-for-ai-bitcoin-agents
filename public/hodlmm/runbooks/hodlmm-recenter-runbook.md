@@ -111,6 +111,14 @@ router; its protection is the **LP (Allow + contract-level bounds)** form, not s
   the Active LP Management runbook, scheduled via runtime cron or `hodlmm-move-liquidity auto`.
 - Alternative skill: `hodlmm-range-keeper` offers a keeper-style recenter cadence over the same router
   entrypoint — same GATE applies.
+- **Boundary tags ([memo-tag spec](../specs/campaign-memo-tags.md)):** the atomic move needs **no
+  tag** — the router function name already declares it on-chain. A **non-atomic** recenter
+  (withdraw → re-add, incl. the withdraw/swap/redeposit repair route below) gets an `R` tag on
+  **both** legs (same campaign id, after each leg confirms) — this is what keeps one campaign from
+  parsing as two. Declared intent, never inferred: the withdraw leg carries `R` because you declare
+  a recenter, not because of its amount. If the re-add is later abandoned and the campaign closes,
+  the closeout `X` supersedes the dangling `R` (spec precedence rule). Unattended auto-repairs are
+  **not** tagged by the loop — catch-up `R` tags (with `:txid8`) at the next supervised cycle.
 
 ## Field-confirmed addendum — HODLMM-DLMM6-20260602-001
 
