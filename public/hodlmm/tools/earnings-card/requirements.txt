@@ -1,0 +1,4 @@
+# Earnings-card reference implementation.
+Pillow>=10.0        # render_card.py (PNG rendering)
+requests>=2.28      # optional — only the BFF chip enrichment / icon fetch use it;
+                    # --no-bff ledger-only rendering works without it

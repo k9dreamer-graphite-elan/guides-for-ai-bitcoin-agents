@@ -15,7 +15,12 @@ from pathlib import Path
 SKILL_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SKILL_DIR))
 
-from card_model import build_card_model, derive_period  # noqa: E402
+from card_model import (  # noqa: E402
+    adapt_step6_report,
+    build_card_model,
+    derive_period,
+    safe_name,
+)
 
 
 def base_report(**over):
@@ -52,6 +57,102 @@ class TestHero(unittest.TestCase):
         del bad["net_pnl"]
         with self.assertRaises(ValueError):
             build_card_model(bad)
+
+    def test_net_pnl_without_usd_raises_value_error(self):
+        with self.assertRaises(ValueError):
+            build_card_model(base_report(net_pnl={}))
+
+
+class TestStep6Adapter(unittest.TestCase):
+    """The canonical hodlmm-pnl-runbook Step-6 object renders without transform."""
+
+    def step6_report(self, **over):
+        r = {
+            "campaign_id": "HODLMM-DLMM1-20260702-003",
+            "pair": {"x": {"symbol": "sBTC"}, "y": {"symbol": "USDCx"}},
+            "cost_basis": "123,853 sats + 0.111788 USDCx",
+            "v_hold": 78.21,
+            "v_position_no_fees": 80.09,
+            "il_only_pnl": 1.88,
+            "fee_pnl": 7.66,
+            "fee_confidence": "high",
+            "gas": 0.49,
+            "net_pnl": 9.05,
+            "fee_to_il_ratio": 4.07,
+            "time_in_range_pct": 92.0,
+            "final_inventory_mark": 87.76,
+            "report_period": "Jul 3–Jul 10 · 6d 20h",
+            "period_source": "campaign",
+        }
+        r.update(over)
+        return r
+
+    def test_scalar_net_pnl_becomes_hero(self):
+        m = build_card_model(self.step6_report())
+        self.assertEqual(m["hero"]["text"], "+$9.05")
+        # pct derived on the deployed basis (v_hold): 9.05 / 78.21 ≈ 11.6%
+        self.assertEqual(m["pct_line"], "+11.6% vs hold, after gas")
+
+    def test_core_rows_mapped(self):
+        m = build_card_model(self.step6_report())
+        rows = dict(m["rows"])
+        self.assertIn("$78.21", rows["Deployed hold baseline"])
+        self.assertEqual(rows["Final inventory"], "$87.76")
+        self.assertIn("Campaign", rows["Period"])
+        self.assertEqual(m["period_source"], "campaign")
+
+    def test_scalar_gas_is_numeraire_mark(self):
+        m = build_card_model(self.step6_report())
+        gas = next(c for c in m["chips"] if c["label"].startswith("Gas"))
+        self.assertEqual(gas["label"], "Gas $0.49")
+
+    def test_card_shape_passthrough(self):
+        r = base_report()
+        self.assertIs(adapt_step6_report(r), r)
+
+
+class TestFeeConfidenceGuardrail(unittest.TestCase):
+    """Low fee_confidence ⇒ Earnings is context-only even if 'realized' claims
+    otherwise, and the caveat is surfaced in the footer (runbook display-only
+    guardrail, INV-8)."""
+
+    def test_low_confidence_forces_context_only(self):
+        m = build_card_model(base_report(
+            fee_confidence="low",
+            context={"earnings_usd": 5.0, "realized": True},
+        ))
+        earn = next(c for c in m["chips"] if c["label"].startswith("Earnings"))
+        self.assertTrue(earn["context_only"])
+        self.assertTrue(m["earnings_context_only"])
+
+    def test_confidence_rendered_in_footer(self):
+        m = build_card_model(base_report(fee_confidence="low"))
+        self.assertIn("fee_confidence: low", m["footer"])
+        self.assertIn("period source: campaign", m["footer"])
+
+    def test_high_confidence_realized_stays_green(self):
+        m = build_card_model(base_report(
+            fee_confidence="high",
+            context={"earnings_usd": 5.0, "realized": True},
+        ))
+        earn = next(c for c in m["chips"] if c["label"].startswith("Earnings"))
+        self.assertFalse(earn["context_only"])
+
+
+class TestSafeName(unittest.TestCase):
+    """Untrusted campaign ids / token symbols must not traverse output paths."""
+
+    def test_traversal_neutralized(self):
+        self.assertNotIn("/", safe_name("../../../../etc/passwd", "card"))
+        self.assertNotIn("..", safe_name("../../x", "card"))
+
+    def test_empty_falls_back(self):
+        self.assertEqual(safe_name("", "card"), "card")
+        self.assertEqual(safe_name(None, "card"), "card")
+
+    def test_normal_id_preserved(self):
+        self.assertEqual(safe_name("HODLMM-DLMM1-20260702-003", "card"),
+                         "HODLMM-DLMM1-20260702-003")
 
 
 class TestPeriodLabel(unittest.TestCase):

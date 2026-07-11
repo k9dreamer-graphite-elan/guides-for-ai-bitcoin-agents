@@ -3,7 +3,7 @@ name: HODLMM Recenter Runbook
 type: runbook
 handbook: v0.8
 enforces: [INV-1, INV-2, INV-6, INV-7, INV-9, INV-10, INV-11, INV-12]
-skills: [hodlmm-bin-guardian, hodlmm-move-liquidity, nonce-manager]
+skills: [hodlmm-bin-guardian, hodlmm-move-liquidity, hodlmm-risk, nonce-manager]
 status: active
 ---
 
@@ -53,7 +53,7 @@ position has drifted but the pool is still worth providing to.
 [ ] Pool healthy, NOT stale; recenter (not exit) is the right call        (INV-9)
 [ ] IL not outrunning fees (else exit)                                    (§6.6)
 [ ] Move protection set: min-dlp / liquidity-fee caps / active-bin deviation (INV-2, LP form)
-[ ] Nonce serialized; signer RBF path known                              (INV-6)
+[ ] Nonce serialized (`nonce-manager`); signer RBF path known            (INV-6)
 [ ] Ledger entry prepared                                                (INV-11)
 ```
 

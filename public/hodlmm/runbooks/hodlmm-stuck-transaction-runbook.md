@@ -57,8 +57,8 @@ and apply the correct recovery — the three causes need three different fixes a
  withdraw→swap→redeposit; partial → residual).
 3. **CLEAR HEAD NONCE FIRST** — if the stuck tx is the head nonce, unstick it before anything else (§3.2 /
  R2); serialize via `nonce-manager` (INV-6).
-4. **APPLY FIX** — bounded replacement swap (Deny PCs + real min-out, INV-2/3) or LP op (Allow + bounds).
- Signer via env, never argv.
+4. **APPLY FIX** — bounded replacement swap via `bitflow` (Deny PCs + real min-out, INV-2/3) or LP op
+ via `hodlmm-move-liquidity` (Allow + bounds). Signer via env, never argv.
 5. **VERIFY** — replacement mined `success`, head nonce advanced, re-scan position/ratio (INV-10). Partial
  fill is expected.
 6. **REMEMBER** — log cause, fix, gas, outcome to both ledgers + memory (INV-11/12).

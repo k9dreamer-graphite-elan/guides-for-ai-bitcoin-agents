@@ -58,7 +58,7 @@ imbalance), which is a different problem from **price drift** (range out of posi
 [ ] Corrective swap bounded: *-simple-range-multi, max-steps ≤ 230,
     Deny post-conditions with real min-out                                (INV-2/3)
 [ ] Redeploy protection: min-dlp / liquidity-fee caps / active-bin deviation (INV-2, LP form)
-[ ] Nonce serialized across swap → redeploy                              (INV-6)
+[ ] Nonce serialized (`nonce-manager`) across swap → redeploy            (INV-6)
 [ ] Ledger entry prepared                                                (INV-11)
 ```
 
@@ -103,8 +103,10 @@ back; serialize the nonce between them (INV-6).
 
 ## Idempotency / cooldown
 
-- **4h per-pool cooldown** (the balancer enforces it) — do not loop rebalances; `blocked: cooldown` is
-  a safe stop, not a failure.
+- **Two cooldowns apply** (handbook §4.4 / §7.2): the balancer respects the **4h per-pool move
+  cooldown** (owned by `hodlmm-move-liquidity`) and enforces its own **1h meta-cooldown** so it never
+  re-corrects inside one flow event. Do not loop rebalances; `blocked: cooldown` is a safe stop, not
+  a failure.
 - A partial cycle (swap landed, redeploy didn't) is **resumable** — re-scan and finish the redeploy;
   never re-send the corrective swap, which would over-correct the ratio (INV-6).
 

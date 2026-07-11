@@ -62,8 +62,16 @@ DIVIDER = "#1d2320"
 W, H = 1200, 675
 
 
-def _font(path: str, size: int) -> ImageFont.FreeTypeFont:
-    return ImageFont.truetype(path, size=size)
+def _font(path: str, size: int) -> ImageFont.ImageFont:
+    try:
+        return ImageFont.truetype(path, size=size)
+    except OSError:
+        # No candidate font on this host — degrade to Pillow's built-in font
+        # instead of crashing the render.
+        try:
+            return ImageFont.load_default(size=size)
+        except TypeError:  # Pillow < 10.1 has no sized default
+            return ImageFont.load_default()
 
 
 def _text_size(draw, text, fnt):
@@ -154,6 +162,14 @@ def render_card(model: dict, output_path, icon_x_path=None, icon_y_path=None) ->
     # --- Divider + non-additive caption ---
     draw.line((26, 500, W - 26, 500), fill=DIVIDER, width=2)
     draw.text((26, 512), model.get("context_divider", ""), font=_font(FONT_REG, 17), fill=MUTED)
+
+    # --- Footer caveat (fee_confidence · period source) — right-aligned ---
+    footer = model.get("footer", "")
+    if footer:
+        ff = _font(FONT_REG, 17)
+        fw, _ = _text_size(draw, footer, ff)
+        draw.text((W - 26 - fw, 512), footer, font=ff,
+                  fill=AMBER if model.get("fee_confidence") is not None else MUTED)
 
     # --- Subordinate chips ---
     x, y = 26, 566

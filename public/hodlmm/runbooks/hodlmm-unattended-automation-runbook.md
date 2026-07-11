@@ -3,7 +3,7 @@ name: HODLMM Unattended Automation Runbook
 type: runbook
 handbook: v0.9
 enforces: [INV-1, INV-6, INV-7, INV-10, INV-11, INV-12, INV-13]
-skills: [hodlmm-move-liquidity, bitflow, nonce-manager]
+skills: [nonce-manager]
 status: active
 ---
 
@@ -88,7 +88,7 @@ evidence chain stays auditable.
 [ ] Condition confirmed on `confirm-scans` consecutive scans (kills transient read jitter)
 [ ] Charter caps: gas budget, write count, cooldown clock, untouchable list — all green
 [ ] Failure gate closed (no unresolved prior failure)
-[ ] Nonce serialized — one in-flight tx per signer, globally across everything that signs (INV-6)
+[ ] Nonce serialized via `nonce-manager` — one in-flight tx per signer, globally across everything that signs (INV-6)
 [ ] Ledger entry prepared (INV-11)
 ```
 

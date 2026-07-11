@@ -53,7 +53,7 @@ Fully withdraw a wallet's liquidity from a HODLMM pool and stand the position do
 [ ] Withdraw protection set: min-dlp / liquidity-fee caps / deviation   (INV-2, LP form)
 [ ] Conversion swap (if any): *-simple-range-multi, max-steps <= 230,
     Deny post-conditions with real min-out                              (INV-2/3)
-[ ] Nonce serialized; signer RBF path known                            (INV-6)
+[ ] Nonce serialized (`nonce-manager`); signer RBF path known          (INV-6)
 [ ] Ledger entry prepared; mark pool exited/stale in memory             (INV-11/12)
 ```
 
