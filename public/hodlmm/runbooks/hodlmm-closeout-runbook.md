@@ -1,7 +1,7 @@
 ---
 name: HODLMM Closeout Runbook
 type: runbook
-version: 0.4
+version: 0.5
 updated: 2026-07-10
 handbook: v0.6
 enforces: [INV-1, INV-8, INV-10, INV-11, INV-12]
@@ -13,7 +13,9 @@ status: active
 
 > Conforms to the [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) **v0.6**.
 > Enforces: INV-1, INV-8, INV-10, INV-11, INV-12.
-> **Read/report-only — no on-chain writes.** Runs *after* `hodlmm-exit-runbook` and `hodlmm-pnl-runbook`.
+> **Read/report-only — no on-chain writes**, with one carve-out: the optional 1 µSTX **deferred exit
+> stamp** (step 5), a labeling transfer under the [memo-tag spec](../specs/campaign-memo-tags.md) —
+> never a trading write. Runs *after* `hodlmm-exit-runbook` and `hodlmm-pnl-runbook`.
 
 ## Purpose
 
@@ -67,10 +69,17 @@ from it (the cross-agent learning loop). Recommended after every campaign; not m
    (INV-10). Protocol/status endpoints lag — treat as advisory, not proof.
 4. **PnL honesty pass** (INV-8) — headline = net-vs-hold after gas with realized confidence; any DLP or
    protocol "display earnings" labeled **context-only, never realized**.
-5. **SUBMIT** — open **one** issue via the Campaign Closeout template (title
+5. **STAMP (deferred exit tag)** — if the campaign adopts the
+   [memo-tag spec](../specs/campaign-memo-tags.md): after closure proof (step 3) and the honesty
+   pass, emit the `X` boundary tag (`H1X:<pool>-<yymmdd>-<nnn>:<txid8>` referencing the confirmed
+   exit tx; 1 µSTX self-transfer, nonce serialized — INV-6). Exit is a **declaration, not an
+   inference**: the campaign ends when the books close, not when DLP hits zero. The stamp is a
+   labeling step, **not** a closure gate — closure proof (step 3) is complete without it, and a
+   failed stamp never blocks or reopens a closeout (LSN-0016). Ledger-log the tag tx (INV-11).
+6. **SUBMIT** — open **one** issue via the Campaign Closeout template (title
    `[<Agent> · <Campaign-ID>] Campaign closeout — <pool>`; add ` (proposes changes)` if it includes
    proposed improvements). If unscoped, output the markdown for the operator to post.
-6. **REMEMBER** (INV-11/12) — log the issue URL and the distilled lessons to memory so future campaigns
+7. **REMEMBER** (INV-11/12) — log the issue URL and the distilled lessons to memory so future campaigns
    (and `DECIDE`) benefit; also **read recent closeout issues — and the pool's KB playbook
    (`../knowledge/pools/<pool>.md`) plus the [lessons catalog](../knowledge/lessons/lessons-catalog.md) —
    before the next launch**. (The KB is maintainer-written; you read it, you don't edit it.)
@@ -168,8 +177,13 @@ it `EXIT` would make routine moves read as closeouts (and vice versa).
 
 **Optional near-zero-cost memo rule.** Only put a campaign marker in a STX memo when a memo-bearing
 transaction is already being sent for another reason, or the operator explicitly approves a tiny
-marker transfer. Memo strings stay within the practical STX memo limit and use deterministic IDs
-(`<CAMPAIGN-ID>`, `<CAMPAIGN-ID>-EXIT`, `<CAMPAIGN-ID>-CLOSE`). Marker txs are never mandatory.
+marker transfer. Marker txs are never mandatory. *Superseding note (2026-07-10):* the
+[**campaign memo-tag spec**](../specs/campaign-memo-tags.md) is now the standing operator-approved
+form of exactly that marker transfer — its `H1…` grammar **replaces** the ad-hoc deterministic IDs
+this paragraph previously suggested (`<CAMPAIGN-ID>-EXIT`, `<CAMPAIGN-ID>-CLOSE`). For campaigns
+that adopt the spec, boundary tags (`E`/`R`/`X`) are emitted per its rules (see step 5); the
+zero-gas default still governs everything else, and the `tx_role` report-layer vocabulary above is
+unchanged (tags demarcate boundaries on-chain; `tx_role` attributes every tx in reports).
 
 Worked example (this campaign's terminal tx):
 

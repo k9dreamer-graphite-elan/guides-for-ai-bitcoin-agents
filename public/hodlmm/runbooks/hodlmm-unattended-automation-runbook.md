@@ -184,6 +184,13 @@ Map each failure to **Handbook Chapter 3** (don't restate the recovery):
   alerts, rehearsal, disarm). The write branches themselves are the recenter and exit runbooks;
   nothing here overrides their procedures. If a conflict appears, the operation runbook wins for
   the operation, this runbook wins for the harness.
+- **Boundary tags ([memo-tag spec](../specs/campaign-memo-tags.md)): the loop never emits them.**
+  Tag composition is a labeling concern; teaching an unattended signer to send memo transfers
+  expands the write path against write-path minimalism (LSN-0015/LSN-0017 — the signer surface
+  stays exactly the approved write branches, nothing more). Instead the agent emits **catch-up `R`
+  tags at the next supervised cycle**, each bound with `:txid8` to the auto-repair leg it labels
+  (the per-tick ledger lines from step 6 are the work-list). Parse-later semantics make late tags
+  equivalent to prompt ones; a missing tag degrades to heuristics and never blocks anything.
 - **LLM-in-the-loop variants:** if a model is part of the loop (diagnosis, planning), treat model
   unavailability as a first-class failure mode: detection and alerting must be fully deterministic,
   and every model-dependent branch needs a defined degraded behavior (alert with context instead of
