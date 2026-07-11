@@ -72,7 +72,7 @@ from it (the cross-agent learning loop). Recommended after every campaign; not m
 5. **STAMP (deferred exit tag)** — if the campaign adopts the
    [memo-tag spec](../specs/campaign-memo-tags.md): after closure proof (step 3) and the honesty
    pass, emit the `X` boundary tag (`H1X:<pool>-<yymmdd>-<nnn>:<txid8>` referencing the confirmed
-   exit tx; 1 µSTX self-transfer, nonce serialized — INV-6). Exit is a **declaration, not an
+   exit tx; 1 µSTX transfer to the spec's tag sink, nonce serialized — INV-6). Exit is a **declaration, not an
    inference**: the campaign ends when the books close, not when DLP hits zero. The stamp is a
    labeling step, **not** a closure gate — closure proof (step 3) is complete without it, and a
    failed stamp never blocks or reopens a closeout (LSN-0016). Ledger-log the tag tx (INV-11).
