@@ -1,0 +1,25 @@
+{
+  "campaign_id": "HODLMM-DLMM1-20260702-003",
+  "wallet": "SP1AK5ZKGDFAPXDVT6T9HZPW5D2R4DJ6Z40PZ7MKR",
+  "pool": "dlmm_1",
+  "pair": {
+    "x": {"symbol": "sBTC"},
+    "y": {"symbol": "USDCx"}
+  },
+  "numeraire": "USD",
+  "net_pnl": {"usd": 9.05, "pct_vs_hold": 11.6},
+  "deployed_hold_baseline": {"usd": 78.21, "native": "123,853 sats + 0.111788 USDCx"},
+  "final_inventory": {"usd": 87.76},
+  "gas": {"stx": 3.0, "usd": 0.49},
+  "period": {
+    "source": "campaign",
+    "entry_ts": "2026-07-03T04:03:00Z",
+    "exit_ts": "2026-07-10T00:03:00Z"
+  },
+  "context": {
+    "earnings_usd": 24.16,
+    "fee_tvl_pct": 39.70,
+    "tvl_usd": null,
+    "realized": false
+  }
+}

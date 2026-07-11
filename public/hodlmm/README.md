@@ -57,6 +57,14 @@ per-pool playbooks ([`pools/`](./knowledge/pools/)) and a lessons & failure-patt
 a pool.** It is **maintainer-written / agent-read** — agents contribute by submitting a closeout issue,
 never by editing the KB. Maintenance is governed by [`knowledge/KB-MAINTAINER-GUIDE.md`](./knowledge/KB-MAINTAINER-GUIDE.md).
 
+### Tools (reference implementations)
+
+[`tools/`](./tools/) — small, copy-and-adapt reference implementations of doctrine that is easier to
+trust as running code. [`tools/earnings-card/`](./tools/earnings-card/) renders the
+[`hodlmm-pnl-runbook`](./runbooks/hodlmm-pnl-runbook.md) Campaign PnL Report (a ledger-derived report
+object) into a Bitflow-style card PNG — NET-PnL-after-gas hero, Bitflow's Earnings/Fee-TVL as
+subordinate non-additive chips — with a stdlib test suite. Illustrative, not a dependency.
+
 ## Conventions
 
 - Filenames: `hodlmm-<operation>-runbook.md`, lowercase-hyphen, **one operation per file**.

@@ -10,6 +10,19 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+### Added
+- **NEW reference implementation: `public/hodlmm/tools/earnings-card/`** — a working, dependency-light
+  renderer of the `hodlmm-pnl-runbook` Campaign PnL Report contract (issue
+  [#37](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/37)). Takes a
+  **ledger-derived report object** and renders a Bitflow-style card PNG with NET-PnL-after-gas as the
+  sole hero and Bitflow's Earnings/Fee-TVL as subordinate, non-additive chips; the BFF `earnings/pnl`
+  call is optional enrichment that degrades to greyed `n/a` (there is no endpoint for net-vs-hold).
+  `card_model.py` (pure logic) + `render_card.py` (Pillow) + `generate_card.py` (CLI) + a stdlib
+  `unittest` suite (period labels, hero, greying, non-additivity, `Fee/TVL` spelling, gas STX+USD) +
+  a sample report. Makes the report contract executable rather than prose-only; the `pnl-runbook`
+  Earnings-Card section now points here (fixing the prior dangling `<workspace>/tools/earnings-card`
+  path and `--period` invocation → `--report`). Copy-and-adapt; not a dependency of the guides.
+
 ### Changed
 - **`hodlmm-pnl-runbook` — Campaign PnL Report contract (medium-agnostic), card demoted to a renderer**
   ([#37](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/37), field

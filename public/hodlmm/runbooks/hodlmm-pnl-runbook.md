@@ -208,11 +208,11 @@ subordinate and non-additive) so the two can never diverge.
 > an LLM turn, or a GitHub issue — there the text report from step 6 is what ships. Generate the card
 > as an *addition* when the channel supports images, never as a substitute.
 
-> **Not a registry skill.** The card is produced directly from the BFF API below by a self-contained
-> local render script (Pillow) — there is no `bitflow-earnings-card` entry in `aibtcdev/skills`, so it
-> is not listed in this runbook's `skills:` frontmatter. Card layout, dynamic period label, spelling,
-> and renderer tests live in that script (agent workspace `tools/earnings-card/`), not in this repo;
-> this runbook governs the **data semantics** the script must honor.
+> **Not a registry skill.** The card is produced by a self-contained render script (Pillow) — there
+> is no `bitflow-earnings-card` entry in `aibtcdev/skills`, so it is not listed in this runbook's
+> `skills:` frontmatter. A working **reference implementation** ships in this repo at
+> [`../tools/earnings-card/`](../tools/earnings-card/) (card model + renderer + tests); copy and adapt
+> it into your own workspace. This runbook governs the **data semantics** it honors.
 
 ### API
 
@@ -231,11 +231,12 @@ card records the period source (`campaign` / `report`).
 ### Generation
 
 ```bash
-cd <workspace>/tools/earnings-card
-python3 generate_card.py --wallet <SP-address> --pool <pool-id> --period <1d|7d|30d>
+cd public/hodlmm/tools/earnings-card         # the in-repo reference implementation
+python3 generate_card.py --report <report.json>            # ledger report → card
+python3 generate_card.py --report <report.json> --no-bff   # ledger-only (skip BFF chips)
 ```
 
-Output: `output/earnings-card-{pool}-{period}.png`
+Output: `output/bitflow-pnl-card-{campaign_id}.png`
 
 The script takes the **Step-6 report object** (ledger-derived) as its input, *optionally* calls the
 BFF endpoint above for the two context chips, caches token icons, and renders the card (1200×675 dark
@@ -272,7 +273,8 @@ the text report there. The card never travels without its report.
 pip install Pillow requests
 ```
 
-Token icons are auto-cached in `tools/earnings-card/icons/` on first run.
+Token icons are auto-cached in the tool's `icons/` on first run. Full setup + report-object schema:
+[`../tools/earnings-card/README.md`](../tools/earnings-card/README.md).
 
 ## Idempotency / cooldown
 
@@ -283,9 +285,9 @@ Token icons are auto-cached in `tools/earnings-card/icons/` on first run.
 
 ## Notes
 
-- **Earnings Card** requires `Pillow` and `requests` — both are standard Python packages. The
-  `generate_card.py` script is self-contained: API fetch → icon cache → PNG render. No wallet
-  unlock or signing needed.
+- **Earnings Card** requires `Pillow` (render) and `requests` (optional BFF enrichment) — both
+  standard Python packages. The reference `generate_card.py` takes the ledger report object →
+  optional BFF chip enrichment → PNG render. Read-only: no wallet unlock or signing needed.
 - The `impermanentLossEstimatePct` from `hodlmm-risk` is a **monitoring proxy** (`driftScore × 0.08`,
   handbook §6.3/§6.6), not a true price-ratio IL — use the empirical per-bin computation here for
   reporting, the proxy only for cheap cycle-to-cycle monitoring.
