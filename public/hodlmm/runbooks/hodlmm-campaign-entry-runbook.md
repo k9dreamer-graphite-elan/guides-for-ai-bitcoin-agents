@@ -89,7 +89,9 @@ the **LP (Allow + contract-level bounds)** form, not sender post-conditions (INV
    `hodlmm-bin-guardian run` → expect `HOLD` (in-range); confirm each tx mined `success` (INV-10).
 8. **REMEMBER** — write both ledgers (txids, entry bins, cost basis, gas) and seed memory: pool,
    entry price, target ratio, width — the basis the [PnL runbook](./hodlmm-pnl-runbook.md) and
-   monitoring loop will use (INV-11/12).
+   monitoring loop will use (INV-11/12). Record the **deposited native amounts and the entry
+   timestamp** explicitly: the closeout PnL report/card derives the deployed hold baseline and the
+   campaign-period label from them, and there is no endpoint that can reconstruct them later.
 
 ## Expected outputs
 
