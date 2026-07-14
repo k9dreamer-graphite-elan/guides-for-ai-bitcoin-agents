@@ -2,7 +2,7 @@
 type: kb-pool
 pool: <pool-id>            # e.g. dlmm_6
 pair: <BASE/QUOTE>         # e.g. STX/sBTC
-handbook: v0.9
+handbook: v0.10
 version: 0.1
 updated: <YYYY-MM-DD>
 last_ingested: <YYYY-MM-DD>

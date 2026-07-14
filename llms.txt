@@ -6,7 +6,9 @@
 > (procedures) → knowledge base (distilled campaign memory). Downstream docs cite the handbook by
 > `INV-` ID and never restate its constants.
 
-Doctrine version in force: **handbook v0.9** (invariants INV-1…INV-13; v0.9 adopts the Strict/Simple
+Doctrine version in force: **handbook v0.10** (invariants INV-1…INV-13; v0.10 corrects the
+RBF-unstick recipe — the stuck-nonce clear is a 1 µSTX transfer to a fixed external address, never a
+self-transfer, which nodes reject at mempool admission; v0.9 adopts the Strict/Simple
 LP fund-protection forms in INV-2 and the freshness/fallback headers + `X-API-Key` guidance in INV-7;
 v0.8 corrects the bin-side rule stated inverted in v0.6/v0.7 — above active = X only, below = Y only).
 Runbook frontmatter pins the

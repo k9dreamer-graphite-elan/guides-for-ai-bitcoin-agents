@@ -36,7 +36,8 @@ and apply the correct recovery — the three causes need three different fixes a
 
 ## Required Approval Scope (INV-1)
 - Recovery acts **within the original action's scope**. A replacement swap needs `swap`; a replacement LP
- op needs the original LP permission. The cancel primitive (1 µSTX self-transfer at the stuck nonce) is a
+ op needs the original LP permission. The cancel primitive (1 µSTX transfer to a fixed external address at the stuck nonce — never
+ self-addressed; handbook §3.2) is a
  wallet op — clears the signer, grants no new authority. Expired scope ⇒ read-only; escalate.
 
 ## Gates — run BEFORE execute
