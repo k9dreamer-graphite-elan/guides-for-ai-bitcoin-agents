@@ -10,6 +10,20 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+_Nothing yet._
+
+---
+
+## [0.10.1] - 2026-07-13
+
+The **skill-reference integrity** patch. A round-2 skills audit (PR
+[#46](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/46)): the
+handbook's Approved skill map now carries every skill the runbooks require, runbook `skills:`
+frontmatter matches actual procedure usage, the earnings-card reference tool accepts the canonical
+PnL report object and gets several hardening fixes (including a path-traversal fix), and
+`lint_docs.py` now validates skill names against the handbook map so this class of drift fails CI.
+PATCH bump — corrections only; no new doctrine, spec, or tool; the handbook stays at **v0.9**.
+
 ### Fixed
 - **Skill-reference audit (round 2)** — swept every skill mentioned across the handbook, runbooks,
   and tools, in the spirit of the 0.7.0 audit:
