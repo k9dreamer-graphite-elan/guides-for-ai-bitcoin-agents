@@ -110,6 +110,16 @@ class TestStep6Adapter(unittest.TestCase):
         r = base_report()
         self.assertIs(adapt_step6_report(r), r)
 
+    def test_dict_gas_passes_through_untouched(self):
+        m = build_card_model(self.step6_report(gas={"stx": 3.0, "usd": 0.49}))
+        gas = next(c for c in m["chips"] if c["label"].startswith("Gas"))
+        self.assertEqual(gas["label"], "Gas 3 STX (~$0.49)")
+
+    def test_explicit_period_wins_over_report_period(self):
+        m = build_card_model(self.step6_report(
+            period={"source": "report", "preset": "7d"}))
+        self.assertEqual(m["period_source"], "report")
+
 
 class TestFeeConfidenceGuardrail(unittest.TestCase):
     """Low fee_confidence ⇒ Earnings is context-only even if 'realized' claims

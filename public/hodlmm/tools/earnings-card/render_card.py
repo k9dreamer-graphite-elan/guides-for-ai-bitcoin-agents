@@ -168,8 +168,10 @@ def render_card(model: dict, output_path, icon_x_path=None, icon_y_path=None) ->
     if footer:
         ff = _font(FONT_REG, 17)
         fw, _ = _text_size(draw, footer, ff)
-        draw.text((W - 26 - fw, 512), footer, font=ff,
-                  fill=AMBER if model.get("fee_confidence") is not None else MUTED)
+        # Warning color only when the guardrail is actually engaged (low
+        # confidence); a high-confidence caveat is informational, not a warning.
+        low = str(model.get("fee_confidence") or "").strip().lower() == "low"
+        draw.text((W - 26 - fw, 512), footer, font=ff, fill=AMBER if low else MUTED)
 
     # --- Subordinate chips ---
     x, y = 26, 566

@@ -21,6 +21,7 @@ See ../../runbooks/hodlmm-pnl-runbook.md ("Data provenance") and README.md.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -73,7 +74,12 @@ def fetch_bff_context(wallet: str, pool: str, period: str) -> dict | None:
 
 def fetch_icon(url: str, name: str) -> Path | None:
     ICON_DIR.mkdir(parents=True, exist_ok=True)
-    icon_path = ICON_DIR / f"{safe_name(name, 'token')}.png"
+    fragment = safe_name(name, "token")
+    if fragment != str(name):
+        # Sanitization is lossy — suffix a short digest of the original so two
+        # distinct symbols can never share a cached icon file.
+        fragment += "-" + hashlib.sha256(str(name).encode()).hexdigest()[:8]
+    icon_path = ICON_DIR / f"{fragment}.png"
     if icon_path.exists():
         return icon_path
     if not url:

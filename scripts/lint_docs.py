@@ -91,9 +91,15 @@ max_inv = max(int(i) for i in defined_invs) if defined_invs else 0
 if f"| {CURRENT} |" not in handbook_text:
     err(HANDBOOK, f"Appendix C change log has no row for current version {CURRENT}")
 
-# The registry allowlist: every backticked name in the "Approved skill map" table.
+# The registry allowlist: every backticked name in the Skill column (last cell) of the
+# "Approved skill map" table — the Need column may backtick words that aren't skills.
 skill_map = re.search(r"### Approved skill map.*?\n(\|.*?)\n\n", handbook_text, re.S)
-APPROVED_SKILLS = set(re.findall(r"`([a-z][a-z0-9-]*)`", skill_map.group(1))) if skill_map else set()
+APPROVED_SKILLS = set()
+if skill_map:
+    for row in skill_map.group(1).splitlines():
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        if len(cells) >= 2:
+            APPROVED_SKILLS.update(re.findall(r"`([a-z][a-z0-9-]*)`", cells[-1]))
 if not APPROVED_SKILLS:
     err(HANDBOOK, "cannot find the 'Approved skill map' table (skills allowlist)")
 
@@ -142,7 +148,10 @@ for rb in runbooks:
         err(rb, f"`skills:` cites name(s) not in the handbook approved skill map: "
                 f"{', '.join(sorted(unknown_skills))}")
     if not rb.name.startswith("_TEMPLATE"):
-        unused = [s for s in declared if s not in body]
+        # Whole-name match: `bitflow` in the body must not satisfy a declared
+        # `bitflow-swap-aggregator` (or vice versa).
+        unused = [s for s in declared
+                  if not re.search(r"(?<![\w-])" + re.escape(s) + r"(?![\w-])", body)]
         if unused:
             warn(rb, f"`skills:` declares skill(s) never referenced in the body: "
                      f"{', '.join(sorted(unused))}")

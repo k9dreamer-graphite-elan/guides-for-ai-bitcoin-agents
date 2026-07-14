@@ -2,7 +2,7 @@
 name: HODLMM Closeout Runbook
 type: runbook
 version: 0.5
-updated: 2026-07-10
+updated: 2026-07-13
 handbook: v0.6
 enforces: [INV-1, INV-6, INV-8, INV-10, INV-11, INV-12]
 skills: [query, defi-portfolio-scanner, nonce-manager]
