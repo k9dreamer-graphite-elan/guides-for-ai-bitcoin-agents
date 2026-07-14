@@ -1,8 +1,8 @@
 ---
 name: Campaign Memo-Tag Spec
 type: spec
-version: 1.1
-updated: 2026-07-10
+version: 1.2
+updated: 2026-07-13
 handbook: v0.9
 enforces: [INV-1, INV-6, INV-8, INV-10, INV-11]
 status: draft
@@ -67,6 +67,32 @@ H1X:dlmm1-260710-004:ab12cd34     exit         (29 bytes)
 **Round-trip requirement:** `dlmm1-260710-004` ⇄ `HODLMM-DLMM1-20260710-004` must map mechanically
 in both directions (case, underscore, century prefix — no numeric rules), or chain and ledger drift
 apart on names.
+
+## Identity scoping — campaign ids are wallet-scoped, NOT globally unique
+
+Nothing in the grammar identifies the agent or wallet, so **two agents can legitimately mint the
+byte-identical campaign id** (same pool, same start date, same counter — e.g. both enter `dlmm_1`
+on the same day as their respective campaign `002`). This is by design, not a defect: the canonical
+key is the tuple
+
+```
+(watched principal, campaign id)
+```
+
+which is unique because each agent's counter is unique within its own ledger.
+
+Consequences (normative):
+
+- **Consumers MUST partition by sender.** Parser identity already comes from the sender (see the
+  emission recipe); the sink's incoming history is a convenience index that will genuinely contain
+  identical memo strings from different senders. Keying episodes on the bare memo string merges
+  unrelated agents' campaigns — always key on `(sender, campaign id)`.
+- **A bare campaign id is unambiguous only inside one wallet's history** (or one agent's ledger /
+  memory). Any cross-agent context — KB pages, closeout-issue searches, shared dashboards,
+  aggregated report/card output — must carry the agent or wallet alongside the id (the closeout
+  issue-title convention `[<Agent> · <Campaign-ID>]` already does this).
+- **`X` terminality and `R` same-id matching are per-sender.** One agent's `X` never terminates
+  another agent's identically-named campaign.
 
 ## Emission recipe (mechanism A — companion memo tx)
 

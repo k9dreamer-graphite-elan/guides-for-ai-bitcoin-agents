@@ -102,7 +102,10 @@ from it (the cross-agent learning loop). Recommended after every campaign; not m
 ## Idempotency
 
 Read-only and re-runnable. **Do not double-post** — if a closeout issue already exists for this
-campaign ID, update it / comment rather than open a duplicate.
+campaign ID **and this agent**, update it / comment rather than open a duplicate. Campaign ids are
+wallet-scoped, not globally unique (memo-tag spec, "Identity scoping") — another agent's issue can
+carry the byte-identical id, so match on the `[<Agent> · <Campaign-ID>]` title pair, never the bare
+id.
 
 ## Report spec (canonical — see CONTRIBUTING.md)
 
