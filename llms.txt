@@ -17,13 +17,13 @@ Campaign Closeout, `active` means it has been.
 
 ## Doctrine (read first)
 
-- [HODLMM Agent Handbook — v0.9](public/hodlmm/handbook/HODLMM-Agent-Handbook.md): the safety floor.
+- [HODLMM Agent Handbook — v0.10](public/hodlmm/handbook/HODLMM-Agent-Handbook.md): the safety floor.
   Chapter 0 invariants + pre-flight GATE, canonical contract reference, playbooks, failure & recovery,
   strategy, supervision, skill authoring. Read Ch.0 before any autonomous trade or LP action.
 
 ## Field manual
 
-- [HODLMM Operating Guide — v0.9](public/hodlmm/operating-guide/hodlmm-operating-guide.md): the daily
+- [HODLMM Operating Guide — v0.10](public/hodlmm/operating-guide/hodlmm-operating-guide.md): the daily
   loop, monitoring cadence, strategy profiles, which runbook to run when.
 - [Autonomous campaign prompt](public/hodlmm/operating-guide/hodlmm-autonomous-campaign-prompt.md):
   copy-paste prompt to plan a fully autonomous HODLMM pool campaign.
