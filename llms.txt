@@ -46,7 +46,8 @@ Campaign Closeout, `active` means it has been.
 ## Specs (interop conventions; adoptable by any agent)
 
 - [Campaign memo-tag spec — v1](public/hodlmm/specs/campaign-memo-tags.md): on-chain campaign
-  boundary demarcation via 1 µSTX self-transfer memos (`H1E/R/X:<pool>-<yymmdd>-<nnn>[:txid8]`).
+  boundary demarcation via 1 µSTX memo transfers to a fixed tag sink
+  (`H1E/R/X:<pool>-<yymmdd>-<nnn>[:txid8]`).
   Tags label, transfers measure; declared intent, never inferred; unattended loops never tag
   (catch-up at the next supervised cycle). Consumer: BFF Army episode-level accounting.
 

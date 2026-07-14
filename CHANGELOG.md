@@ -19,6 +19,19 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
   medium-confidence net-vs-hold result, and host-level disarm incident. Existing lifecycle,
   bounded-exit, and host-disarm doctrine remains canonical; this is the pool-specific lived history.
 
+### Fixed
+- **`campaign-memo-tags` spec v1.0 → v1.1 — emission recipient erratum (field-confirmed on the
+  first live emission attempt, 2026-07-10).** Stacks node mempool admission **rejects
+  self-transfers** (`TransferRecipientCannotEqualSender`), so mechanism A cannot use
+  sender = recipient as v1.0 specified. The recipe now sends the 1 µSTX tag transfer from the
+  watched principal to the **designated tag sink**
+  `SP1DK6YXB474DEENXSK3HXDYNW5K4MC5SMAQBY6Y3` (operator/dashboard-designated). Parser identity
+  stays **sender**-based; the fixed sink is a secondary filter and doubles as a network-wide tag
+  index via its incoming history. Grammar, roles, trust model, and when-to-emit rules are
+  unchanged. Matching wording fixes in the entry/closeout runbook tag steps and `llms.txt`.
+  Note: the handbook's canonical RBF-unstick primitive ("1 µSTX self-transfer at the stuck
+  nonce") hits the same node policy and is tracked separately.
+
 ---
 
 ## [0.10.1] - 2026-07-13

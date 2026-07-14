@@ -1,7 +1,7 @@
 ---
 name: Campaign Memo-Tag Spec
 type: spec
-version: 1.0
+version: 1.1
 updated: 2026-07-10
 handbook: v0.9
 enforces: [INV-1, INV-6, INV-8, INV-10, INV-11]
@@ -21,7 +21,7 @@ status: draft
 Chain data cannot express where one campaign ends and the next begins: campaign IDs live in the
 agent's ledger and GitHub issues, and a 100%-withdraw-then-re-add is indistinguishable from
 close-then-new-campaign. This spec demarcates campaign boundaries **on-chain** with one tiny
-self-transfer memo per boundary — zero protocol changes, permanent, retroactively parseable.
+memo transfer per boundary — zero protocol changes, permanent, retroactively parseable.
 
 This is the **standing, operator-approved exception** to the closeout runbook's zero-gas marker
 rule ("never send standalone marker transactions"): that rule's escape hatch is explicit operator
@@ -72,10 +72,22 @@ apart on names.
 
 1. Broadcast the LP tx (entry add / exit withdraw / recenter leg) and **wait for confirmation**
    (INV-10 — never tag an unconfirmed tx; if it fails, no tag is emitted).
-2. Send a **1 µSTX self-transfer** (sender = recipient = the position-holding wallet the dashboard
-   watches — if LP calls route via a smart wallet, the tag still comes from the watched principal)
-   with the memo string. Normal explicit fee; **serialize the nonce** through the nonce oracle
-   (INV-6 — one in-flight tx per signer, globally).
+2. Send a **1 µSTX transfer from the watched principal to the tag sink** with the memo string.
+   The sender must be the position-holding wallet the dashboard watches (if LP calls route via a
+   smart wallet, the tag still comes from the watched principal); the fixed recipient is the
+   **designated tag sink**:
+
+   ```
+   SP1DK6YXB474DEENXSK3HXDYNW5K4MC5SMAQBY6Y3
+   ```
+
+   *Erratum (v1.1, field-confirmed 2026-07-10):* v1.0 specified a self-transfer
+   (sender = recipient). Stacks node mempool admission **rejects self-transfers**
+   (`TransferRecipientCannotEqualSender`), so the recipient must differ from the sender.
+   Parser identity comes from the **sender**; the fixed sink is a secondary filter and lets the
+   consumer enumerate all tags network-wide from one address's incoming history.
+   Normal explicit fee; **serialize the nonce** through the nonce oracle (INV-6 — one in-flight
+   tx per signer, globally).
 3. **Ledger-log the tag tx** alongside the LP tx it labels (INV-11). Cost ~0.0002–0.003 STX per
    boundary vs ~3 STX gas per campaign — noise.
 

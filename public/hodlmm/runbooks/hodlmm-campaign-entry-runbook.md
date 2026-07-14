@@ -88,8 +88,8 @@ the **LP (Allow + contract-level bounds)** form, not sender post-conditions (INV
 7. **VERIFY** — re-scan; confirm the position exists with the intended bins/width and is **in range**.
    `hodlmm-bin-guardian run` → expect `HOLD` (in-range); confirm each tx mined `success` (INV-10).
 8. **TAG** — if the campaign adopts the [memo-tag spec](../specs/campaign-memo-tags.md): after the
-   deposit confirms, emit the `E` boundary tag (`H1E:<pool>-<yymmdd>-<nnn>`, 1 µSTX self-transfer,
-   nonce serialized — INV-6/10) as a **Day-0 artifact**, same session as the entry. This mints the
+   deposit confirms, emit the `E` boundary tag (`H1E:<pool>-<yymmdd>-<nnn>`, 1 µSTX transfer to
+   the spec's tag sink, nonce serialized — INV-6/10) as a **Day-0 artifact**, same session as the entry. This mints the
    campaign id on-chain; the tag labels, it never feeds the money math.
 9. **REMEMBER** — write both ledgers (txids, entry bins, cost basis, gas) and seed memory: pool,
    entry price, target ratio, width — the basis the [PnL runbook](./hodlmm-pnl-runbook.md) and
