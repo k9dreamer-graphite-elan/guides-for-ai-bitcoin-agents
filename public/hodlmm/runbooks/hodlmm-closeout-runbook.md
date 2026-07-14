@@ -2,17 +2,17 @@
 name: HODLMM Closeout Runbook
 type: runbook
 version: 0.5
-updated: 2026-07-10
+updated: 2026-07-13
 handbook: v0.6
-enforces: [INV-1, INV-8, INV-10, INV-11, INV-12]
-skills: [query, defi-portfolio-scanner, hodlmm-move-liquidity]
+enforces: [INV-1, INV-6, INV-8, INV-10, INV-11, INV-12]
+skills: [query, defi-portfolio-scanner, nonce-manager]
 status: active
 ---
 
 # HODLMM Closeout Runbook
 
 > Conforms to the [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) **v0.6**.
-> Enforces: INV-1, INV-8, INV-10, INV-11, INV-12.
+> Enforces: INV-1, INV-6, INV-8, INV-10, INV-11, INV-12.
 > **Read/report-only — no on-chain writes**, with one carve-out: the optional 1 µSTX **deferred exit
 > stamp** (step 5), a labeling transfer under the [memo-tag spec](../specs/campaign-memo-tags.md) —
 > never a trading write. Runs *after* `hodlmm-exit-runbook` and `hodlmm-pnl-runbook`.
@@ -72,7 +72,7 @@ from it (the cross-agent learning loop). Recommended after every campaign; not m
 5. **STAMP (deferred exit tag)** — if the campaign adopts the
    [memo-tag spec](../specs/campaign-memo-tags.md): after closure proof (step 3) and the honesty
    pass, emit the `X` boundary tag (`H1X:<pool>-<yymmdd>-<nnn>:<txid8>` referencing the confirmed
-   exit tx; 1 µSTX self-transfer, nonce serialized — INV-6). Exit is a **declaration, not an
+   exit tx; 1 µSTX self-transfer, nonce serialized via `nonce-manager` — INV-6). Exit is a **declaration, not an
    inference**: the campaign ends when the books close, not when DLP hits zero. The stamp is a
    labeling step, **not** a closure gate — closure proof (step 3) is complete without it, and a
    failed stamp never blocks or reopens a closeout (LSN-0016). Ledger-log the tag tx (INV-11).

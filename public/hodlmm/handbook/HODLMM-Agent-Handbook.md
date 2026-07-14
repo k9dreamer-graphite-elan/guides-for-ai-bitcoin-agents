@@ -148,7 +148,11 @@ The approved skills published at **aibtc.com/skills**:
 |---|---|
 | Scan / simulate / execute LP recenter | `hodlmm-move-liquidity` |
 | Read-only LP guardrails | `hodlmm-bin-guardian` (read-only) |
-| Token routing / aggregated swaps | `bitflow` |
+| Volatility regime / risk classification (§4.1) | `hodlmm-risk` (read-only) |
+| Flow toxicity / direction / range lifespan (§4.1) | `hodlmm-flow` (read-only) |
+| Inventory-ratio correction — corrective swap + redeploy (§4.4) | `hodlmm-inventory-balancer` |
+| Signal-gated allocation timing (§4.5) | `hodlmm-signal-allocator` |
+| Token routing / aggregated swaps | `bitflow` / `bitflow-swap-aggregator` |
 | Cross-protocol position summary (HODLMM, Zest, ALEX, Styx) | `defi-portfolio-scanner` |
 | Idle-sBTC yield routing (Zest vs HODLMM APR) | `sbtc-yield-maximizer` |
 | Nonce safety (INV-6) | `nonce-manager` |
@@ -283,7 +287,7 @@ Three procedures cover almost everything an agent does on HODLMM: **trade**, **p
 ### 2.0 Conventions that apply to every playbook
 
 - **Read-only stages never sign.** `doctor` / `scan` / `quote` / `status` / `plan` are safe to run with no write authority. Only the explicit-confirm step broadcasts.
-- **Skills are dry-run by default.** Execution requires a deliberate confirm token — `--confirm` (move), `--confirm=DEPOSIT`, `--confirm=SWAP`. No token ⇒ you get a plan, not a tx.
+- **Skills are dry-run by default.** Execution requires a deliberate confirm token — `--confirm` (move), `--confirm=DEPOSIT`, `--confirm=SWAP`, `--confirm=EXIT` (withdraw). No token ⇒ you get a plan, not a tx.
 - **Post-conditions have three forms — see INV-2.** Swaps → `PostConditionMode.Deny` + `min-out`. Strict LP (`add/withdraw/move-liquidity-multi`) → `Deny` + sender PCs (plus the contract bounds). Simple LP (relative/same variants — what the skills below call) → `PostConditionMode.Allow` + contract-level bounds (`min-dlp`, `max-x/y-liquidity-fee`, active-bin deviation). Wrong form = unsafe.
 - **Always:** serialize the nonce (INV-6), re-scan immediately before signing (INV-7), verify mined `success` after (INV-10), write both ledgers (INV-11).
 
@@ -419,7 +423,7 @@ Bounded swaps trade completeness for safety — a partial fill is **normal**, no
 
 `blocked` / confirmation-required / deviation-abort are the skill protecting you, not failures to route around:
 - **Cooldown** (`hodlmm-move-liquidity`, 4h/pool): returns `blocked` with minutes remaining. Wait; do not force.
-- **Confirmation required** (`--confirm`, `--confirm=DEPOSIT`, `--confirm=SWAP`): re-run with the token only after reviewing the plan.
+- **Confirmation required** (`--confirm`, `--confirm=DEPOSIT`, `--confirm=SWAP`, `--confirm=EXIT`): re-run with the token only after reviewing the plan.
 - **Active-bin deviation** (`--active-bin-max-deviation`, default 0): re-scan, re-plan around the new active bin, re-broadcast (INV-7).
 
 Log each block to the ledger (INV-11); a recurring block pattern is a memory signal (INV-12).
@@ -622,7 +626,7 @@ The human's levers over agents (the supervision surface):
 
 - **Approval Scope** grant / revoke / expiry — the master control (expanded in Ch.7).
 - **Dry-run-first** — skills default to dry-run; execution needs an explicit confirm token
-  (`--confirm`, `--confirm=DEPOSIT`, `--confirm=SWAP`, `--confirm=BALANCE`, `--confirm=MAXIMIZE`).
+  (`--confirm`, `--confirm=DEPOSIT`, `--confirm=SWAP`, `--confirm=EXIT`, `--confirm=BALANCE`, `--confirm=MAXIMIZE`).
 - **Pause / kill** — stop `auto` loops; per-pool and meta cooldowns rate-limit churn.
 - **Monitoring cadence** — read-only scans on an interval (e.g. 6h monitoring loop); `auto` rebalance
   interval default 15 min (min 5).

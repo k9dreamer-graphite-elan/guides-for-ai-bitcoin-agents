@@ -4,9 +4,12 @@
 Checks:
   1. Runbook frontmatter schema (name/type/handbook/enforces/skills/status) and that every
      `enforces:` invariant is actually defined in the handbook.
-  2. KB content-page frontmatter schema (type/handbook/status/sources).
-  3. Each runbook's body "Conforms to ... **vX.Y**" line matches its frontmatter pin.
-  4. Cross-document handbook-version consistency: templates and navigational docs
+  2. Every frontmatter `skills:` entry names a skill in the handbook's "Approved skill map"
+     (error), and every declared skill is actually referenced in the runbook body (warning —
+     declared-but-unused skills are the drift the 0.7.0 skill-reference audit removed).
+  3. KB content-page frontmatter schema (type/handbook/status/sources).
+  4. Each runbook's body "Conforms to ... **vX.Y**" line matches its frontmatter pin.
+  5. Cross-document handbook-version consistency: templates and navigational docs
      (READMEs, operating guide, authoring guide, VERSIONING.md, llms.txt) must declare the
      CURRENT handbook version, read from the handbook's own banner. Content docs (runbooks,
      KB pages) may pin any version <= current.
@@ -24,10 +27,15 @@ KB_STATUSES = {"active", "stale", "deprecated"}
 KB_TYPES = {"kb-pool", "kb-lessons"}
 
 errors = []
+warnings = []
 
 
 def err(path, msg):
     errors.append(f"{path.relative_to(ROOT)}: {msg}")
+
+
+def warn(path, msg):
+    warnings.append(f"{path.relative_to(ROOT)}: {msg}")
 
 
 def read(path):
@@ -58,6 +66,13 @@ def inv_ids(list_str):
     return set(re.findall(r"INV-(\d+)", list_str or ""))
 
 
+def skill_names(list_str):
+    """Parse an inline-list frontmatter value like `[a, b, c]` into names."""
+    m = re.fullmatch(r"\[(.*)\]", (list_str or "").strip())
+    inner = m.group(1) if m else ""
+    return [s.strip() for s in inner.split(",") if s.strip()]
+
+
 # --- Handbook: current version + defined invariants -------------------------------------------
 handbook_text = read(HANDBOOK)
 banner = re.search(r"Community Edition · v(\d+\.\d+)", handbook_text)
@@ -75,6 +90,18 @@ max_inv = max(int(i) for i in defined_invs) if defined_invs else 0
 
 if f"| {CURRENT} |" not in handbook_text:
     err(HANDBOOK, f"Appendix C change log has no row for current version {CURRENT}")
+
+# The registry allowlist: every backticked name in the Skill column (last cell) of the
+# "Approved skill map" table — the Need column may backtick words that aren't skills.
+skill_map = re.search(r"### Approved skill map.*?\n(\|.*?)\n\n", handbook_text, re.S)
+APPROVED_SKILLS = set()
+if skill_map:
+    for row in skill_map.group(1).splitlines():
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        if len(cells) >= 2:
+            APPROVED_SKILLS.update(re.findall(r"`([a-z][a-z0-9-]*)`", cells[-1]))
+if not APPROVED_SKILLS:
+    err(HANDBOOK, "cannot find the 'Approved skill map' table (skills allowlist)")
 
 
 def check_pin(path, fm, key="handbook"):
@@ -112,6 +139,22 @@ for rb in runbooks:
 
     # Body conformance line must match the frontmatter pin.
     body = text.split("---", 2)[-1]
+
+    # Skills: names must come from the approved skill map; declared skills
+    # should actually appear in the body (declared-but-unused is drift).
+    declared = skill_names(fm.get("skills"))
+    unknown_skills = [s for s in declared if s not in APPROVED_SKILLS]
+    if unknown_skills and APPROVED_SKILLS:
+        err(rb, f"`skills:` cites name(s) not in the handbook approved skill map: "
+                f"{', '.join(sorted(unknown_skills))}")
+    if not rb.name.startswith("_TEMPLATE"):
+        # Whole-name match: `bitflow` in the body must not satisfy a declared
+        # `bitflow-swap-aggregator` (or vice versa).
+        unused = [s for s in declared
+                  if not re.search(r"(?<![\w-])" + re.escape(s) + r"(?![\w-])", body)]
+        if unused:
+            warn(rb, f"`skills:` declares skill(s) never referenced in the body: "
+                     f"{', '.join(sorted(unused))}")
     bold = re.search(r"\*\*v(\d+\.\d+)\*\*", body)
     if pin and bold and parse_version(f"v{bold.group(1)}") != pin:
         err(rb, f"body declares **v{bold.group(1)}** but frontmatter pins {fm['handbook']}")
@@ -144,6 +187,7 @@ for page in kb_pages:
 # --- Cross-document version consistency ---------------------------------------------------------
 MUST_DECLARE_CURRENT = [
     (ROOT / "public/hodlmm/README.md", rf"currently \*\*{re.escape(CURRENT)}\*\*"),
+    (ROOT / "public/hodlmm/handbook/README.md", rf"currently \*\*{re.escape(CURRENT)}\*\*"),
     (ROOT / "public/hodlmm/operating-guide/hodlmm-operating-guide.md", rf"Conforms to .*\*\*{re.escape(CURRENT)}\*\*"),
     (ROOT / "public/hodlmm/runbooks/AGENT-AUTHORING-GUIDE.md", rf"Currently \*\*{re.escape(CURRENT)}\*\*"),
     (ROOT / "public/hodlmm/runbooks/AGENT-AUTHORING-GUIDE.md", rf"handbook: {re.escape(CURRENT)}"),
@@ -162,10 +206,16 @@ if auth_guide.exists() and f"`INV-1`…`INV-{max_inv}`" not in read(auth_guide):
     err(auth_guide, f"invariant range should read `INV-1`…`INV-{max_inv}`")
 
 # --- Report -------------------------------------------------------------------------------------
+if warnings:
+    print(f"docs-lint: {len(warnings)} warning(s) (non-blocking):\n")
+    print("\n".join(f"  - {w}" for w in warnings))
+    print()
+
 if errors:
     print(f"docs-lint: {len(errors)} finding(s) against handbook {CURRENT} (INV-1…INV-{max_inv}):\n")
     print("\n".join(f"  - {e}" for e in errors))
     sys.exit(1)
 
 print(f"docs-lint: OK — handbook {CURRENT}, {len(runbooks)} runbooks, "
-      f"{len(kb_pages)} KB pages, invariants INV-1…INV-{max_inv}")
+      f"{len(kb_pages)} KB pages, {len(APPROVED_SKILLS)} approved skills, "
+      f"invariants INV-1…INV-{max_inv}")

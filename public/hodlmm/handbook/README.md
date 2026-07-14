@@ -17,7 +17,7 @@ operators who run them. The handbook is **machine-first**: rules are stated as `
 
 | Chapter | Topic |
 |---|---|
-| **0 — Invariants & Pre-Flight** | The 12 non-negotiable rules + a pre-flight checklist. The brakes. |
+| **0 — Invariants & Pre-Flight** | The 13 non-negotiable rules + a pre-flight checklist. The brakes. |
 | **1 — Canonical Reference** | Contract map, addresses, entrypoints, quote→swap path, cost limits, fee model. |
 | **2 — Playbooks** | Trade safely · provide LP & earn fees · manage / recenter a range. |
 | **3 — Failure Modes & Recovery** | Stuck-nonce / RBF, partial fills, stale data, escalation. |
@@ -60,7 +60,7 @@ and the registry's `SKILL.md` / `AGENT.md` conventions. See [CONTRIBUTING.md](./
 
 ## Versioning
 
-Handbook is versioned (currently **v0.7**); skills pin the version they conform to. The change log
+Handbook is versioned (currently **v0.9**); skills pin the version they conform to. The change log
 lives in Appendix C of the handbook.
 
 ## Security

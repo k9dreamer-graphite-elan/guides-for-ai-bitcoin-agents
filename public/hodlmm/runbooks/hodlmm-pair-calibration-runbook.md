@@ -3,7 +3,7 @@ name: HODLMM Pair Calibration Runbook
 type: runbook
 handbook: v0.7
 enforces: [INV-1, INV-7, INV-9, INV-11, INV-12, INV-13]
-skills: [hodlmm-risk, hodlmm-flow, query]
+skills: [hodlmm-risk, query]
 status: draft
 ---
 
@@ -51,9 +51,9 @@ before any capital is deployed.
  anchor quality (weaker ⇒ widen `d_warn`, treat P&L benchmark cautiously).
 2. **CAPS** — `f_hard ≈ T/m`; `f_soft = f_hard − [buffer]`; `f* = f_hard − [larger buffer]`. **Assert
  `f* < f_soft < f_hard`** — reject the set otherwise (Ch.4 §4.4).
-3. **DIVERGENCE/PEG** — `d_warn = k_warn·σ`; `d_halt = max(halt_floor, k_halt·σ)`; **assert
- `d_warn < d_halt`** (clamp `d_warn`). Fixed absolute `peg_band` for `underlying-ref`/`usd-ref`
- (INV-13).
+3. **DIVERGENCE/PEG** — `d_warn = k_warn·σ`; `d_halt = max(halt_floor, k_halt·σ)` (σ from
+ `hodlmm-risk`; reference reads via `query`); **assert `d_warn < d_halt`** (clamp `d_warn`). Fixed
+ absolute `peg_band` for `underlying-ref`/`usd-ref` (INV-13).
 4. **WIDTH/SIZE FLOORS** — from `hodlmm-adverse-selection-runbook`: width floor + the conditional
  size-floor (pull when adverse ≥ fee).
 5. **VIABILITY** — confirm expected fee income ≥ expected gas at the intended cadence; set the minimum
