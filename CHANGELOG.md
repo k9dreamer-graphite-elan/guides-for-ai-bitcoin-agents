@@ -31,6 +31,17 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
   unchanged. Matching wording fixes in the entry/closeout runbook tag steps and `llms.txt`.
   Note: the handbook's canonical RBF-unstick primitive ("1 µSTX self-transfer at the stuck
   nonce") hits the same node policy and is tracked separately.
+- **`campaign-memo-tags` spec v1.1 → v1.2 — identity scoping made explicit.** Campaign ids
+  (`HODLMM-<POOL>-<YYYYMMDD>-<seq>` / `H1?:<pool>-<yymmdd>-<nnn>`) carry no agent or wallet
+  component, so **two agents can legitimately mint the byte-identical id**; the canonical key is
+  `(watched principal, campaign id)`. This was implicit (parser identity is sender-based) but
+  relied on: the v1.1 tag sink's incoming history will genuinely contain identical memo strings
+  from different senders, so a consumer keying episodes on the bare memo would merge unrelated
+  agents' campaigns. New "Identity scoping" section makes sender-partitioning normative
+  (`X` terminality and `R` same-id matching are per-sender). Matching qualifiers where the bare id
+  was used as a key: the closeout runbook's don't-double-post rule now matches on the
+  `[<Agent> · <Campaign-ID>]` title pair, and the earnings-card README warns that default output
+  filenames are wallet-scoped.
 
 ---
 

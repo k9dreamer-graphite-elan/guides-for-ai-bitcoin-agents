@@ -32,6 +32,10 @@ python3 -m unittest discover -s tests -v                                     # t
 Dependencies: `Pillow` (render) and `requests` (optional BFF enrichment only — ledger-only
 `--no-bff` rendering works without it). See [`requirements.txt`](requirements.txt).
 
+Default output filenames are keyed on `campaign_id` alone, which is **wallet-scoped, not globally
+unique** (memo-tag spec, "Identity scoping") — when rendering cards for more than one agent into a
+shared directory, pass `--output` with the agent/wallet in the path.
+
 ## Report object
 
 Two input shapes are accepted:
