@@ -25,6 +25,67 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ---
 
+## [0.10.1] - 2026-07-13
+
+The **skill-reference integrity** patch. A round-2 skills audit (PR
+[#46](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/46)): the
+handbook's Approved skill map now carries every skill the runbooks require, runbook `skills:`
+frontmatter matches actual procedure usage, the earnings-card reference tool accepts the canonical
+PnL report object and gets several hardening fixes (including a path-traversal fix), and
+`lint_docs.py` now validates skill names against the handbook map so this class of drift fails CI.
+PATCH bump — corrections only; no new doctrine, spec, or tool; the handbook stays at **v0.9**.
+
+### Fixed
+- **Skill-reference audit (round 2)** — swept every skill mentioned across the handbook, runbooks,
+  and tools, in the spirit of the 0.7.0 audit:
+  - **Handbook approved skill map completed** — added the five registry skills the runbooks already
+    require but the Ch.0 map omitted: `hodlmm-risk`, `hodlmm-flow`, `hodlmm-inventory-balancer`,
+    `hodlmm-signal-allocator`, and `bitflow-swap-aggregator` (the latter merged into the
+    routing/swaps row alongside `bitflow`).
+  - **`--confirm=EXIT` added to all three handbook confirm-token enumerations** (§2.0 conventions,
+    §3.5 safe stops, §5.5 supervision levers) — the exit runbook pinned it in 0.7.0 but the handbook
+    lists never carried it.
+  - **Inventory-balancer cooldown claim reconciled** — the balancing runbook asserted a single
+    "4h per-pool cooldown (the balancer enforces it)"; per handbook §4.4/§7.2 the 4h move cooldown
+    belongs to `hodlmm-move-liquidity` and the balancer adds a **1h meta-cooldown**. The runbook now
+    states both.
+  - **Frontmatter `skills:` now reflect actual procedure usage** — removed declared-but-never-called
+    skills (closeout: `hodlmm-move-liquidity`; unattended-automation: `hodlmm-move-liquidity`,
+    `bitflow`; volatile-pair-mm: `hodlmm-move-liquidity`, `hodlmm-inventory-balancer`,
+    `nonce-manager` — its writes dispatch to the recenter/inventory-balancing sub-runbooks;
+    pair-calibration: `hodlmm-flow` — the width floor arrives via the adverse-selection runbook);
+    added genuinely-used skills (recenter: `hodlmm-risk` supplies the width default; closeout:
+    `nonce-manager` + `enforces: INV-6` for the STAMP carve-out); and named `nonce-manager`,
+    `bitflow`, `hodlmm-move-liquidity`, and `query` in the procedure/gate lines that were invoking
+    them generically.
+  - **Stale version claims** — handbook `README.md` said "currently v0.7" (handbook is **v0.9**) and
+    "12 non-negotiable rules" (there are 13).
+- **Earnings-card reference tool hardened** (`public/hodlmm/tools/earnings-card/`):
+  - Accepts the **canonical `hodlmm-pnl-runbook` Step-6 report object** (scalar `net_pnl`,
+    `v_hold`, `final_inventory_mark`, `report_period`/`period_source`) via a new
+    `adapt_step6_report` adapter — previously only the tool's private card shape rendered, so a
+    report emitted exactly per the runbook produced an error or a card with no core rows. The
+    percentage is derived on the deployed basis (`v_hold`), per the component-basis addendum.
+  - Implements the runbook's **display-only guardrail**: a `low` `fee_confidence` forces the
+    Earnings chip to context-only regardless of `realized`, and the
+    `fee_confidence · period source` caveat now renders in the card footer (INV-8).
+  - **Path-traversal fix**: campaign ids and token symbols (which can originate from on-chain memo
+    data) are sanitized before being used in output/icon filenames.
+  - `--no-bff` ledger-only rendering no longer requires `requests` (lazy import); added
+    `requirements.txt`; renderer falls back to Pillow's built-in font instead of crashing on hosts
+    without DejaVu/Noto; BFF enrichment no longer silently defaults to a `7d` window on
+    campaign-basis reports (no report-basis period ⇒ enrichment skipped, chips grey out); BFF
+    wallet/pool are URL-encoded and unparseable enrichment values are dropped rather than rendered;
+    `net_pnl` missing its numeraire value now raises the friendly contract error; fixed the dead
+    `SKILL.md` docstring reference (the card is deliberately not a registry skill). New tests cover
+    the adapter, the guardrail, filename sanitization, and the malformed-`net_pnl` error.
+- **`scripts/lint_docs.py` now validates `skills:` contents** — every declared skill must appear in
+  the handbook's Approved skill map (error; previously only the key's existence was checked, so all
+  of the above passed CI), declared-but-unused skills are reported as non-blocking warnings, and
+  `handbook/README.md` joined the docs that must declare the current handbook version.
+
+---
+
 ## [0.10.0] - 2026-07-10
 
 The **PnL-transparency & on-chain-provenance** release. Two threads: make campaign results honest by

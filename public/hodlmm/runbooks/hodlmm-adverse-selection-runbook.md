@@ -45,8 +45,8 @@ adverse cost + gas.
 ```
 
 ## Procedure (read-only — rough proxy, calibrate empirically)
-1. **READ** — σ (per reprice interval) from `hodlmm-risk`; live `fee`; `bin-granularity`; recent
- `gas-per-fill`; `hodlmm-flow` toxicity/velocity (scales the estimate up when flow is informed).
+1. **READ** — σ (per reprice interval) from `hodlmm-risk`; live `fee` / `bin-granularity` /
+ recent `gas-per-fill` via `query`; `hodlmm-flow` toxicity/velocity (scales the estimate up when flow is informed).
 2. **ESTIMATE ADVERSE COST** — a workable proxy: **expected adverse cost per fill ≈ `k_adv · σ`**
  (the price tends to move ~σ against a resting quote between reprices; concentration and toxicity
  raise it). This is an **approximation** — treat `k_adv` as empirical, refit it from realized

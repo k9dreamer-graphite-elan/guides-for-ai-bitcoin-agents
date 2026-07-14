@@ -59,7 +59,7 @@ HODLMM rebalance) when it is safely executable.
     Deny post-conditions with real min-out                                (INV-2/3)
 [ ] HODLMM LP leg protection: min-dlp / fee caps / deviation              (INV-2, LP form)
 [ ] Zest supply within cap; collateral/health implications understood     (INV-2)
-[ ] Nonce serialized; signer RBF path known                              (INV-6)
+[ ] Nonce serialized (`nonce-manager`); signer RBF path known            (INV-6)
 [ ] Ledger entry prepared                                                (INV-11)
 ```
 

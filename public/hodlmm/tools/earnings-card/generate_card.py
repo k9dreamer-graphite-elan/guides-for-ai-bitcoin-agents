@@ -16,24 +16,24 @@ Usage:
 `--wallet` / `--pool` / `--period` are used ONLY for the optional BFF enrichment
 call (falling back to fields inside the report object if present).
 
-See ../../../guides .../hodlmm-pnl-runbook.md ("Data provenance") and SKILL.md.
+See ../../runbooks/hodlmm-pnl-runbook.md ("Data provenance") and README.md.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
-
-import requests
+from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).parent))
-from card_model import build_card_model
+from card_model import adapt_step6_report, build_card_model, safe_name
 from render_card import render_card
 
-SKILL_DIR = Path(__file__).parent
-ICON_DIR = SKILL_DIR / "icons"
-OUTPUT_DIR = SKILL_DIR / "output"
+TOOL_DIR = Path(__file__).parent
+ICON_DIR = TOOL_DIR / "icons"
+OUTPUT_DIR = TOOL_DIR / "output"
 
 BFF_BASE = "https://bff.bitflowapis.finance/api/app/v1"
 PERIOD_MAP = {"1d": "1d", "7d": "7d", "30d": "30d",
@@ -44,7 +44,9 @@ def fetch_bff_context(wallet: str, pool: str, period: str) -> dict | None:
     """Fetch ONLY the subordinate context chips from Bitflow. Never raises —
     returns None on any failure so the card degrades to ledger-only."""
     try:
-        url = f"{BFF_BASE}/users/{wallet}/earnings/pnl/{pool}"
+        import requests  # lazy: only the optional enrichment needs it
+
+        url = f"{BFF_BASE}/users/{quote(wallet, safe='')}/earnings/pnl/{quote(pool, safe='')}"
         resp = requests.get(url, params={"period_type": PERIOD_MAP.get(period, period)}, timeout=15)
         resp.raise_for_status()
         raw = resp.json()
@@ -58,7 +60,7 @@ def fetch_bff_context(wallet: str, pool: str, period: str) -> dict | None:
                 try:
                     return float(raw[k])
                 except (TypeError, ValueError):
-                    return raw[k]
+                    return None  # unparseable enrichment value — drop, never render raw
         return None
 
     return {
@@ -72,12 +74,19 @@ def fetch_bff_context(wallet: str, pool: str, period: str) -> dict | None:
 
 def fetch_icon(url: str, name: str) -> Path | None:
     ICON_DIR.mkdir(parents=True, exist_ok=True)
-    icon_path = ICON_DIR / f"{name}.png"
+    fragment = safe_name(name, "token")
+    if fragment != str(name):
+        # Sanitization is lossy — suffix a short digest of the original so two
+        # distinct symbols can never share a cached icon file.
+        fragment += "-" + hashlib.sha256(str(name).encode()).hexdigest()[:8]
+    icon_path = ICON_DIR / f"{fragment}.png"
     if icon_path.exists():
         return icon_path
     if not url:
         return None
     try:
+        import requests  # lazy: only icon fetching needs it
+
         resp = requests.get(url, timeout=10)
         resp.raise_for_status()
         icon_path.write_bytes(resp.content)
@@ -105,16 +114,23 @@ def main() -> int:
     p.add_argument("--model-out", default=None, help="Also write the computed card model JSON here")
     args = p.parse_args()
 
-    report = load_report(args.report)
+    report = adapt_step6_report(load_report(args.report))
 
     # Optional BFF enrichment — only if the report doesn't already carry context.
     bff_context = None
     if not args.no_bff and not report.get("context"):
         wallet = args.wallet or report.get("wallet")
         pool = args.pool or report.get("pool")
-        period = args.period or (report.get("period") or {}).get("preset") or "7d"
-        if wallet and pool:
+        # Never fabricate a window: use an explicit --period or the report's own
+        # preset. A campaign-basis report has no 1d/7d/30d window to request —
+        # skip enrichment rather than pin chips to a period the card isn't about.
+        period = args.period or (report.get("period") or {}).get("preset")
+        if wallet and pool and period:
             bff_context = fetch_bff_context(wallet, pool, period)
+        elif wallet and pool:
+            print("Note: no report-basis period (--period / period.preset); "
+                  "skipping BFF enrichment — chips render from the report or grey out.",
+                  file=sys.stderr)
 
     model = build_card_model(report, bff_context)
 
@@ -132,7 +148,7 @@ def main() -> int:
         out_path = Path(args.output)
     else:
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        cid = report.get("campaign_id", "card")
+        cid = safe_name(report.get("campaign_id"), "card")
         out_path = OUTPUT_DIR / f"bitflow-pnl-card-{cid}.png"
 
     result = render_card(model, out_path, icon_x_path=icon_x, icon_y_path=icon_y)
@@ -144,6 +160,7 @@ def main() -> int:
         print(f"  {label}: {value}")
     chips = "   ".join(c["label"] for c in model["chips"])
     print(f"  context (not additive): {chips}")
+    print(f"  {model['footer']}")
     return 0
 
 

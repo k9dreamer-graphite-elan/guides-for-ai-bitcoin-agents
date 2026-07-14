@@ -3,7 +3,7 @@ name: HODLMM Volatile-Pair Market-Making Runbook
 type: runbook
 handbook: v0.7
 enforces: [INV-1, INV-2, INV-3, INV-6, INV-7, INV-9, INV-10, INV-11, INV-12, INV-13]
-skills: [hodlmm-bin-guardian, hodlmm-risk, hodlmm-flow, hodlmm-move-liquidity, hodlmm-inventory-balancer, nonce-manager, query]
+skills: [hodlmm-bin-guardian, hodlmm-risk, hodlmm-flow, query]
 status: draft
 ---
 

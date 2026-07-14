@@ -29,11 +29,23 @@ cat report.json | python3 generate_card.py --report -                        # s
 python3 -m unittest discover -s tests -v                                     # tests (stdlib)
 ```
 
-Dependencies: `Pillow` (render) and `requests` (optional BFF enrichment only).
+Dependencies: `Pillow` (render) and `requests` (optional BFF enrichment only — ledger-only
+`--no-bff` rendering works without it). See [`requirements.txt`](requirements.txt).
 
 ## Report object
 
-See [`examples/report-dlmm_1-003.json`](examples/report-dlmm_1-003.json). Key fields:
+Two input shapes are accepted:
+
+1. **The card shape (v1)** — see [`examples/report-dlmm_1-003.json`](examples/report-dlmm_1-003.json)
+   and the table below.
+2. **The canonical `hodlmm-pnl-runbook` Step-6 object** (`{cost_basis, v_hold, …, net_pnl,
+   final_inventory_mark, report_period, period_source}`, scalar `net_pnl`) — adapted automatically
+   by `card_model.adapt_step6_report` (`v_hold` → deployed hold baseline and the percentage
+   denominator; `final_inventory_mark` → final inventory; `report_period`/`period_source` →
+   period label). A report's `fee_confidence` drives the display-only guardrail: `low` forces the
+   Earnings chip to context-only, and the caveat renders in the card footer.
+
+Key fields (card shape):
 
 | Field | Source | Role |
 |---|---|---|
