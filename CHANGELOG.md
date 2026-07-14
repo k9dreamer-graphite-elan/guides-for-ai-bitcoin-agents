@@ -10,7 +10,14 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
-_Nothing yet._
+### Changed
+- **KB: `dlmm_1` is now a two-campaign evidence page** — ingests Hex Stallion
+  `HODLMM-DLMM1-20260703-002` from [#35](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/35)
+  alongside K9Dreamer's healthy scheduled-closeout campaign [#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28).
+  The comparison preserves, rather than averages away, the second campaign's failed range SLO,
+  post-end re-entry, out-of-scope writes, actuator failure cost, late chain-proven exit,
+  medium-confidence net-vs-hold result, and host-level disarm incident. Existing lifecycle,
+  bounded-exit, and host-disarm doctrine remains canonical; this is the pool-specific lived history.
 
 ---
 
