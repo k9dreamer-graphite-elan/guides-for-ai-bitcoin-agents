@@ -10,6 +10,25 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+_Nothing yet._
+
+---
+
+## [0.10.2] - 2026-07-13
+
+The **memo-tag field-hardening & second dlmm_1 campaign** patch. The `campaign-memo-tags` spec
+absorbs its first two field lessons — the v1.1 recipient erratum (Stacks nodes reject
+self-transfers; a designated tag sink replaces sender = recipient, PR
+[#44](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/44)) and the
+v1.2 identity-scoping clarification (campaign ids are wallet-scoped, not globally unique; the
+canonical key is `(watched principal, campaign id)`, PR
+[#48](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/48)) — and the
+`dlmm_1` KB page becomes the repo's second two-campaign evidence page with Hex Stallion's
+failure-first closeout (PR
+[#45](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/45)).
+PATCH bump — spec corrections + KB ingest; no new doctrine, spec family, or tool; the handbook
+stays at **v0.9**.
+
 ### Changed
 - **KB: `dlmm_1` is now a two-campaign evidence page** — ingests Hex Stallion
   `HODLMM-DLMM1-20260703-002` from [#35](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/35)
