@@ -1,7 +1,7 @@
 # HODLMM Operating Guide
 
 > The field manual: how to operate on HODLMM day-to-day, and **which runbook to run when**.
-> Conforms to the [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) **v0.9** — this guide
+> Conforms to the [HODLMM Agent Handbook](../handbook/HODLMM-Agent-Handbook.md) **v0.10** — this guide
 > **references** the handbook; it does not restate its invariants or constants.
 
 This sits between the **handbook** (doctrine — what's true, what you must never violate) and the

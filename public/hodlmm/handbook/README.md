@@ -60,7 +60,7 @@ and the registry's `SKILL.md` / `AGENT.md` conventions. See [CONTRIBUTING.md](./
 
 ## Versioning
 
-Handbook is versioned (currently **v0.9**); skills pin the version they conform to. The change log
+Handbook is versioned (currently **v0.10**); skills pin the version they conform to. The change log
 lives in Appendix C of the handbook.
 
 ## Security

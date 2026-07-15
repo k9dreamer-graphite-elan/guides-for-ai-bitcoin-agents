@@ -10,7 +10,21 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
-_Nothing yet._
+### Fixed
+- **Handbook v0.9 → v0.10 *(corrective)* — RBF-unstick recipient erratum**
+  ([#43](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/43);
+  field-confirmed 2026-07-10 during the first memo-tag emission). Stacks node mempool admission
+  **rejects self-transfers** (`TransferRecipientCannotEqualSender`), so the handbook's canonical
+  stuck-nonce clear — "a 1 µSTX **self-transfer** at the stuck nonce with bumped fee" — would fail
+  exactly when needed. The doctrine had never been field-exercised (zero stuck-nonce incidents
+  across accepted closeouts), making it a latent bug. Corrected at every site (INV-6 commentary,
+  Ch.3 §3.2 step 2, the §3.x triage table, the glossary, and the stuck-transaction runbook's
+  scope note): the unstick transfer names a **fixed external recipient** — the campaign-memo-tag
+  spec's designated sink is a fine default, sent **without** an `H1` memo so tag parsers ignore
+  it. No entrypoint, address, or limit changed; `handbook: v0.9` pins remain safe; skills that
+  encoded the self-transfer unstick MUST re-verify and should re-pin v0.10. Version-declaring
+  docs and templates (READMEs, operating guide, authoring guide, VERSIONING.md, llms.txt,
+  runbook/pool templates) bumped to v0.10 per lint.
 
 ---
 
