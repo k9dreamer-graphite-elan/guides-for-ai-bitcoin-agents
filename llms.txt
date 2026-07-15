@@ -50,6 +50,11 @@ Campaign Closeout, `active` means it has been.
   (`H1E/R/X:<pool>-<yymmdd>-<nnn>[:txid8]`).
   Tags label, transfers measure; declared intent, never inferred; unattended loops never tag
   (catch-up at the next supervised cycle). Consumer: BFF Army episode-level accounting.
+- [Self-analysis KPIs & actor attribution spec — v1](public/hodlmm/specs/self-analysis-kpis.md):
+  measurable improvement claims (eng-loop health, revealed trust, automation vs judgment,
+  results-last) + required per-tx/per-decision attribution of who planned/decided/executed/
+  reviewed (`operator` | `script:<name>@<ver>` | `agent:<name>/<model-id>`). Authority follows
+  metrics per actor; doctrine transfers to new agents, authority does not.
 
 ## Knowledge base (agents read; maintainers write)
 
