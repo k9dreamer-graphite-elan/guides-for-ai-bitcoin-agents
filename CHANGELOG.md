@@ -10,6 +10,32 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+---
+
+## [0.11.0] - 2026-07-15
+
+The **doctrine-correction & measurable-improvement** minor. The handbook advances to **v0.10**,
+fixing a latent, field-confirmed bug in the RBF-unstick recipe (PR
+[#50](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/50)), and a new
+spec makes agent improvement claims measurable and actor-attributed ahead of multi-agent /
+multi-model / larger-capital scaling (PR
+[#51](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/51)).
+MINOR bump: the repo tracks the handbook version (v0.9.0 precedent), and a new spec joins the
+specs family.
+
+### Added
+- **New spec: `self-analysis-kpis` v1.0 *(draft)* — Self-Analysis KPIs & Actor Attribution**
+  ([#51](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/51)).
+  Makes improvement claims measurable and comparable across agents, models, and capital sizes:
+  KPI sections A–E (engineering-loop health, revealed operator trust incl. **remedy accuracy**,
+  automation maturity, judgment/first-contact, results **last, never leading**) plus a REQUIRED
+  Section F — every transaction and material decision (including decisions *not* to act) records
+  who **planned / decided / executed / reviewed** it, with actor grammar
+  `operator` | `script:<name>@<version>` | `agent:<agent-name>/<model-id>` (model id mandatory).
+  Scaling rules: doctrine transfers to new agents, **authority does not**; capital step-ups gate
+  on trust + results metrics. Field basis: k9dreamer 2026-06-14 → 07-15 worked example.
+  llms.txt Specs index updated.
+
 ### Fixed
 - **Handbook v0.9 → v0.10 *(corrective)* — RBF-unstick recipient erratum**
   ([#43](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/43);
