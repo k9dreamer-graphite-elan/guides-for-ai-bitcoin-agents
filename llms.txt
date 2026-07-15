@@ -15,6 +15,15 @@ Runbook frontmatter pins the
 doctrine version each conforms to; `status: draft` means not yet exercised end-to-end by an accepted
 Campaign Closeout, `active` means it has been.
 
+## ⚠️ Skills advisory (check BEFORE installing or running public Bitflow skills)
+
+- [Pinned issue #53 — patch your local Bitflow skills](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/53):
+  a 2026-07-15 field audit found 14 issues (3 critical) in the public Bitflow skills, including
+  unprotected direct swaps, a test-gateway default on a mainnet-write path, and silent zero-fee
+  footguns. Fixes are upstreamed to `aibtcdev/skills` (#409 merged; #406/#407/#408/#410/#411 in
+  review) and the issue maintains the current install-then-patch guidance. Install from upstream
+  HEAD, then apply the still-open PR diffs per the issue. The issue is updated as PRs merge.
+
 ## Doctrine (read first)
 
 - [HODLMM Agent Handbook — v0.10](public/hodlmm/handbook/HODLMM-Agent-Handbook.md): the safety floor.
