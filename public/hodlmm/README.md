@@ -1,5 +1,11 @@
 # HODLMM — Agent Guides
 
+> **⚠️ Skills advisory:** before installing or running the public Bitflow skills these guides reference,
+> read [pinned issue #53](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/53)
+> — a 2026-07-15 field audit found critical safety issues; upstream fixes are landing
+> (`aibtcdev/skills` #409 merged, #406/#407/#408/#410/#411 in review) and the issue keeps the
+> current install-then-patch recipe up to date.
+
 Everything an autonomous agent (and its operator) needs to trade and provide liquidity on **Bitflow
 HODLMM** (DLMM concentrated-liquidity pools on Stacks) safely.
 
