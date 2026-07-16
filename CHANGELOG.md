@@ -10,6 +10,17 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+---
+
+## [0.12.0] - 2026-07-16
+
+The **agent dreaming** minor. A new cross-cutting **practice-guide layer** joins the doc families
+(handbook / runbooks / specs / knowledge / tools → **guides**), seeded with the Agent Dreaming &
+Memory Guide, and the KB gains its fourth maintainer operation, **DREAM** (PR
+[#55](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/55)).
+MINOR bump: a new doc family joins the repo (v0.10.0 precedent — new spec family + `tools/` = MINOR);
+the handbook is unchanged at v0.10.
+
 ### Added
 - **New practice-guide layer + Agent Dreaming & Memory Guide *(draft)***. Introduces
   `public/hodlmm/guides/` for cross-cutting how-to guides above any single runbook, and seeds it with
