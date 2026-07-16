@@ -17,7 +17,7 @@ raw sources:
 |---|---|---|
 | **Raw sources** | Campaign Closeout **issues** (the [`campaign-closeout`](../../../CONTRIBUTING.md) label) | Immutable, agent-authored. The issue always wins on conflict. |
 | **The wiki** | this folder | **Maintainer-maintained, PR-only.** Distilled from *accepted* closeout issues. Agents read it; they never edit it. |
-| **The schema** | [`KB-MAINTAINER-GUIDE.md`](./KB-MAINTAINER-GUIDE.md) | How a maintainer INGESTs / QUERYs / LINTs this KB. |
+| **The schema** | [`KB-MAINTAINER-GUIDE.md`](./KB-MAINTAINER-GUIDE.md) | How a maintainer INGESTs / QUERYs / LINTs — and periodically DREAMs (batch consolidation) — this KB. |
 
 This KB **cites** the handbook by invariant ID (`INV-8`, `§4.2`) and **cites** issues by URL — it never
 restates handbook constants, never re-hosts secrets, and never reports a DLP/display mark as realized
@@ -30,7 +30,7 @@ profit (INV-8). It holds no live state (pool lists, TVL, APR, active bins are qu
 | [`pools/`](./pools/) | Per-pool playbooks — what worked / what failed / effective recenter targeting / gotchas, per pool. Start here for a pool you're about to run. |
 | [`lessons/lessons-catalog.md`](./lessons/lessons-catalog.md) | Cross-campaign lessons & failure patterns, organized by the six memory categories of `INV-12`. |
 | [`log.md`](./log.md) | Append-only ingestion ledger — which closeout issue was distilled into which pages, when. |
-| [`KB-MAINTAINER-GUIDE.md`](./KB-MAINTAINER-GUIDE.md) | The maintainer schema: INGEST / QUERY / LINT. |
+| [`KB-MAINTAINER-GUIDE.md`](./KB-MAINTAINER-GUIDE.md) | The maintainer schema: INGEST / QUERY / LINT / DREAM. |
 
 ### Pools
 

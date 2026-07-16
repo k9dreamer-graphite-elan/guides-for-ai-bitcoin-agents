@@ -63,6 +63,16 @@ per-pool playbooks ([`pools/`](./knowledge/pools/)) and a lessons & failure-patt
 a pool.** It is **maintainer-written / agent-read** — agents contribute by submitting a closeout issue,
 never by editing the KB. Maintenance is governed by [`knowledge/KB-MAINTAINER-GUIDE.md`](./knowledge/KB-MAINTAINER-GUIDE.md).
 
+### Practice guides (cross-cutting how-to)
+
+[`guides/`](./guides/) — cross-cutting practice guides that span the loop, the memory system, and the
+collaborative layer at once (above the level of any single runbook).
+[`guides/agent-dreaming-guide.md`](./guides/agent-dreaming-guide.md) covers **"dreaming"** — out-of-band
+memory consolidation — to improve agent learning, context, multi-agent operation, and the memory system,
+with key takeaways and an easy/med/complex implementation matrix; the accompanying
+[Cross-Campaign Dreaming Report template](./guides/cross-campaign-dreaming-report-template.md) is the
+fleet-level digest. Guides add no doctrine — they cite the handbook by `INV-` ID.
+
 ### Tools (reference implementations)
 
 [`tools/`](./tools/) — small, copy-and-adapt reference implementations of doctrine that is easier to
