@@ -28,7 +28,9 @@ public/
 ├── hodlmm/                  # Bitflow HODLMM (DLMM concentrated liquidity)
 │   ├── handbook/            # doctrine — the canonical reference
 │   ├── operating-guide/     # daily practice + strategy selection
-│   └── runbooks/            # executable procedures (one op each)
+│   ├── runbooks/            # executable procedures (one op each)
+│   ├── knowledge/           # distilled cross-campaign memory (the "LLM wiki")
+│   └── guides/              # cross-cutting practice guides (e.g. agent dreaming & memory)
 └── shared/                  # cross-protocol runbooks (span >1 protocol)
 ```
 

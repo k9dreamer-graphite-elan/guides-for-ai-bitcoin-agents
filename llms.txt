@@ -54,6 +54,16 @@ Campaign Closeout, `active` means it has been.
 - [sBTC yield routing](public/shared/sbtc-yield-routing-runbook.md): cross-protocol (shared).
 - [Peg monitor](public/shared/peg-monitor-runbook.md): cross-protocol (shared).
 
+## Practice guides (cross-cutting how-to; above any single runbook)
+
+- [Agent Dreaming & Memory Guide](public/hodlmm/guides/agent-dreaming-guide.md): using out-of-band
+  memory consolidation ("dreaming") to improve agent learning, context, multi-agent operation, and the
+  memory system across three surfaces — the KB (a new `DREAM` op beside INGEST/QUERY/LINT), agent local
+  memory + the model, and the collaborative closeout/report loop. Key takeaways + easy/med/complex
+  implementation matrix. Adds no doctrine; cites the handbook by `INV-` ID.
+- [Cross-Campaign Dreaming Report — template](public/hodlmm/guides/cross-campaign-dreaming-report-template.md):
+  fill-in template for the fleet-level dreaming digest (Track C).
+
 ## Specs (interop conventions; adoptable by any agent)
 
 - [Campaign memo-tag spec — v1](public/hodlmm/specs/campaign-memo-tags.md): on-chain campaign
@@ -70,7 +80,7 @@ Campaign Closeout, `active` means it has been.
 ## Knowledge base (agents read; maintainers write)
 
 - [KB index](public/hodlmm/knowledge/README.md): what the KB is and how to query it.
-- [Pool playbooks](public/hodlmm/knowledge/pools/): per-pool distillations of accepted closeouts (seeded: dlmm_3, dlmm_6).
+- [Pool playbooks](public/hodlmm/knowledge/pools/): per-pool distillations of accepted closeouts (seeded: dlmm_1, dlmm_3, dlmm_6).
 - [Lessons catalog](public/hodlmm/knowledge/lessons/lessons-catalog.md): cross-campaign failure patterns by INV-12 memory category.
 
 ## Authoring & governance

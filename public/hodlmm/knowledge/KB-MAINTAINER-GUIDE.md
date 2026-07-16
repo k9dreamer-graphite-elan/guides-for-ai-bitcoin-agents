@@ -20,7 +20,11 @@
 5. **Empirical, not doctrinal.** The KB holds *time-stamped, pool-specific, empirical* knowledge. If a
    lesson should become a timeless rule, that's a **handbook/runbook PR**, not a KB edit.
 
-## The three operations
+## The operations
+
+`INGEST` / `QUERY` / `LINT` are the per-issue and per-read operations. `DREAM` (below) is the periodic,
+out-of-band **batch** that reorganizes the whole KB — see the
+[Agent Dreaming & Memory Guide](../guides/agent-dreaming-guide.md).
 
 ### INGEST — fold an accepted closeout into the KB *(maintainer-side, PR-based)*
 
@@ -63,6 +67,43 @@ issue. The KB is a fast index; the issue is the source of truth. Agents QUERY fr
 - **Import discipline (hard fail):** a restated handbook constant inside `knowledge/`.
 - **PnL honesty (hard fail):** a KB PnL figure with no confidence label, or a display/DLP mark presented
   as realized profit.
+
+### DREAM — periodic out-of-band consolidation *(maintainer-side, PR-based; batch)*
+
+Where `INGEST` folds **one** accepted closeout, `DREAM` reorganizes the **whole** KB against
+**everything** recorded since the last pass — the "dreaming" pattern (verify → organize → enrich). It is
+optional and periodic; it never replaces `INGEST`. Full rationale, the three implementation surfaces,
+and an effort matrix are in the
+[Agent Dreaming & Memory Guide](../guides/agent-dreaming-guide.md).
+
+Trigger: a cadence (e.g. weekly) **or** a count (every *N* accepted closeouts since the last dream).
+
+1. **Assemble the corpus.** KB HEAD (`$MEM`) + every accepted closeout since the last dream (the
+   transcripts). Clone the KB onto a working branch (`$MEM_OUT`) — dreaming reads real-time memory and
+   writes only the clone.
+2. **Fan-out (one reader per session).** Distill each closeout in isolation before reconciling — the
+   orchestrator + one-subagent-per-transcript shape. A single reader may be a maintainer working issue
+   by issue; the shape is what matters.
+3. **Verify.** Run the full `LINT` checklist above **KB-wide**, not only on pages an `INGEST` touched.
+   The two hard fails (restated constants; a display/DLP mark as realized profit, `INV-8`) block the
+   dream PR.
+4. **Organize.** Merge duplicate `LSN-` patterns; **supersede, never delete** (`superseded-by
+   LSN-####`); rebalance lessons across the six `INV-12` categories; refresh each pool page's *what
+   worked / what failed*; partition cross-agent claims by `(watched principal, campaign id)` — two
+   agents may legitimately hold conflicting per-sender claims.
+5. **Enrich.** Add **new** cross-campaign `LSN-` entries visible only across pools/agents/models (a
+   heuristic holding across two pools; a recurrence rate visible only in aggregate), each with
+   multi-source Evidence. Empirical-not-doctrinal still holds — a candidate *timeless* rule is a
+   **handbook PR**, not a dream edit; list it as a doctrine candidate, don't encode it.
+6. **Record provenance.** One row per dream in `log.md` (or a dedicated `dream-log.md`) naming the
+   source issues, the pages touched, and the `LSN-` deltas; bump touched pages'
+   `version`/`updated`/`last_ingested`; add a `CHANGELOG.md [Unreleased]` line.
+7. **Open one additive PR.** **Agents never do this step** (`INV-1`) — a maintainer reviews and merges.
+   The optional fleet-level [Cross-Campaign Dreaming Report](../guides/cross-campaign-dreaming-report-template.md)
+   summarizes the pass for humans.
+
+Guardrails are the golden rules above, unchanged: the raw issue wins on conflict; cite, never restate;
+supersede, never delete; honest PnL survives every consolidation.
 
 ## Frontmatter & conventions
 

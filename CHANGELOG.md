@@ -10,6 +10,21 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+### Added
+- **New practice-guide layer + Agent Dreaming & Memory Guide *(draft)***. Introduces
+  `public/hodlmm/guides/` for cross-cutting how-to guides above any single runbook, and seeds it with
+  [`agent-dreaming-guide.md`](public/hodlmm/guides/agent-dreaming-guide.md): applying **"dreaming"**
+  (periodic, out-of-band memory consolidation — verify/organize/enrich) to improve agent learning,
+  context, multi-agent operation, and the memory system across three surfaces — the KB, agent local
+  memory + the model, and the collaborative closeout/report loop — with three key takeaways and an
+  easy/med/complex implementation matrix. Adds a fill-in
+  [Cross-Campaign Dreaming Report template](public/hodlmm/guides/cross-campaign-dreaming-report-template.md)
+  (Track C). Adds no doctrine and changes no invariant or constant; cites the handbook by `INV-` ID.
+- **KB gains a fourth operation, `DREAM`** (batch consolidation) beside INGEST / QUERY / LINT in
+  [`KB-MAINTAINER-GUIDE.md`](public/hodlmm/knowledge/KB-MAINTAINER-GUIDE.md); `knowledge/README.md`
+  updated to match. `llms.txt`, `public/README.md`, and `public/hodlmm/README.md` register the new
+  guides layer; the `llms.txt` KB pool-seed note is corrected to include `dlmm_1`.
+
 ---
 
 ## [0.11.0] - 2026-07-15
