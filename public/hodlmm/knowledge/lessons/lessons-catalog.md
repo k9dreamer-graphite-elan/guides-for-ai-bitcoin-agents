@@ -1,9 +1,9 @@
 ---
 type: kb-lessons
-handbook: v0.6
-version: 0.5
-updated: 2026-07-10
-last_ingested: 2026-07-10
+handbook: v0.10
+version: 0.6
+updated: 2026-07-17
+last_ingested: 2026-07-17
 status: active
 sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1
@@ -17,6 +17,8 @@ sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/21
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/35
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60
 ---
 
 # HODLMM cross-campaign lessons & failure patterns
@@ -111,6 +113,47 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 - **Evidence:** [#1](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1), [#2](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/2), [#3](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/3), [#5](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/5), [#11](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11), [#21](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/21)
 - **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-02
 
+<a id="lsn-0018"></a>
+### LSN-0018 — Alert-prescribed remedies are snapshots: re-read before executing, grade overrides at closeout
+
+- **Category:** effective recenter targeting
+- **Pattern:** a monitor's geometry alert correctly flagged a one-sided out-of-range position and
+  prescribed the standard withdraw→swap→redeposit remedy — but by triage time the condition had
+  partially self-resolved, and executing the prescription would have realized a round-trip loss
+  (swap-back at ~1.15% pool-vs-market dislocation, ~50h before a bounded exit, with the all-cash
+  below-price ladder acting as free resting buy orders). The agent overrode the alert with
+  HOLD-NO-REPAIR on fresh reads.
+- **Mitigation:** before executing **any** alert-prescribed remedy, take a fresh position/guardian
+  read and re-derive the remedy from current state — the alert is a snapshot, and its prescription
+  can be value-destructive by the time a human or agent acts on it. Record every alert-vs-judgment
+  divergence in the campaign decision ledger and **grade it at closeout** (the §D judgment metric of
+  the [self-analysis-kpis spec](../../specs/self-analysis-kpis.md)). First grade: override CORRECT
+  (the declined swap-back would have cost ≈ $1.3 + gas; the held ladder exited at the fleet-best
+  net). One data point — a tally, not a doctrine.
+- **Pools seen on:** [dlmm_3](../pools/dlmm_3.md)
+- **Evidence:** [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60) (decision 2026-07-15T01:40Z, `agent:k9dreamer/claude-fable-5`; graded at closeout)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-17
+
+<a id="lsn-0020"></a>
+### LSN-0020 — At small notional, zero-swap native moves preserve the edge; swap round-trips consume it
+
+- **Category:** effective recenter targeting
+- **Pattern:** same-week A/B across two concurrent campaigns by the same agent: the campaign whose
+  repairs were **zero-swap native moves** carried its inventory intact (113.540818 → 113.540819
+  USDCx across a 33-tuple move) and netted the fleet-best result (~+13.2% realized), while the
+  campaign that repaired via **withdraw → 3 swaps → redeposit** paid 0.5 STX gas plus spread and
+  partial-fill slippage on ~$87 traded, ending ≈ +0.9% — the round trip consumed most of the edge.
+- **Mitigation:** at sub-$150 notional, treat any repair that includes a swap leg as an
+  **exit-adjacent decision** (does converting sides now beat holding to the bounded end?), not as
+  routine maintenance; prefer native `move` repairs whenever geometry permits (see
+  [LSN-0001](#lsn-0001) for when it does not). Confidence is *reported*, not doctrine: n=1 per arm
+  and regime-confounded — the swap-repair campaign sat in a trending week (two-sided band fully
+  converted twice), the zero-swap campaign in whipsaw. A trend-regime zero-swap campaign is the
+  missing cell.
+- **Pools seen on:** [dlmm_1](../pools/dlmm_1.md); [dlmm_3](../pools/dlmm_3.md)
+- **Evidence:** [#59](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59) (recovery txs `0xe07946a0…`→`0xbe8bcba1…`), [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60) (zero-swap moves `0x7f1b24b1…`, `0x9388109f…`)
+- **Confidence:** reported (same-week A/B, n=1 per arm, regime-confounded) · **Status:** active · **last_ingested:** 2026-07-17 · *(cross-campaign enrichment — 2026-07-17 DREAM pass)*
+
 ---
 
 ## failed-tx patterns
@@ -126,9 +169,15 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   position's one-sidedness. Overlap or downward-one-sided → route to **withdraw → swap → redeposit**.
   Never blind-retry a `(err u5001)` shape — it is a shape rejection, not a timing hiccup. (Recenter
   runbook; `INV-3`.)
-- **Pools seen on:** [dlmm_6](../pools/dlmm_6.md); Hex Stallion multi-pool campaign
-- **Evidence:** [#1](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1), [#2](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/2), [#4](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/4), [#5](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/5)
-- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-06-26
+- **Pools seen on:** [dlmm_6](../pools/dlmm_6.md); Hex Stallion multi-pool campaign; [dlmm_1](../pools/dlmm_1.md)
+- **Recurrence (2026-07-17 dream):** the class **recurred as a paid abort on dlmm_1** despite being
+  documented — a ~35-bin one-sided `move-liquidity-multi` gap aborted `abort_by_response` mid-campaign
+  (0.1 STX tuition; the dry-run/guardian gates did not catch it). Defense deployed ~2.4 days later: a
+  **pre-broadcast geometry gate** (fully one-sided + gap over the charter threshold ⇒ refuse the native
+  move, alert for supervised withdraw→swap→redeposit) subsequently caught the identical shape as a free
+  block on the exit-day tick. Gate thresholds are campaign-charter policy, not doctrine.
+- **Evidence:** [#1](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1), [#2](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/2), [#4](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/4), [#5](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/5), [#59](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59) (failed repair `0x5ef9bfa7…`, block 8547973)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-17
 
 <a id="lsn-0003"></a>
 ### LSN-0003 — First multi-bin deposit postcondition aborts
@@ -138,9 +187,14 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   `abort_by_post_condition` attempts preceded the first successful deposit.
 - **Mitigation:** prefer fungible spend caps + `min-dlp` + active-bin tolerance over exact NFT
   postconditions for multi-bin deposits (`INV-2`, LP Allow form).
-- **Pools seen on:** [dlmm_6](../pools/dlmm_6.md)
-- **Evidence:** [#4](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/4)
-- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-06-26
+- **Third confirmation (2026-07-17 dream):** recurred on dlmm_3 at a fresh campaign entry — the target
+  bins had no prior liquidity, and the first attempt aborted `abort_by_post_condition` (0.25 STX). The
+  mitigation (fungible caps + `min-dlp` + tolerance, position-token movement allowed) cleared the
+  immediate retry and held for the whole campaign. Expect this class on **any first-ever multi-bin mint
+  into empty bins**, not just a pool's first deposit.
+- **Pools seen on:** [dlmm_6](../pools/dlmm_6.md); [dlmm_3](../pools/dlmm_3.md)
+- **Evidence:** [#4](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/4), [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60) (failed attempt `0x9824c7ee…`, then clean `0xcc88df7f…`, block 8518640)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-17
 
 <a id="lsn-0006"></a>
 ### LSN-0006 — Staged withdraw/add must be modeled as an incident state machine
@@ -301,6 +355,31 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 - **Pools seen on:** [dlmm_3](../pools/dlmm_3.md)
 - **Evidence:** [#11](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11) (incl. follow-up comments), [#12](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/12), [#13](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/13)
 - **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-02
+
+<a id="lsn-0019"></a>
+### LSN-0019 — Closeout tx rosters come from a chain nonce-range sweep, never from hand-maintained ledgers
+
+- **Category:** post-check lessons
+- **Pattern:** **both** campaigns of a dual run under-counted their own transactions at closeout —
+  one omitted 11 successful unattended auto-repairs, the other 2 — because the closeout roster was
+  assembled from hand-maintained memory ledgers (`transactions.md`, a 3-entry role ledger) instead of
+  the chain. The resulting "chain-summed" gas figures (0.95 / 0.80 STX) were **below** the true
+  chain totals (2.05 / 1.00 STX), and one closeout confidently reported the *inverse* finding ("the
+  running counter drifted; chain wins") when the running counter had been right all along. Neither
+  single-campaign reader could see the pattern; it surfaced only when a dream pass swept the wallet's
+  full nonce range and reconciled both campaigns at once.
+- **Mitigation:** at closeout, build the tx roster by **sweeping the wallet's nonce range over the
+  campaign window from the chain API**, partition by campaign `(watched principal, campaign id)`
+  ([memo-tag spec](../../specs/campaign-memo-tags.md)), then sum `fee_rate` over that roster.
+  "Trust the chain over the counter" is only safe once the txid set is complete — roster
+  completeness precedes fee arithmetic. Auto-events written by unattended monitors must also land in
+  the same role ledger the closeout reads (the omissions traced to auto-repairs bypassing
+  `txRoleLedger`). Honest-PnL note (`INV-8`): both corrections *reduced* reported net (≈ +$0.99 →
+  ≈ +$0.81; +79.64 → +79.44 STX) without changing direction — corrections are posted as issue
+  comments, the corrected figure carries the correction link.
+- **Pools seen on:** [dlmm_1](../pools/dlmm_1.md); [dlmm_3](../pools/dlmm_3.md)
+- **Evidence:** [#59 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59#issuecomment-5003288054), [#60 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60#issuecomment-5003288187) (full per-nonce fee tables, Hiro-verified)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-17 · *(cross-campaign enrichment — produced by the 2026-07-17 DREAM pass, not stated by either closeout)*
 
 <a id="lsn-0017"></a>
 ### LSN-0017 — Disarm is host-level: no signer-enabled process may outlive campaign closure

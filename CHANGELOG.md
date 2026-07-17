@@ -10,6 +10,19 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+### Added
+- **First end-to-end KB `DREAM` pass** over the 004/005 dual closeouts (issues
+  [#59](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59) /
+  [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60)), per the
+  [Agent Dreaming & Memory Guide](public/hodlmm/guides/agent-dreaming-guide.md): pools `dlmm_1`
+  v0.3 / `dlmm_3` v0.2 (off-floor ladder open question **answered**; floor-pinning regime
+  documented), lessons catalog v0.6 with **LSN-0018** (fresh-read before alert-prescribed
+  remedies), **LSN-0019** (closeout tx rosters from a chain nonce-range sweep — the pass's verify
+  step found both closeouts' gas rosters incomplete; corrections posted on the issues), and
+  **LSN-0020** (zero-swap moves vs swap round-trips at small notional, same-week A/B); first filled
+  [Cross-Campaign Dreaming Report](public/hodlmm/guides/cross-campaign-dreaming-report-2026-07-17.md);
+  `log.md` DREAM provenance row. Promotion of the dreaming guide from `draft` is a follow-up PR.
+
 ### Changed
 - **Runbook findings from the 004/005 dual closeouts** (issues
   [#59](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59) /
