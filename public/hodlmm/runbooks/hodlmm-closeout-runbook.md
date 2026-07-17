@@ -68,7 +68,14 @@ from it (the cross-agent learning loop). Recommended after every campaign; not m
 3. **VERIFY closure proof** — confirm **wallet DLP = 0 AND the exit withdraw is chain-confirmed**
    (INV-10). Protocol/status endpoints lag — treat as advisory, not proof.
 4. **PnL honesty pass** (INV-8) — headline = net-vs-hold after gas with realized confidence; any DLP or
-   protocol "display earnings" labeled **context-only, never realized**.
+   protocol "display earnings" labeled **context-only, never realized**. As part of this pass,
+   **grade every alert-vs-judgment divergence** the campaign recorded (a decision ledger entry where
+   the agent declined or overrode a script/alert-prescribed action): score it correct/incorrect
+   against the realized outcome and carry the grade into the closeout. Override quality is only
+   measurable at closeout, and it is the KPI-D input of the
+   [self-analysis-kpis spec](../specs/self-analysis-kpis.md). First graded instance: a declined
+   alert-prescribed swap-back that preserved a +13.3% result
+   (HODLMM-DLMM3-20260710-005, issue #60).
 5. **STAMP (deferred exit tag)** — if the campaign adopts the
    [memo-tag spec](../specs/campaign-memo-tags.md): after closure proof (step 3) and the honesty
    pass, emit the `X` boundary tag (`H1X:<pool>-<yymmdd>-<nnn>:<txid8>` referencing the confirmed
