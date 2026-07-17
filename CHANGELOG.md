@@ -10,6 +10,12 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+_Nothing yet._
+
+---
+
+## [0.12.1] - 2026-07-17
+
 ### Added
 - **First end-to-end KB `DREAM` pass** over the 004/005 dual closeouts (issues
   [#59](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59) /
