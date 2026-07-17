@@ -21,6 +21,7 @@ loop, the memory system, and the collaborative layer at once.
 |---|---|---|
 | [Agent Dreaming & Memory Guide](./agent-dreaming-guide.md) | Out-of-band memory consolidation ("dreaming") to improve agent learning, context, multi-agent operation, and the memory system — with key takeaways and an implementation matrix. | draft |
 | [Cross-Campaign Dreaming Report — template](./cross-campaign-dreaming-report-template.md) | Fill-in template for the fleet-level dreaming digest described in the guide (Track C). | template |
+| [Cross-Campaign Dreaming Report — 2026-07-17](./cross-campaign-dreaming-report-2026-07-17.md) | First filled report: the 004/005 dual-closeout `DREAM` pass (the guide's first end-to-end exercise) — reconciliation, fleet KPI roll-up, memory deltas, doctrine candidates. | published |
 
 ## Conventions
 
