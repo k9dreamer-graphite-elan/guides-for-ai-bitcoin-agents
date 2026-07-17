@@ -233,6 +233,19 @@ class TestChips(unittest.TestCase):
         m = build_card_model(base_report(context={"earnings_usd": 5.0, "realized": True}))
         self.assertFalse(self._chip(m, "Earnings")["context_only"])
 
+    def test_bff_period_tag_on_chips(self):
+        # BFF serves only preset windows; when known, the chips disclose it.
+        m = build_card_model(base_report(
+            context={"earnings_usd": 8.83, "fee_tvl_pct": 9.84, "bff_period": "7d"}))
+        self.assertTrue(self._chip(m, "Earnings")["label"].endswith(" · 7d"))
+        self.assertTrue(self._chip(m, "Fee/TVL")["label"].endswith(" · 7d"))
+        self.assertNotIn("7d", self._chip(m, "Gas")["label"])  # gas is real cost, untagged
+
+    def test_no_period_tag_without_bff_period(self):
+        m = build_card_model(base_report(context={"earnings_usd": 5.0, "fee_tvl_pct": 1.5}))
+        self.assertNotIn("·", self._chip(m, "Earnings")["label"])
+        self.assertNotIn("·", self._chip(m, "Fee/TVL")["label"])
+
 
 class TestNonAdditive(unittest.TestCase):
     def test_divider_and_separation(self):
