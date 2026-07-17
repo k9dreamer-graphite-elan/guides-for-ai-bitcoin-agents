@@ -82,6 +82,8 @@ evidence chain stays auditable.
 **Per-tick gates (before any write branch):**
 
 ```
+[ ] Kill-switch clear: no operator touch-file present (global or per-campaign) — see
+    "Operator kill-switch" below; if present, freeze all writes, alert once, exit clean
 [ ] Fresh scan this tick; plan recomputed from it (INV-7) — never execute a plan from a prior tick
 [ ] Feed-health / divergence verdict permits writes (INV-13); independent sources agree —
     on ANY degraded or disagreeing read: ABORT the branch and alert, never sign blind
@@ -168,6 +170,46 @@ Map each failure to **Handbook Chapter 3** (don't restate the recovery):
 - Cooldown: charter's per-pool write cooldown, tracked in `campaign-state`, checked in the per-tick
   gates. Never re-send an original-size action to "fix" a partial — risks double execution.
 - Halt state survives restarts: the failure gate lives in `campaign-state`, not in process memory.
+
+## Operator kill-switch (touch-file)
+
+Every unattended loop must be stoppable **without a restart, an edit, or a deploy**. The
+mechanism is a touch-file, checked at the top of every tick, before every other gate:
+
+- Convention: a well-known path per host (global) and one per campaign directory
+  (per-campaign), e.g. `.KILL-SWITCH`.
+- If present: log it, alert the operator once (not every tick), take no actions, exit 0.
+- `touch .KILL-SWITCH` halts the loop within one tick; `rm .KILL-SWITCH` resumes it.
+
+Why a file and not an env var or config flag: files are atomic, visible in `ls`, work from any
+shell or remote session without knowing the loop's environment, survive restarts, and need no
+parsing. This **complements** the failure gate (halt-after-N-failures): the failure gate is the
+loop protecting itself; the kill-switch is the operator overriding the loop. Both must exist.
+
+## Fee selection for unattended writes
+
+The explicit-fee rule stands (never let a tool auto-pick the fee at signing time). What the fee
+*value* should be has evolved from our fixed-fee practice: a pinned fee overpays in quiet
+mempools and under-bids during congestion, and can't react to either. An unattended agent
+should compute a **bounded estimate** each tick and pass it explicitly:
+
+1. Fetch the live contract-call fee percentiles from the public Stacks API
+   (`GET /extended/v1/tx/mempool/stats` → `tx_simple_fee_averages.contract_call`).
+2. Pick a percentile (p25 is a good default for patient agents), but **cap it at p25 × 4**.
+   The Stacks mempool is thin — a few whale txs routinely drag p50+ to absurd levels (field
+   observation: p75/p95 above 2,000 STX while p25 sat at ~0.009 STX). During genuine
+   congestion all percentiles rise together, so the cap rises too; during whale skew p25 stays
+   put and the spike is discarded.
+3. On fetch failure, fall back to `GET /extended/v2/mempool/fees` (map `no_priority`→p25,
+   `low`→p50, `medium`→p75, `high`→p95; apply the same cap), then to a static default.
+4. Clamp the result to a hard `[min, max]` window so no data anomaly can ever set a fee
+   outside the risk budget.
+5. The final fee is **`min(charter fee cap, max(charter fee target, estimate))`** — the
+   campaign charter always wins on both ends.
+
+For stuck transactions, pair this with a bounded replace-by-fee ladder (bump ×1.5, max 3
+bumps, never past the max clamp) per the stuck-transaction runbook — timely confirmations
+with spend that can never leave the envelope.
 
 ## Notes
 
