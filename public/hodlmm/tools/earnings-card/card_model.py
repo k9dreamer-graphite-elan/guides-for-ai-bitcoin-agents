@@ -160,6 +160,11 @@ def _is_low_confidence(fee_confidence) -> bool:
 def _build_chips(gas: dict, context: dict | None, fee_confidence=None) -> list[dict]:
     context = context or {}
 
+    # BFF serves only preset windows (1d/7d/30d), which rarely equal the
+    # campaign's exact range — disclose the window on the chips themselves.
+    tag = context.get("bff_period")
+    suffix = f" · {tag}" if tag else ""
+
     earnings = context.get("earnings_usd")
     realized = bool(context.get("realized", False))
     # Runbook guardrail: low fee_confidence OR display-derived (not realized)
@@ -167,13 +172,13 @@ def _build_chips(gas: dict, context: dict | None, fee_confidence=None) -> list[d
     # earnings figure that the report would caveat (INV-8).
     context_only = (not realized) or _is_low_confidence(fee_confidence)
     if earnings is not None:
-        earn_chip = _chip(f"Earnings {_money(earnings)}", True, context_only=context_only)
+        earn_chip = _chip(f"Earnings {_money(earnings)}{suffix}", True, context_only=context_only)
     else:
         # BFF absent/failed — render honestly rather than block.
         earn_chip = _chip("Earnings n/a", False, context_only=True)
 
     fee_tvl = context.get("fee_tvl_pct")
-    fee_chip = (_chip(f"Fee/TVL {float(fee_tvl):.2f}%", True) if fee_tvl is not None
+    fee_chip = (_chip(f"Fee/TVL {float(fee_tvl):.2f}%{suffix}", True) if fee_tvl is not None
                 else _chip("Fee/TVL n/a", False))
 
     gas = gas or {}

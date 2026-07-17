@@ -54,19 +54,31 @@ def fetch_bff_context(wallet: str, pool: str, period: str) -> dict | None:
         print(f"Warning: BFF enrichment unavailable ({e}); rendering ledger-only.", file=sys.stderr)
         return None
 
-    def _f(*keys):
-        for k in keys:
-            if k in raw and raw[k] not in (None, ""):
-                try:
-                    return float(raw[k])
-                except (TypeError, ValueError):
-                    return None  # unparseable enrichment value — drop, never render raw
+    def _f(*paths):
+        """Extract a float via dotted paths — the BFF response nests values
+        (earnings.earningsUsd, feeTvl.percentage, tvl.usd); flat keys kept as
+        fallback for the old response shape."""
+        for path in paths:
+            node = raw
+            for part in path.split("."):
+                node = node.get(part) if isinstance(node, dict) else None
+                if node is None:
+                    break
+            if node in (None, "") or isinstance(node, dict):
+                continue
+            try:
+                return float(node)
+            except (TypeError, ValueError):
+                return None  # unparseable enrichment value — drop, never render raw
         return None
 
     return {
-        "earnings_usd": _f("earningsUsd", "earnings_usd"),
-        "fee_tvl_pct": _f("feeTvl", "fee_tvl"),
-        "tvl_usd": _f("tvlUsd", "tvl_usd"),
+        "earnings_usd": _f("earnings.earningsUsd", "earningsUsd", "earnings_usd"),
+        "fee_tvl_pct": _f("feeTvl.percentage", "feeTvl", "fee_tvl"),
+        "tvl_usd": _f("tvl.usd", "tvlUsd", "tvl_usd"),
+        # BFF only serves preset windows (1d/7d/30d) — record which one so the
+        # chips can disclose it when it differs from the card's period.
+        "bff_period": PERIOD_MAP.get(period, str(period)),
         # Bitflow's figure is app-level fee attribution: context-only, not realized.
         "realized": False,
     }

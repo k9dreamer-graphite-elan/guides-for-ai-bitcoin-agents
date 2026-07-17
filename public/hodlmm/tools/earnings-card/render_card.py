@@ -61,6 +61,11 @@ DIVIDER = "#1d2320"
 
 W, H = 1200, 675
 
+# Official wordmark rasterized from app.bitflow.finance
+# /assets/brand/bitflow-logo-main-application-dark-mode.svg (cream on dark).
+LOGO_PATH = Path(__file__).parent / "icons" / "bitflow-logo-dark.png"
+LOGO_HEIGHT = 30
+
 
 def _font(path: str, size: int) -> ImageFont.ImageFont:
     try:
@@ -110,7 +115,12 @@ def render_card(model: dict, output_path, icon_x_path=None, icon_y_path=None) ->
     draw = ImageDraw.Draw(img)
 
     # --- Header ---
-    draw.text((26, 28), "BITFLOW", font=_font(FONT_BOLD, 28), fill=WHITE)
+    if LOGO_PATH.exists():
+        logo = Image.open(LOGO_PATH).convert("RGBA")
+        lw = round(logo.width * LOGO_HEIGHT / logo.height)
+        img.alpha_composite(logo.resize((lw, LOGO_HEIGHT), Image.LANCZOS), (26, 28))
+    else:
+        draw.text((26, 28), "BITFLOW", font=_font(FONT_BOLD, 28), fill=WHITE)
     url = "APP.BITFLOW.FINANCE"
     uf = _font(FONT_REG, 18)
     uw, _ = _text_size(draw, url, uf)
