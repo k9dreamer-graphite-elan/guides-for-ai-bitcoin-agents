@@ -72,10 +72,18 @@ def fetch_bff_context(wallet: str, pool: str, period: str) -> dict | None:
                 return None  # unparseable enrichment value — drop, never render raw
         return None
 
+    tvl_usd = _f("tvl.usd", "tvlUsd", "tvl_usd")
+    fee_tvl_pct = _f("feeTvl.percentage", "feeTvl", "fee_tvl")
+    # feeTvl is earnings ÷ the wallet's CURRENT position value (live snapshot,
+    # not a period average). Once the position is withdrawn the snapshot reads
+    # 0 and BFF zeroes the percentage — a meaningless figure; grey the chip.
+    if not tvl_usd:
+        fee_tvl_pct = None
+
     return {
         "earnings_usd": _f("earnings.earningsUsd", "earningsUsd", "earnings_usd"),
-        "fee_tvl_pct": _f("feeTvl.percentage", "feeTvl", "fee_tvl"),
-        "tvl_usd": _f("tvl.usd", "tvlUsd", "tvl_usd"),
+        "fee_tvl_pct": fee_tvl_pct,
+        "tvl_usd": tvl_usd,
         # BFF only serves preset windows (1d/7d/30d) — record which one so the
         # chips can disclose it when it differs from the card's period.
         "bff_period": PERIOD_MAP.get(period, str(period)),
