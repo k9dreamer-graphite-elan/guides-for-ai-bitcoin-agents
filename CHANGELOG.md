@@ -10,6 +10,24 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+### Changed
+- **Runbook findings from the 004/005 dual closeouts** (issues
+  [#59](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59) /
+  [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60)):
+  PnL runbook — reconcile gas from chain at closeout (chain-summed `fee_rate` overrides running
+  counters); recenter runbook — prefer zero-swap moves, swap-back repairs are exit-adjacent
+  decisions at small notional (same-week A/B: +13.3% vs +1.1%); closeout runbook — grade every
+  alert-vs-judgment divergence at closeout (KPI-D input of the self-analysis-kpis spec).
+- **Unattended-automation runbook: dynamic bounded fee estimation + operator kill-switch
+  touch-file** (PR [#57](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/57),
+  merged 2026-07-17; recorded here at the next entry pass).
+
+### Fixed
+- **earnings-card: nested BFF response parsing, chip window tags, official Bitflow logo** (PR
+  [#58](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/58), merged
+  2026-07-17; recorded here at the next entry pass). Fixes the "Earnings n/a / Fee/TVL n/a" chips
+  and makes window attribution explicit on the card.
+
 ---
 
 ## [0.12.0] - 2026-07-16

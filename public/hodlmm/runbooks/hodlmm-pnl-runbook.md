@@ -72,6 +72,12 @@ Read-only — no `--confirm`, no broadcast. Cites handbook §6.6 for the IL defi
    record a **`fee_confidence`** (§6.2, INV-8). There is no claim/FT-transfer event — attribution is
    derived. **Never read DLP balance as fees.**
 5. **NET PnL** = `IL-only PnL + Fee PnL − gas` (cumulative gas from the Transaction Ledger).
+   **At closeout, reconcile gas from chain, not from a running counter**: sum the actual
+   `fee_rate` over every txid in the ledger — including mined-but-aborted txs, which still pay
+   their fee — and let the chain total override any accumulated `gasSpentStx` field. Field
+   evidence: a running counter drifted to 2.05 STX where the chain-summed total was 0.95 STX
+   (HODLMM-DLMM1-20260710-004, issue #59). Chain wins (INV-8/INV-10 spirit: measure, don't trust
+   bookkeeping).
 6. **REPORT** — emit the **Campaign PnL Report** (medium-agnostic text/markdown; see "Report
    contract" below). This is the **primary, always-shipped deliverable** whenever the operator asks
    to run PnL or see campaign results, in **every** channel (CLI, Claude Code, an LLM turn, a GitHub

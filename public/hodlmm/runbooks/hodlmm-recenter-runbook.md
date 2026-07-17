@@ -119,6 +119,14 @@ router; its protection is the **LP (Allow + contract-level bounds)** form, not s
   a recenter, not because of its amount. If the re-add is later abandoned and the campaign closes,
   the closeout `X` supersedes the dangling `R` (spec precedence rule). Unattended auto-repairs are
   **not** tagged by the loop — catch-up `R` tags (with `:txid8`) at the next supervised cycle.
+- **Prefer zero-swap moves; at small notional, treat swap-back repairs as exit-adjacent decisions,
+  not maintenance.** A `move-*` (or withdraw → re-add of the **same** tokens) relocates inventory
+  with zero dislocation loss; a withdraw → **swap** → redeposit round trip realizes the divergence
+  at the current spread and adds 3–5 tx fees. Same-week A/B evidence (closeouts #59/#60): the
+  campaign that carried its converted side intact through two zero-swap moves netted **+13.3%**,
+  while its sibling's swap-back round trip cut the same week's result to **+1.1%** on ~$88
+  notional. Below ~$150 notional, require a swap-back to clear the fee-to-IL / expected-edge test
+  as if it were an exit decision.
 
 ## Field-confirmed addendum — HODLMM-DLMM6-20260602-001
 
