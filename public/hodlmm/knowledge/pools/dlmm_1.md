@@ -3,7 +3,7 @@ type: kb-pool
 pool: dlmm_1
 pair: sBTC/USDCx
 handbook: v0.10
-version: 0.3
+version: 0.4
 updated: 2026-07-17
 last_ingested: 2026-07-17
 status: active
@@ -11,6 +11,7 @@ sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/35
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64
 ---
 
 # Pool playbook — dlmm_1 (sBTC/USDCx)
@@ -21,7 +22,7 @@ sources:
 
 ## Status & liveness
 
-**active.** Three independent 7-day campaigns now provide complementary evidence:
+**active.** Four independent 7-day campaigns now provide complementary evidence:
 
 - K9Dreamer `HODLMM-DLMM1-20260702-003`
   ([#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28)),
@@ -41,6 +42,17 @@ sources:
   paid `u5001`-class abort followed by a supervised withdraw→swap→redeposit recovery, and a fully
   unattended scheduled exit (tx `0x417f6be6…`, block 8570534, DLP `0`, second consecutive clean
   unattended scheduled exit on this pool).
+
+- Hex Stallion `HODLMM-DLMM1-20260710-003`
+  ([#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64)),
+  $25 bounded fee-capture on handbook `v0.6`: two postcondition-abort entries (0.10 STX tuition)
+  before the canonical `OPEN`, a `76.1652%` strict-range result against a `90%` SLO, a staged-repair
+  **capital-underdeployment** window (only `4.632695` of `25.461959 USDCx` proceeds redeployed —
+  [LSN-0021](../lessons/lessons-catalog.md#lsn-0021)), then a **clean scheduled auto-exit at planned
+  end** (tx `0x0045f2…9c55c`, block `8574498`, DLP `0`, zero user bins), host-level disarm proven,
+  and a false-green post-exit finalizer repaired under operator forcing
+  ([LSN-0022](../lessons/lessons-catalog.md#lsn-0022)). Net `+$0.35951503` vs capital-adjusted hold
+  after chain-summed gas, medium confidence.
 
 The healthy-side campaigns prove that lifecycle-gated repair and scheduled exit can work on this
 pool. The failure-side campaign shows what happens when missing-position repair, write scope, and
@@ -64,6 +76,9 @@ rate. No stale / exit-only (`INV-9`) pool status is recorded.
 | **Zero-LLM unattended monitor at full campaign scale**: 11 gated auto-moves + the scheduled exit executed with no LLM and no human touch; one mid-campaign supervised recovery was the only intervention (~111h then ~58h unattended stretches) | [#59](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59) + [correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59#issuecomment-5003288054) | realized |
 | **Slippage gate as pacing, not blocking**: a 0.5%-cap deferral during a fast move re-cleared 2h later at 0.26% and the deferred repair executed cleanly — the gate delayed, it did not strand | [#59](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59) | realized |
 | **Memo-tag campaign demarcation end-to-end** (`E` retroactive entry-tag, `X` terminal tag, txid8-bound): first live use of the [memo-tag spec](../../specs/campaign-memo-tags.md); surfaced the v1.1 tag-sink erratum on first contact | [#59](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59) | realized |
+| **Exact terminal-milestone wakeups added mid-campaign**: interval-only 5h cadence would have missed the deadline by ~1h38m; explicit final-window + campaign-end wakeups landed the auto-exit ~5 min after planned end | [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) | realized |
+| **Gas chain-summed from all canonical receipts including mined aborts** (8 tx → 0.40 STX; the stale 0.25 STX subtotal was rejected) — third campaign independently converging on [LSN-0019](../lessons/lessons-catalog.md#lsn-0019) | [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) | realized |
+| **Capital-adjusted `V_hold`**: a separate `4.632695 USDCx` repair contribution was reconciled into the hold baseline instead of surfacing as fake profit | [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) | realized |
 
 ## What failed
 
@@ -82,6 +97,10 @@ rate. No stale / exit-only (`INV-9`) pool status is recorded.
 | `(err u5001)` recurred as a **paid abort on this pool**: a ~35-bin one-sided `move-liquidity-multi` gap after a hard trend leg; dry-run and guardian gates did not catch the shape | Native-move legality is geometry ([LSN-0001](../lessons/lessons-catalog.md#lsn-0001)); defense = pre-broadcast geometry gate, deployed ~2.4 days later and verified as a free block | [#59](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59) (`0x5ef9bfa7…`, block 8547973) | realized |
 | A narrow two-sided band (±3 bins ≈ ±0.3% on this bin step) fully converted to one side twice in a single trending week — the band shape needs oscillation, and this week trended | Two-sided volatility capture presumes mean reversion inside the band; in trend, the position becomes a slow one-way conversion plus repair drag → [LSN-0020](../lessons/lessons-catalog.md#lsn-0020) | [#59](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59) | realized |
 | The closeout's own tx roster missed the 11 unattended auto-moves, inverting its gas finding (reported 0.95 STX "chain-summed" vs true 2.05 STX) | Roster completeness precedes fee arithmetic → [LSN-0019](../lessons/lessons-catalog.md#lsn-0019) | [#59 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59#issuecomment-5003288054) | realized |
+| Two entry attempts aborted on postconditions before the campaign went live (0.10 STX tuition, 36h pre-live delay): a Simple/relative protection model was used where the controlling runbook prescribed a different tuple | Source reading is not execution proof; machine-check `{function, variant, postcondition_mode, contract_bounds}` at dry-run **and** pre-sign | [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) | realized |
+| A staged repair cleared as "complete" on tx success + range proof while redeploying only `4.632695` of `25.461959 USDCx` confirmed proceeds — most campaign capital sat idle to campaign end | Capital restoration is a repair invariant → [LSN-0021](../lessons/lessons-catalog.md#lsn-0021) | [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) | realized |
+| Post-exit finalizer was false-green four money-facing ways (obsolete schema, omitted idle inventory, omitted contribution, stale gas subtotal); synthetic QA mirrored the parser's own assumptions | Finalizer QA replays real artifacts, complete roster, full capital graph → [LSN-0022](../lessons/lessons-catalog.md#lsn-0022) | [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) | realized |
+| First staged recenter lost its continuation owner after the confirmed withdraw: duplicate repair owners, stale state, and a timeout left the campaign with **no LP for 3h39m** until operator intervention | One event-driven staged-state owner until add + post-confirm proof → [LSN-0006](../lessons/lessons-catalog.md#lsn-0006), third campaign confirmation | [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) | realized |
 
 ## Effective recenter targeting
 
@@ -159,6 +178,17 @@ rate. No stale / exit-only (`INV-9`) pool status is recorded.
   repair swaps executed at a mark above the exit mark; the small positive net embeds that timing.
 - Bitflow display earnings for 004 (`$8.83` at the last pre-exit snapshot): **context only, never
   realized** — consistent with the [LSN-0004](../lessons/lessons-catalog.md#lsn-0004) canonical example.
+- **Hex Stallion 003: net `+$0.35951503` vs capital-adjusted hold after gas (`+1.21323772%`)**
+  (confidence: medium; native exit amounts and the 0.40 STX chain-summed gas are high-confidence,
+  USD marks medium). `V_hold = $29.632695` includes the separate `4.632695 USDCx` repair
+  contribution — the report explicitly refuses the false-profit framing of a `$25` basis. Fee-only
+  and IL-only PnL are **unavailable rather than inferred** (exact-window event pagination did not
+  reconcile). Maintainer chain-verified every roster fee and both capital legs by full event-page
+  sums ([#64 review](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64#issuecomment-5009512373)).
+- Third dlmm_1 data point on the same tactic family, three regimes: `+18%` (oscillation, ladder),
+  `+0.9%` (trend, band), `+1.2%` (mostly-idle capital after underdeployment). Deployment fraction is
+  now demonstrably part of the return denominator — idle campaign capital earns nothing and still
+  counts in the basis.
 
 ## Open questions / contradictions
 
@@ -190,4 +220,8 @@ on 2026-07-10. Ingested [#35](https://github.com/k9dreamer-graphite-elan/guides-
 this page preserves how that failure appeared on `dlmm_1`. Ingested
 [#59](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59) (K9Dreamer 004,
 incl. the DREAM-pass gas/roster correction comment) on 2026-07-17 as part of the first `DREAM`
-consolidation pass. Full trail in [`../log.md`](../log.md).
+consolidation pass. Ingested
+[#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64)
+(Hex Stallion `HODLMM-DLMM1-20260710-003`, failure-first closeout, maintainer chain-verified) on
+2026-07-17 — adds LSN-0021/LSN-0022 (both draft, field-confirmed ×1) and third-campaign
+confirmations of LSN-0006/LSN-0019. Full trail in [`../log.md`](../log.md).

@@ -1,7 +1,7 @@
 ---
 type: kb-lessons
 handbook: v0.10
-version: 0.6
+version: 0.7
 updated: 2026-07-17
 last_ingested: 2026-07-17
 status: active
@@ -19,6 +19,7 @@ sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/35
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64
 ---
 
 # HODLMM cross-campaign lessons & failure patterns
@@ -210,6 +211,32 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 - **Pools seen on:** Hex Stallion multi-pool campaign; [dlmm_3](../pools/dlmm_3.md)
 - **Evidence:** [#1](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1), [#2](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/2), [#3](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/3), [#11](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11), [#12](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/12)
 - **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-02
+
+<a id="lsn-0021"></a>
+### LSN-0021 — Capital restoration is a repair invariant: tx success + range proof do not complete a staged repair while campaign capital sits idle
+
+- **Category:** failed-tx patterns
+- **Pattern:** a staged recenter's withdraw confirmed `25.461959 USDCx` of proceeds, but the
+  replacement add — sized from a **stale wallet read** — redeployed only `4.632695 USDCx` (drawn
+  from *separate* wallet capital, no less) and then **cleared staged state as complete**. The
+  transaction succeeded, the strict-range proof passed, and every existing gate stayed green while
+  ~$25 of a $25 campaign sat idle for the final ~46 hours and the effective campaign basis silently
+  grew to `$29.63`. Chain-verified: withdraw and add event sums match the report exactly.
+- **Mitigation:** for every staged repair, persist **pre-withdraw inventory, confirmed proceeds,
+  separate capital contributions, intended redeployment, actual redeployment, and residual idle
+  campaign inventory** as first-class fields. Staged state may only clear when a
+  **capital-utilization proof** also holds — actual redeployment satisfies the approved campaign
+  budget and repair intent, and every separate contribution is reconciled into `V_hold` (else idle
+  or injected capital masquerades as profit or loss at closeout). Extends
+  [LSN-0006](#lsn-0006) (staged incident state machine) and [LSN-0011](#lsn-0011) (actuator chain)
+  with a capital dimension: `post_confirm_range_proven` is necessary but not sufficient —
+  add `capital_utilization_proven` as the final link. (`INV-8`, `INV-11`; recenter +
+  unattended-automation runbook candidate.)
+- **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
+- **Evidence:** [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) (Hex Stallion `HODLMM-DLMM1-20260710-003`; withdraw `0x0ee6bfc3…bab67`, add `0xb1ce7f70…0d7b4`, both maintainer-verified by full event-page sums)
+- **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes to active when a
+  later campaign exercises the capital-utilization gate on-chain (repo doctrine: every new rule is
+  draft until used; confidence graduates with each on-chain tx) · **last_ingested:** 2026-07-17
 
 ---
 
@@ -404,3 +431,32 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 - **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
 - **Evidence:** [#35](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/35) (Hex Stallion control-plane closeout addendum; post-close source refresh at HODLMM `main` `b4af6777`; terminal exit tx `0xbb118b51…0987` unaffected, still success/canonical)
 - **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-10
+
+<a id="lsn-0022"></a>
+### LSN-0022 — Finalizer QA must replay real artifacts: synthetic fixtures that mirror parser assumptions are false-green
+
+- **Category:** post-check lessons
+- **Pattern:** a campaign's terminal exit was canonical and closure was direct-read proven, yet the
+  **post-exit finalizer** failed four money-facing ways at once: it rejected the *real* scheduled
+  terminal report (`terminal_common_mark_missing` — it only parsed an obsolete schema), it treated
+  the terminal withdrawal leg as the entire final inventory (omitting `25.461959 USDCx` of preserved
+  idle campaign capital), it omitted a separate `4.632695 USDCx` repair contribution from `V_hold`
+  (which would have mislabeled injected capital as profit), and it trusted a stale `0.25 STX` gas
+  subtotal instead of chain-summing all eight canonical transactions to `0.40 STX` including two
+  mined aborts. The QA orchestrator reported clean because its **synthetic fixture was copied from
+  the parser's own assumptions** instead of replaying the actual scheduled artifact. No extra gas
+  was spent, but truthful accounting, deliverables, and host disarm were delayed for hours until the
+  operator forced the closeout.
+- **Mitigation:** finalizer QA must replay (a) the **exact report schema emitted by the loaded
+  scheduler** (not a hand-built envelope), (b) the **complete canonical transaction roster** built
+  by a chain nonce-range sweep ([LSN-0019](#lsn-0019)), and (c) the **campaign-wide capital-flow
+  graph** including idle inventory and separate contributions. A fixture derived from
+  implementation assumptions cannot satisfy the terminal quality gate — the same trap on the QA
+  axis that [LSN-0008](#lsn-0008) names on the monitoring axis (a green harness ≠ a true harness).
+  Detect `exit_without_pnl`, `pnl_without_artifacts`, and `closure_with_loaded_residents` as
+  incidents, not silence. (`INV-8`, `INV-10`; closeout-runbook candidate.)
+- **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
+- **Evidence:** [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) (Hex Stallion `HODLMM-DLMM1-20260710-003`; gas roster and both omitted capital legs maintainer-verified on Hiro — the "categorical terminal finalizer failure" section)
+- **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes to active when a
+  later campaign's finalizer passes a real-artifact replay gate on-chain evidence (repo doctrine:
+  draft until used) · **last_ingested:** 2026-07-17
