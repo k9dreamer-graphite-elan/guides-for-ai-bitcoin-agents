@@ -14,6 +14,42 @@ _Nothing yet._
 
 ---
 
+## [0.12.2] - 2026-07-21
+
+The **two-closeouts ingest** patch: both open campaign closeouts fully processed
+(accepted → maintainer chain-verified → ingested → closed). Handbook unchanged at v0.10.
+
+### Added
+- **KB ingest of [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64)
+  (Hex Stallion `HODLMM-DLMM1-20260710-003`, sBTC/USDCx failure-first closeout)** via PR
+  [#66](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/66):
+  lessons catalog v0.7 adds **LSN-0021** (capital restoration is a repair invariant — staged
+  repairs may only clear on a capital-utilization proof, not tx success + range proof alone) and
+  **LSN-0022** (finalizer QA must replay real artifacts — synthetic fixtures that mirror parser
+  assumptions are false-green); `pools/dlmm_1.md` v0.4 records the fourth campaign, the
+  capital-underdeployment window, and third-campaign confirmations of LSN-0006/LSN-0019. Both new
+  lessons are `status: draft`, field-confirmed ×1, per the draft-until-used doctrine.
+- **KB ingest of [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67)
+  (K9Dreamer `HODLMM-DLMM3-20260717-006`, STX/USDCx floor ladder, first operator-directed early
+  exit)** via PR [#68](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/68):
+  lessons catalog v0.8 adds **LSN-0023** (a dead pool is not a whipsaw regime — pre-entry liveness
+  screen + successor-pool check) and **LSN-0024** (early exit is the scheduled exit pulled forward —
+  a lifecycle-date change on the proven path, zero new signing surface); `pools/dlmm_3.md` v0.3
+  records the fourth campaign, the dead-pool / v2-successor liveness caveats, and the third regime
+  cell (whipsaw / trend / **dead**). Both new lessons `status: draft` with explicit promotion
+  conditions.
+
+### Changed
+- **LSN-0018 extended to operator-directed decisions** (from #67): the fresh-read-at-decision-time
+  rule applies whoever decides — the 006 early-exit directive's premise was 8h stale and caught
+  only post-execution.
+- **LSN-0019 fourth-campaign confirmation** (from #67): labeling (memo-tag) transactions emitted by
+  out-of-band tooling are a recurring gas-roster omission class; any tx-emitting path outside the
+  monitor must book its fee into the shared role ledger at emission or be reconciled by the
+  closeout nonce-range sweep.
+
+---
+
 ## [0.12.1] - 2026-07-17
 
 ### Added
