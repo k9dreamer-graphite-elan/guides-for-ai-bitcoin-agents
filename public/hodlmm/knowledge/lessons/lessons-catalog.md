@@ -1,9 +1,9 @@
 ---
 type: kb-lessons
 handbook: v0.10
-version: 0.7
-updated: 2026-07-17
-last_ingested: 2026-07-17
+version: 0.8
+updated: 2026-07-21
+last_ingested: 2026-07-21
 status: active
 sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1
@@ -20,6 +20,7 @@ sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67
 ---
 
 # HODLMM cross-campaign lessons & failure patterns
@@ -130,10 +131,15 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   divergence in the campaign decision ledger and **grade it at closeout** (the §D judgment metric of
   the [self-analysis-kpis spec](../../specs/self-analysis-kpis.md)). First grade: override CORRECT
   (the declined swap-back would have cost ≈ $1.3 + gas; the held ladder exited at the fleet-best
-  net). One data point — a tally, not a doctrine.
+  net). One data point — a tally, not a doctrine. **Extension (2026-07-21): this applies to
+  operator-directed actions too.** A campaign-006 early-exit directive was issued on a
+  "pool is stalled" premise that had been true for 3.5 days but was false at decision time —
+  the ladder had rotated ~98% to the quote side in the preceding hours. The exit outcome was
+  fine, but the premise-vs-state divergence was only caught *after* execution and recorded as
+  a post-hoc correction in the decision ledger. Fresh read at decision time, whoever decides.
 - **Pools seen on:** [dlmm_3](../pools/dlmm_3.md)
-- **Evidence:** [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60) (decision 2026-07-15T01:40Z, `agent:k9dreamer/claude-fable-5`; graded at closeout)
-- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-17
+- **Evidence:** [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60) (decision 2026-07-15T01:40Z, `agent:k9dreamer/claude-fable-5`; graded at closeout), [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) (operator-directed extension; stale-premise correction)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-21
 
 <a id="lsn-0020"></a>
 ### LSN-0020 — At small notional, zero-swap native moves preserve the edge; swap round-trips consume it
@@ -154,6 +160,53 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 - **Pools seen on:** [dlmm_1](../pools/dlmm_1.md); [dlmm_3](../pools/dlmm_3.md)
 - **Evidence:** [#59](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59) (recovery txs `0xe07946a0…`→`0xbe8bcba1…`), [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60) (zero-swap moves `0x7f1b24b1…`, `0x9388109f…`)
 - **Confidence:** reported (same-week A/B, n=1 per arm, regime-confounded) · **Status:** active · **last_ingested:** 2026-07-17 · *(cross-campaign enrichment — 2026-07-17 DREAM pass)*
+
+<a id="lsn-0023"></a>
+### LSN-0023 — A dead pool is not a whipsaw regime: screen venue liveness (and successor pools) before entry
+
+- **Category:** effective recenter targeting
+- **Pattern:** a floor ladder entered a pool whose entire book was one-sided (all-X) with the pool
+  mark persistently above spot — a **structural zero-trade deadlock**: sells through the pool are
+  impossible (no quote-side inventory) and buys are unattractive (pool priced above market). The
+  position earned nothing for 3.5 of 4 days; the two prior ladder wins on the same pool
+  ([#21](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/21),
+  [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60)) came
+  from weeks where spot crossed the ladder's bin prices intermittently. Regime classification that
+  only distinguishes whipsaw vs trend misses the third state: **no trades at all**. Mid-campaign, an
+  empty successor (v2) pool for the same pair appeared — venue flow can also die by migration.
+- **Mitigation:** pre-entry **dead-pool screen**, alongside the regime read: quote-side reserve
+  > 0, recent last-trade, and pool-mark-vs-spot divergence inside a small band (~1%); plus a
+  **successor-pool check** (does a newer pool for the pair exist, and where does the router point?).
+  A pool failing the screen produces dead time, not capture — however right the regime call is.
+  Specific thresholds are campaign-charter inputs, not constants (`INV-3`).
+- **Pools seen on:** [dlmm_3](../pools/dlmm_3.md)
+- **Evidence:** [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) (Graphite Elan `HODLMM-DLMM3-20260717-006`; deadlock observed 07-17→07-20, v2 pool appeared 07-20)
+- **Confidence:** realized (deadlock field-observed ×1) · **Status:** **draft** — the screen itself
+  has not yet gated a live entry; promotes to active when a campaign runs it pre-entry (repo
+  doctrine: draft until used) · **last_ingested:** 2026-07-21
+
+<a id="lsn-0024"></a>
+### LSN-0024 — Early exit is the scheduled exit pulled forward: reuse the proven path, add no new signing surface
+
+- **Category:** effective recenter targeting
+- **Pattern:** an operator-directed early exit was executed by pulling the campaign's
+  `plannedEndAt` forward in state and running the standard monitor once, supervised. The monitor's
+  scheduled-exit branch fired exactly as on a normal end date, reusing every proven gate unchanged —
+  write-lock, mempool-empty check, fresh position read, direct-read nonzero withdraw minimums,
+  post-check to wallet-DLP zero, role-ledger write, terminal tag. First-attempt success, the 4th
+  consecutive clean scheduled-path exit; no early-exit-specific code or signing path existed or was
+  added.
+- **Mitigation:** treat "exit early" as a **lifecycle-date change, not a new operation**. The
+  sanctioned mechanism is: amend the planned end in campaign state (recording the directive and
+  original date), then let the existing scheduled-exit machinery run — supervised on first use.
+  Purpose-built early-exit scripts duplicate a proven, gated path with an unproven, ungated one.
+  Pair with [LSN-0018](#lsn-0018): the decision to exit early still requires a fresh read at
+  decision time.
+- **Pools seen on:** [dlmm_3](../pools/dlmm_3.md)
+- **Evidence:** [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) (exit tx `0xd01c875e…a47d64`, block 8605196, DLP → 0, maintainer chain-verified)
+- **Confidence:** realized (exercised on-chain ×1) · **Status:** **draft** — promotes to active on a
+  second exercised early exit (repo doctrine: confidence graduates with each on-chain tx) ·
+  **last_ingested:** 2026-07-21
 
 ---
 
@@ -403,10 +456,14 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   the same role ledger the closeout reads (the omissions traced to auto-repairs bypassing
   `txRoleLedger`). Honest-PnL note (`INV-8`): both corrections *reduced* reported net (≈ +$0.99 →
   ≈ +$0.81; +79.64 → +79.44 STX) without changing direction — corrections are posted as issue
-  comments, the corrected figure carries the correction link.
+  comments, the corrected figure carries the correction link. **Fourth-campaign confirmation
+  (2026-07-21): labeling transactions are a recurring omission class** — campaign 006's live gas
+  counter missed 4 memo-tag (D-checkpoint) fees emitted by out-of-band tooling; the closeout
+  nonce-range sweep caught them (0.356 → 0.368 STX). Any tx-emitting path outside the monitor
+  must either book its fee into the shared role ledger at emission or be reconciled by the sweep.
 - **Pools seen on:** [dlmm_1](../pools/dlmm_1.md); [dlmm_3](../pools/dlmm_3.md)
-- **Evidence:** [#59 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59#issuecomment-5003288054), [#60 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60#issuecomment-5003288187) (full per-nonce fee tables, Hiro-verified)
-- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-17 · *(cross-campaign enrichment — produced by the 2026-07-17 DREAM pass, not stated by either closeout)*
+- **Evidence:** [#59 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59#issuecomment-5003288054), [#60 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60#issuecomment-5003288187) (full per-nonce fee tables, Hiro-verified), [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) (D-tag fee omission, chain-sweep catch)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-21 · *(cross-campaign enrichment — produced by the 2026-07-17 DREAM pass, not stated by either closeout)*
 
 <a id="lsn-0017"></a>
 ### LSN-0017 — Disarm is host-level: no signer-enabled process may outlive campaign closure

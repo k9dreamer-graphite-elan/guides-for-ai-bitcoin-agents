@@ -3,9 +3,9 @@ type: kb-pool
 pool: dlmm_3
 pair: STX/USDCx
 handbook: v0.10
-version: 0.2
-updated: 2026-07-17
-last_ingested: 2026-07-17
+version: 0.3
+updated: 2026-07-21
+last_ingested: 2026-07-21
 status: active
 sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/21
@@ -14,6 +14,7 @@ sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/12
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/13
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67
 ---
 
 # Pool playbook — dlmm_3 (STX/USDCx)
@@ -24,8 +25,8 @@ sources:
 
 ## Status & liveness
 
-**active.** Three campaigns have run this pool and all reached a chain-proven clean exit (wallet DLP
-`0`, zero user bins):
+**active — with a structural-liveness caveat (see below).** Four campaigns have run this pool and
+all reached a chain-proven clean exit (wallet DLP `0`, zero user bins):
 
 - K9Dreamer `HODLMM-DLMM3-20260625-002` ([#21](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/21)) —
   7 days, fully realized net-positive exit at the planned end (after one recovered automation incident).
@@ -37,8 +38,22 @@ sources:
   [DREAM-pass gas/roster correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60#issuecomment-5003288187)) —
   7 days, 600 STX **off-floor** X-ladder, zero-LLM monitor, fully unattended scheduled exit
   (tx `0x4a3bccfb…`, block 8570749); fleet-best realized result.
+- K9Dreamer `HODLMM-DLMM3-20260717-006`
+  ([#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67)) —
+  planned 7 days, **operator-directed early exit at day 4** through the standard scheduled-exit
+  machinery (tx `0xd01c875e…`, block 8605196, first attempt — 4th consecutive clean scheduled-path
+  exit). Net +0.17% realized: 3.5 of 4 days in a **structural zero-trade deadlock** (all-X book,
+  pool mark ~1.6% above spot), then the pool popped in the final ~8h and the ladder sold up
+  almost fully.
 
-No stale / exit-only (`INV-9`) status is recorded for dlmm_3 — but note the **floor-pinning regime**
+No stale / exit-only (`INV-9`) status is recorded for dlmm_3, but two liveness caveats now stand:
+**(a)** campaign 006 documented a multi-day **dead-pool state** (one-sided all-X book, pool mark
+persistently above spot, near-zero trades) — a third regime beside whipsaw and trend that the
+pre-entry screen of [LSN-0023](../lessons/lessons-catalog.md#lsn-0023) exists to catch; **(b)** an
+empty **v2 successor pool** for this pair was deployed 2026-07-20 — if routing migrates, v1 flow
+may never return; check the successor pool and router target before any new v1 entry
+([#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67)).
+Also note the **floor-pinning regime**
 below: in drawdowns the pool pins at absolute bin 0 with a structural pool-vs-market price divergence
 (1.96–3.33% observed) that a slippage cap can never clear while pinned. Pinning is a *regime*, not a
 staleness flag; the guardian's PINNED posture (no rebalance, no blind swap; withdraw is the only safe
@@ -58,6 +73,8 @@ write) held through ~28h of terminal pinning and the position still exited clean
 | **Zero-swap native `move` repairs** carried inventory intact across relocations (113.540818 → 113.540819 USDCx over a 33-tuple move) — no dislocation loss, no spread → [LSN-0020](../lessons/lessons-catalog.md#lsn-0020) | [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60) | realized |
 | **HOLD-NO-REPAIR on fresh reads** beat the alert-prescribed swap-back remedy (graded correct at closeout — first §D judgment data point) → [LSN-0018](../lessons/lessons-catalog.md#lsn-0018) | [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60) | realized |
 | Guardian PINNED posture during floor-pinning: refuse rebalances and blind swaps while the pool sits at absolute bin 0 with structural price divergence; exit-side withdraws remain safe | [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60) | realized |
+| **Early exit as a lifecycle-date change**: `plannedEndAt` pulled forward + one supervised monitor run reused the entire proven scheduled-exit path (locks, mempool gate, fresh mins, post-check, ledger) — zero new signing surface → [LSN-0024](../lessons/lessons-catalog.md#lsn-0024) | [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) | realized (×1, draft mechanism) |
+| **Passive ladder held through dead time still captured the one live window**: with zero repairs and zero recenters, the pre-placed rungs monetized the single 8h pop of a 4-day campaign (active bin 0→7, ~1,960 STX sold at bins 0.1666–0.1678) for a breakeven-plus net | [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) | realized |
 
 ## What failed
 
@@ -72,6 +89,9 @@ write) held through ~28h of terminal pinning and the position still exited clean
 | First multi-bin mint into empty target bins aborted `abort_by_post_condition` (0.25 STX) | Exact NFT postconditions are brittle on first-ever mints → [LSN-0003](../lessons/lessons-catalog.md#lsn-0003) (third confirmation; retry with fungible caps + `min-dlp` cleared) | [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60) | realized |
 | While pinned at the pool floor, the slippage gate blocked all auto-repairs for ~36h — the pool-vs-market divergence is structural during pinning, so the cap can never pass | A slippage cap compares pool price to market; a pinned pool's frozen bin-0 price makes that divergence a regime property, not an execution risk signal — route to guardian PINNED posture instead of retuning the cap | [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60) | realized |
 | The closeout's tx roster omitted 2 unattended auto-moves (gas 0.80 → true 1.00 STX) | Roster completeness precedes fee arithmetic → [LSN-0019](../lessons/lessons-catalog.md#lsn-0019) | [#60 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60#issuecomment-5003288187) | realized |
+| A ladder sat in a **structural zero-trade deadlock** for 3.5 of 4 days: all-X book, pool mark ~1.6% above spot — sells impossible, buys unattractive; no fee flow regardless of regime call | A dead pool is a third regime beside whipsaw/trend; pre-entry liveness screen → [LSN-0023](../lessons/lessons-catalog.md#lsn-0023) | [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) | realized |
+| An early-exit directive's premise ("pool is stalled") was 8h stale — the ladder had already rotated ~98% to USDCx in the final pop; the divergence was caught only post-execution | Fresh position/pool read at decision time applies to operator-directed actions too → [LSN-0018](../lessons/lessons-catalog.md#lsn-0018) extension | [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) | realized |
+| 4 memo-tag (D-checkpoint) fees emitted by out-of-band tooling were missing from the live gas counter (0.356 → true 0.368 STX) | Labeling txs are a recurring roster-omission class → [LSN-0019](../lessons/lessons-catalog.md#lsn-0019) fourth confirmation | [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) | realized |
 
 ## Effective recenter targeting
 
@@ -111,7 +131,16 @@ write) held through ~28h of terminal pinning and the position still exited clean
   restated it against the full 7-tx chain roster ([LSN-0019](../lessons/lessons-catalog.md#lsn-0019)).
   Best result of the five closed K9Dreamer campaigns. Same framing as 002: **volatility capture, not
   yield** — the edge required the active bin to whipsaw through the ladder; never project as APR.
-- Protocol/DLP display earnings: **context only, never realized** on all three campaigns.
+- **K9Dreamer 006: net `+3.49 STX` ≈ `+$0.59` (`+0.17%`) vs holding the deployed 2,000 STX, after
+  chain-summed gas (0.368 STX)** — confidence: **realized-withdrawal** (proceeds
+  `39.320759 STX + 330.466014 USDCx` on wallet; the USDCx leg converted at a clean-read spot,
+  maintainer chain-verified by full event-page sums,
+  [#67 review](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67#issuecomment-5038241489)).
+  Mechanics: ladder sells averaged ~0.7% under exit-time spot; embedded fee income from the pops
+  roughly offset that drag. **The regime contrast is the finding**: the same ladder shape that made
+  ~+13% in two whipsaw weeks (002, 005) made ~+0.2% in a dead-pool week — capture requires trades,
+  and the exit landed stablecoin-heavy (a composition change, not a same-token round trip).
+- Protocol/DLP display earnings: **context only, never realized** on all four campaigns.
 
 ## Open questions / contradictions
 
@@ -122,7 +151,15 @@ write) held through ~28h of terminal pinning and the position still exited clean
   oscillating through the rungs — **regime (whipsaw vs trend) matters more than floor proximity**.
   The superseding open question: *does the ladder survive a trend regime?* Every ladder win so far
   (002, 005) came from a whipsaw week, and the same week's trending pair (dlmm_1 004) decayed a
-  band strategy to ≈ +0.9%.
+  band strategy to ≈ +0.9%. **006 added the third regime cell (2026-07-21,
+  [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67)): a
+  dead pool.** The ladder neither won nor lost (~+0.2%) — it simply had nothing to trade against
+  for 3.5 of 4 days. Regime taxonomy is now whipsaw (ladder wins) / trend (untested for the
+  ladder) / dead (ladder inert; screen it out pre-entry per
+  [LSN-0023](../lessons/lessons-catalog.md#lsn-0023)).
+- **Does v1 flow return once the v2 successor pool seeds?** Open as of 2026-07-21 — the empty v2
+  STX/USDCx pool deployed 2026-07-20 makes v1's future liveness an explicit pre-entry check, not
+  an assumption ([#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67)).
 - **Staged-continuation SLA bounds** ([LSN-0006](../lessons/lessons-catalog.md#lsn-0006)): how long
   stale staged state may block before mandatory archive/supersede is still unsettled.
 
@@ -134,4 +171,8 @@ and [#11](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agent
 (Hex Stallion 7D) on 2026-07-02. Ingested
 [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60) (K9Dreamer
 005, incl. the DREAM-pass gas/roster correction comment) on 2026-07-17 as part of the first `DREAM`
-consolidation pass. Full trail in [`../log.md`](../log.md).
+consolidation pass. Ingested
+[#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) (K9Dreamer
+006, operator-directed early exit, maintainer chain-verified) on 2026-07-21 — adds
+LSN-0023/LSN-0024 (both draft) and the dead-pool / v2-successor liveness caveats. Full trail in
+[`../log.md`](../log.md).
