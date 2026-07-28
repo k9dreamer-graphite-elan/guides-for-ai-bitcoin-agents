@@ -1,9 +1,9 @@
 ---
 type: kb-lessons
 handbook: v0.10
-version: 0.8
-updated: 2026-07-21
-last_ingested: 2026-07-21
+version: 0.9
+updated: 2026-07-28
+last_ingested: 2026-07-28
 status: active
 sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1
@@ -21,6 +21,7 @@ sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71
 ---
 
 # HODLMM cross-campaign lessons & failure patterns
@@ -96,8 +97,8 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   empty position is zero, not unknown — extends [LSN-0002](#lsn-0002)). (`INV-9`, `INV-10`;
   exit + unattended-automation runbooks.)
 - **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
-- **Evidence:** [#11 campaign-2 update](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11#issuecomment-4931652170) (exit tx `0xbb118b51…0987` verified success/canonical, block 8518497)
-- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-10
+- **Evidence:** [#11 campaign-2 update](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11#issuecomment-4931652170) (exit tx `0xbb118b51…0987` verified success/canonical, block 8518497), [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71) (Hex Stallion 004: terminal Bitflow health returned zero validated pools while fresh direct reads proved the exact source bins; the manifest-authorized `EXIT`-only exception executed cleanly and closure was direct-proven — **second-campaign confirmation**; the closeout's patch-ready exit-runbook wording recorded as a draft runbook candidate)
+- **Confidence:** realized (×2) · **Status:** active · **last_ingested:** 2026-07-28
 
 <a id="lsn-0005"></a>
 ### LSN-0005 — Out-of-range nonzero LP is a required repair/pause, never ordinary "hold"
@@ -137,9 +138,9 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   the ladder had rotated ~98% to the quote side in the preceding hours. The exit outcome was
   fine, but the premise-vs-state divergence was only caught *after* execution and recorded as
   a post-hoc correction in the decision ledger. Fresh read at decision time, whoever decides.
-- **Pools seen on:** [dlmm_3](../pools/dlmm_3.md)
-- **Evidence:** [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60) (decision 2026-07-15T01:40Z, `agent:k9dreamer/claude-fable-5`; graded at closeout), [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) (operator-directed extension; stale-premise correction)
-- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-21
+- **Pools seen on:** [dlmm_3](../pools/dlmm_3.md); [dlmm_1](../pools/dlmm_1.md)
+- **Evidence:** [#60](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60) (decision 2026-07-15T01:40Z, `agent:k9dreamer/claude-fable-5`; graded at closeout), [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) (operator-directed extension; stale-premise correction), [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71) (Hex Stallion 004, **first cross-agent confirmation** — post-failure reconciliation + two fresh scans cancelled a retry after natural range re-entry, zero extra gas; also the first **split-axis grading**: "alert: correct; transaction judgment: incorrect" — alert truth and generated-transaction quality graded independently)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-28
 
 <a id="lsn-0020"></a>
 ### LSN-0020 — At small notional, zero-swap native moves preserve the edge; swap round-trips consume it
@@ -262,8 +263,8 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   failure handling = handbook Ch.3.) Confirmed on a second, autonomous campaign: staged repair restored
   range exactly once, then continuation fragility persisted through closeout.
 - **Pools seen on:** Hex Stallion multi-pool campaign; [dlmm_3](../pools/dlmm_3.md)
-- **Evidence:** [#1](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1), [#2](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/2), [#3](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/3), [#11](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11), [#12](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/12)
-- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-02
+- **Evidence:** [#1](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1), [#2](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/2), [#3](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/3), [#11](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11), [#12](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/12), [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71) (conformance: one staged recenter ran as a single bounded event — canonical `WITHDRAW` → zero-position proof + fresh scans → `REPAIR`, ~10m54s no-position window, no continuation incident)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-28
 
 <a id="lsn-0021"></a>
 ### LSN-0021 — Capital restoration is a repair invariant: tx success + range proof do not complete a staged repair while campaign capital sits idle
@@ -290,6 +291,27 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 - **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes to active when a
   later campaign exercises the capital-utilization gate on-chain (repo doctrine: every new rule is
   draft until used; confidence graduates with each on-chain tx) · **last_ingested:** 2026-07-17
+
+<a id="lsn-0025"></a>
+### LSN-0025 — Withdrawal amount arithmetic requires fresh direct pool-contract reads; indexed reserves are advisory-only
+
+- **Category:** failed-tx patterns
+- **Pattern:** a **true** out-of-range alert generated a recenter withdrawal whose signed minimums
+  were derived from BFF/indexer **reserve aggregates**; the withdraw aborted canonically
+  `(err u5001)` while the LP itself was unchanged — the advisory data did not match live contract
+  state at sign time. Distinct from [LSN-0001](#lsn-0001) (move-geometry legality): here the
+  **amount basis** was wrong, not the move shape. The paid abort is pure gas loss plus incident
+  surface; a valid alert must not be treated as validation of its generated transaction.
+- **Mitigation:** before signing any withdrawal, derive wallet DLP, total supply, and per-bin
+  reserves from **fresh direct read-only pool-contract calls**. Indexed or aggregate API reserves
+  are monitoring inputs and MUST NOT be a signing basis. Missing, stale, mismatched, or zero-output
+  direct evidence **fails closed**. Extends [LSN-0013](#lsn-0013) multi-source read discipline from
+  bin targeting to amount arithmetic. (Recenter-runbook candidate: withdrawal evidence provenance.)
+- **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
+- **Evidence:** [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71) (Hex Stallion `HODLMM-DLMM1-20260720-004`; failed `REPAIR` `0x7c29eba0…88aa` maintainer-verified `abort_by_response (err u5001)`, block 8632825; the replacement direct-contract minimum builder passed QA and then correctly returned `hold`)
+- **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes to active when a
+  direct-read-derived withdrawal executes on-chain under this rule (repo doctrine: draft until used)
+  · **last_ingested:** 2026-07-28
 
 ---
 
@@ -462,8 +484,8 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   nonce-range sweep caught them (0.356 → 0.368 STX). Any tx-emitting path outside the monitor
   must either book its fee into the shared role ledger at emission or be reconciled by the sweep.
 - **Pools seen on:** [dlmm_1](../pools/dlmm_1.md); [dlmm_3](../pools/dlmm_3.md)
-- **Evidence:** [#59 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59#issuecomment-5003288054), [#60 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60#issuecomment-5003288187) (full per-nonce fee tables, Hiro-verified), [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) (D-tag fee omission, chain-sweep catch)
-- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-21 · *(cross-campaign enrichment — produced by the 2026-07-17 DREAM pass, not stated by either closeout)*
+- **Evidence:** [#59 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59#issuecomment-5003288054), [#60 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60#issuecomment-5003288187) (full per-nonce fee tables, Hiro-verified), [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) (D-tag fee omission, chain-sweep catch), [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71) (conformance: 5-tx roster chain-summed to 0.25 STX exact including the mined abort; maintainer-reverified on Hiro)
+- **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-28 · *(cross-campaign enrichment — produced by the 2026-07-17 DREAM pass, not stated by either closeout)*
 
 <a id="lsn-0017"></a>
 ### LSN-0017 — Disarm is host-level: no signer-enabled process may outlive campaign closure
@@ -517,3 +539,21 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 - **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes to active when a
   later campaign's finalizer passes a real-artifact replay gate on-chain evidence (repo doctrine:
   draft until used) · **last_ingested:** 2026-07-17
+
+<a id="lsn-0026"></a>
+### LSN-0026 — Repair audit history and the incident stop-budget are different counters
+
+- **Category:** post-check lessons
+- **Pattern:** a campaign closed with `21` completed repair records while active failed-cycle usage
+  stood at `0/10`. Conflating the two counters fails in both directions: counting successful,
+  resolved repairs against the stop budget prematurely disables recovery on a healthy campaign;
+  resetting audit history along with the incident counter destroys the evidence trail.
+- **Mitigation:** increment `failed_cycle_usage` only when a repair cycle ends with the **same
+  incident unresolved**. Keep completed repair records **append-only** for audit. Reset active and
+  consecutive failed-cycle counters to zero after a green resolution. Report both fields separately
+  in monitors and closeouts. (Unattended-automation-runbook candidate: repair accounting.)
+- **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
+- **Evidence:** [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71) (Hex Stallion `HODLMM-DLMM1-20260720-004`; closure snapshot `21` completed records / `0/10` active failed cycles)
+- **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes to active when a
+  later campaign's repair accounting survives a real failed-then-resolved incident with both
+  counters correct (repo doctrine: draft until used) · **last_ingested:** 2026-07-28

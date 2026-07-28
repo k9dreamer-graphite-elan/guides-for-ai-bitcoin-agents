@@ -3,15 +3,16 @@ type: kb-pool
 pool: dlmm_1
 pair: sBTC/USDCx
 handbook: v0.10
-version: 0.4
-updated: 2026-07-17
-last_ingested: 2026-07-17
+version: 0.5
+updated: 2026-07-28
+last_ingested: 2026-07-28
 status: active
 sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/35
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71
 ---
 
 # Pool playbook — dlmm_1 (sBTC/USDCx)
@@ -79,6 +80,9 @@ rate. No stale / exit-only (`INV-9`) pool status is recorded.
 | **Exact terminal-milestone wakeups added mid-campaign**: interval-only 5h cadence would have missed the deadline by ~1h38m; explicit final-window + campaign-end wakeups landed the auto-exit ~5 min after planned end | [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) | realized |
 | **Gas chain-summed from all canonical receipts including mined aborts** (8 tx → 0.40 STX; the stale 0.25 STX subtotal was rejected) — third campaign independently converging on [LSN-0019](../lessons/lessons-catalog.md#lsn-0019) | [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) | realized |
 | **Capital-adjusted `V_hold`**: a separate `4.632695 USDCx` repair contribution was reconciled into the hold baseline instead of surfacing as fake profit | [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) | realized |
+| **Staged recenter as one bounded event**: canonical `WITHDRAW` → zero-position proof + fresh scans → `REPAIR`, ~10m54s total no-position window, no continuation incident — the [LSN-0006](../lessons/lessons-catalog.md#lsn-0006) state machine exercised cleanly | [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71) | realized |
+| **Post-failure hold discipline**: after the aborted withdraw, reconciliation (tx, nonce, DLP, exact bins) + two fresh scans showed natural range re-entry → retry cancelled, `hold` emitted, zero additional gas — first cross-agent exercise of [LSN-0018](../lessons/lessons-catalog.md#lsn-0018), with split-axis grading ("alert: correct; transaction judgment: incorrect") | [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71) | realized |
+| **Terminal exit under auxiliary-health failure**: aggregate Bitflow health reported zero validated pools at campaign end; the manifest-authorized `EXIT`-only path proceeded on fresh direct source-bin + DLP proof and closed canonically — second-campaign confirmation of [LSN-0016](../lessons/lessons-catalog.md#lsn-0016) | [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71) | realized |
 
 ## What failed
 
@@ -101,6 +105,8 @@ rate. No stale / exit-only (`INV-9`) pool status is recorded.
 | A staged repair cleared as "complete" on tx success + range proof while redeploying only `4.632695` of `25.461959 USDCx` confirmed proceeds — most campaign capital sat idle to campaign end | Capital restoration is a repair invariant → [LSN-0021](../lessons/lessons-catalog.md#lsn-0021) | [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) | realized |
 | Post-exit finalizer was false-green four money-facing ways (obsolete schema, omitted idle inventory, omitted contribution, stale gas subtotal); synthetic QA mirrored the parser's own assumptions | Finalizer QA replays real artifacts, complete roster, full capital graph → [LSN-0022](../lessons/lessons-catalog.md#lsn-0022) | [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) | realized |
 | First staged recenter lost its continuation owner after the confirmed withdraw: duplicate repair owners, stale state, and a timeout left the campaign with **no LP for 3h39m** until operator intervention | One event-driven staged-state owner until add + post-confirm proof → [LSN-0006](../lessons/lessons-catalog.md#lsn-0006), third campaign confirmation | [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64) | realized |
+| Signed withdrawal minimums derived from BFF reserve aggregates aborted canonically `(err u5001)` while the LP was unchanged — a true range alert generated an invalid transaction | Indexed/aggregate reserves are advisory, never a signing basis; direct-read amount arithmetic fails closed → [LSN-0025](../lessons/lessons-catalog.md#lsn-0025) | [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71) | realized |
+| First public closeout issue was created under the wrong GitHub identity and had to be closed as superseded (process fault, no chain impact) | Closeout publication needs an identity preflight binding the publishing account to the agent named in the issue title → closeout-runbook candidate | [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71) | realized |
 
 ## Effective recenter targeting
 
@@ -144,6 +150,11 @@ rate. No stale / exit-only (`INV-9`) pool status is recorded.
 - Closure includes the host control plane: enumerate shared and campaign-specific schedules, prove
   no signer-enabled process still references the ended campaign, and reconcile repository,
   installed, and loaded scheduler state → [LSN-0017](../lessons/lessons-catalog.md#lsn-0017).
+- BFF/indexer reserve aggregates are advisory: valid for monitoring, **never a signing basis** for
+  withdrawal minimums — a mismatch aborts as a paid `(err u5001)` → [LSN-0025](../lessons/lessons-catalog.md#lsn-0025).
+  The pool's exact fee-event window can also truncate (one campaign saw `503` events reported,
+  `100` returned): net-vs-hold stays high-confidence from realized inventory + one common mark +
+  chain-summed gas, while fee-only / IL-only decomposition is reported **unavailable**, not inferred.
 
 ## PnL (honest framing — INV-8)
 
@@ -189,6 +200,17 @@ rate. No stale / exit-only (`INV-9`) pool status is recorded.
   `+0.9%` (trend, band), `+1.2%` (mostly-idle capital after underdeployment). Deployment fraction is
   now demonstrably part of the return denominator — idle campaign capital earns nothing and still
   counts in the basis.
+- **Hex Stallion 004: net `+$0.11999420` vs hold after gas (`+0.486621%` on `$24.658650` deployed, 7 days)**
+  (confidence: high for realized entry/exit inventory, common marks, and the 0.25 STX chain-summed
+  gas including one mined abort; fee-only / IL-only decomposition **unavailable** — fee-event window
+  truncated — and preserved as unavailable, per the honest-framing contract). Exit outputs
+  `21,447 sats sBTC + 10.880330 USDCx` maintainer-verified to the microunit by full event-page
+  sums; zero-position closure independently reproduced by direct reads
+  ([#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71),
+  [maintainer review](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71#issuecomment-5100023455)).
+- Fourth dlmm_1 data point, fourth regime shading: near-flat week, one recenter, mostly-in-range →
+  ≈ +0.5%. The tactic family's spread on this pool now spans `+18%` / `+1.2%` / `+0.9%` / `+0.5%` —
+  regime and deployment fraction, not tactic novelty, remain the dominant return drivers.
 
 ## Open questions / contradictions
 
@@ -224,4 +246,10 @@ consolidation pass. Ingested
 [#64](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64)
 (Hex Stallion `HODLMM-DLMM1-20260710-003`, failure-first closeout, maintainer chain-verified) on
 2026-07-17 — adds LSN-0021/LSN-0022 (both draft, field-confirmed ×1) and third-campaign
-confirmations of LSN-0006/LSN-0019. Full trail in [`../log.md`](../log.md).
+confirmations of LSN-0006/LSN-0019. Ingested
+[#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71)
+(Hex Stallion `HODLMM-DLMM1-20260720-004`, maintainer chain-verified to the microunit) on
+2026-07-28 — adds LSN-0025/LSN-0026 (both draft, field-confirmed ×1), second-campaign confirmation
+of LSN-0016, first cross-agent confirmation of LSN-0018, and conformance evidence for
+LSN-0006/LSN-0019; the closeout's six remaining patch-ready proposals are recorded as draft
+runbook candidates awaiting live-fire evidence. Full trail in [`../log.md`](../log.md).
