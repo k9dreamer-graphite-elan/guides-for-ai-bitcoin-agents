@@ -10,7 +10,16 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
-_Nothing yet._
+### Changed
+- **Agent Dreaming & Memory Guide promoted `draft → active`** (v1.1): the promotion condition — the
+  dreaming loop exercised end-to-end on accepted closeouts — is met twice, by the
+  [2026-07-17 first pass](public/hodlmm/guides/cross-campaign-dreaming-report-2026-07-17.md)
+  ([PR #62](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/62), verify
+  step corrected both closeouts' gas rosters) and the
+  [2026-07-29 second pass](public/hodlmm/guides/cross-campaign-dreaming-report-2026-07-29.md)
+  ([PR #74](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/74), first
+  cross-agent + headless-executed pass, no money-facing corrections). Guide content unchanged beyond
+  the status header.
 
 ---
 
