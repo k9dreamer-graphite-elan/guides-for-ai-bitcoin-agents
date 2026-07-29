@@ -1,8 +1,8 @@
 ---
 name: Campaign Memo-Tag Spec
 type: spec
-version: 1.2
-updated: 2026-07-13
+version: 1.3
+updated: 2026-07-29
 handbook: v0.9
 enforces: [INV-1, INV-6, INV-8, INV-10, INV-11]
 status: draft
@@ -50,15 +50,18 @@ One STX-transfer memo (≤ 34 bytes, ASCII, parsers trim trailing padding) per c
 ```
 [H1][role]:[pool]-[yymmdd]-[nnn][:txid8]
 
-H1E:dlmm1-260710-004              entry        (20 bytes)
-H1R:dlmm1-260710-004:ab12cd34     recenter leg (29 bytes)
-H1X:dlmm1-260710-004:ab12cd34     exit         (29 bytes)
+H1E:dlmm1-260710-004              entry            (20 bytes)
+H1R:dlmm1-260710-004:ab12cd34     recenter leg     (29 bytes)
+H1D:dlmm3-260717-006              daily checkpoint (20 bytes, payload-free — see §D)
+H1X:dlmm1-260710-004:ab12cd34     exit             (29 bytes)
 ```
+
+Parser regex: `^H1([EXRD]):([a-z0-9]+)-(\d{6})-(\d{3})(?::([0-9a-f]{8}))?$`
 
 | Field | Meaning | Rules |
 |---|---|---|
-| `H1` | magic + version | fixed; grammar changes bump to `H2` |
-| role | `E` entry · `X` exit · `R` recenter/rebalance | one byte; no other roles in v1 (top-up/partial are non-boundaries — future roles are what the version byte is for) |
+| `H1` | magic | fixed; the magic bump to `H2` is reserved for **breaking** grammar changes once a parser ships. Additive roles fold in under `H1` with a spec-version bump (this is how `D` landed in v1.3 — pre-parser was the cheap moment) |
+| role | `E` entry · `X` exit · `R` recenter/rebalance · `D` daily checkpoint (v1.3, non-boundary — see §D) | one byte; top-up/partial adds are non-boundaries and stay untagged |
 | pool | compact pool id | mechanical: `dlmm_1` → `dlmm1` (drop underscore, lowercase) |
 | `yymmdd` | **campaign start date** — part of the campaign's identity, constant across every tag of that campaign (NOT the tag emission date) | `260710` = 2026-07-10 |
 | `nnn` | campaign counter, **the exact canonical counter, all digits** | canonical `…-004` → `004` (never truncate) |
@@ -126,10 +129,47 @@ Consequences (normative):
 | Non-atomic recenter (withdraw → re-add, incl. withdraw→swap→redeposit repairs) | `R` on the withdraw leg **and** `R` (same campaign id) on the re-add — the tag that prevents one campaign from being split into two |
 | Top-up add / partial withdraw inside a campaign | untagged — not boundaries |
 | Campaign exit | `X` **as part of the closeout ritual** (measure → report → ledger write), carrying `:txid8` of the confirmed exit tx — the *deferred exit stamp*. Exit is a declaration, not an inference: the campaign isn't over when DLP hits zero; it's over when the books close |
+| Daily checkpoint (while open) | `D`, at most one per UTC day per campaign — see §D. Payload-free, never `:txid8` |
+
+## §D — the `D` checkpoint role (v1.3; role set is `[E, X, R, D]`)
+
+> **Version-numbering erratum.** The `D` role was drafted in the consumer thread
+> (BitflowFinance/bff-army#44, 2026-07-17) as "grammar v1.2". This spec's **v1.2 was already
+> taken** by the identity-scoping revision (2026-07-13), so the canonical numbering is this
+> document's: **`D` lands in spec v1.3**. The consumer thread's "v1.2" refers to the same role
+> definition, unchanged in substance.
+
+- **Purpose: a shared, chain-anchored snapshot clock.** Unrealized PnL is computable at any
+  moment — what `D` adds is the *agreed moment to measure at*. Each `D` pins a block height; any
+  party recomputing the campaign values the position at that block and gets the same series.
+  Periodic reports cite their anchor ("Day-5 mark, tx `0x…`") and become independently
+  recomputable instead of trust-my-timing. Report **values** stay off-chain; the **measurement
+  grid** is on-chain.
+- **Bonus semantics:** an unbroken `D` chain is attended-operation evidence; a missed mark is
+  honest operational transparency (renderable as `✓✓✓✗✓ — one missed checkpoint`).
+- **Hard rule — `D` is payload-free.** It is the one role with no LP tx to validate against, so
+  it must never carry values (no marks, no PnL figures, no `:txid8`) — self-attested values must
+  never feed or decorate the math. Its validity check is positional instead: **valid only while
+  the campaign is open** (wallet holds DLP in the pool at the `D`'s block; timestamp between the
+  `E`'s add and the `X`'s withdraw). Outside that window → flagged invalid.
+- **`D` never moves a boundary.** Episode start/end remain exclusively E/X + closure proof —
+  checkpoints cannot slice a campaign into flattering windows.
+- **Cadence is operator policy** (daily recommended; the field automation emits at 14:00 UTC with
+  a per-UTC-day dedupe marker and self-retires when the campaign closes).
+- **Missed days are never retro-emitted.** A late "daily" checkpoint would misdate the
+  measurement grid; the gap stands as honest evidence of non-monitoring (007 field case: two
+  missed days from silent host-cron non-execution — detected, alerted, not backfilled).
+- **Unattended-emission carve-out** (amends the retroactive-emission rule below for `D` only):
+  the never-tag rule protects the LP-signing write path (LSN-0015/LSN-0017). `D` emission runs as
+  a **separate, minimal scheduled signer** that can only send 1 µSTX memo transfers to the sink —
+  no LP authority, no payload, per-day dedupe, fee booked into the campaign ledger at emission
+  (LSN-0019). This adds no surface to the LP signer and is the only sanctioned scheduled tag
+  emitter; `E`/`R`/`X` remain supervised-or-catch-up only.
 
 ## Retroactive emission (legal, and the unattended-path rule)
 
-**Scheduled monitors and executors never emit tags.** Tag composition is a labeling concern; adding
+**Scheduled monitors and executors never emit boundary tags** (`E`/`R`/`X`; the `D` role has its
+own sanctioned minimal scheduled emitter — see §D). Tag composition is a labeling concern; adding
 it to an unattended signer expands the write path against write-path minimalism
 ([LSN-0015](../knowledge/lessons/lessons-catalog.md#lsn-0015) /
 [LSN-0017](../knowledge/lessons/lessons-catalog.md#lsn-0017)). Instead, the agent emits **catch-up
@@ -157,6 +197,7 @@ runbook, tx-attribution addendum). They coexist:
 | `E` | `OPEN` |
 | `R` (withdraw leg / re-add leg) | `WITHDRAW` + `MOVE`/`REBAL`/`REPAIR` |
 | `X` | `EXIT` (the tag tx itself logs as `CLOSE`-phase evidence) |
+| `D` | none — labels no LP tx; the tag tx itself books as a `TAG-D` ledger row with its fee (LSN-0019) |
 
 ## Worked examples (first natively-demarcated campaigns)
 
@@ -166,6 +207,13 @@ H1E:dlmm3-260710-005:<txid8 of entry add>     late E — HODLMM-DLMM3-20260710-0
 H1X:dlmm1-260710-004:<txid8 of exit>          at 004 closeout (planned 2026-07-17)
 ```
 
+`D` field fixtures (all confirmed on-chain, sender `SP1AK5ZKG…`, sink `SP1DK6YXB…Y6Y3`):
+first two `H1D:dlmm3-260717-006` checkpoints `0x543e2912…` (supervised) and `0x42fbb0de…`
+(scheduled-emitter live fire, 2026-07-18); five `H1D:dlmmv2-260722-007` checkpoints
+(`0x389aac72…`, `0x3e5db9dc…`, `0x709d015a…`, `0xd7582a35…`, `0x919c2ef5…` — Jul 22–25 + 28;
+Jul 26–27 missed and left as an honest gap per §D). A complete E→D×5→X lifecycle is on-chain for
+campaign 007 (closeout [#73](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73)).
+
 ## Failure handling
 
 | Symptom | Handling |
@@ -173,4 +221,6 @@ H1X:dlmm1-260710-004:<txid8 of exit>          at 004 closeout (planned 2026-07-1
 | Labeled LP tx failed / never confirmed | No tag — a tag references a confirmed boundary or nothing (INV-10) |
 | Tag tx itself fails or stalls | Retry under normal nonce discipline (INV-6); a missing tag degrades to today's heuristics, never blocks the campaign — auxiliary-data failures never block a bounded terminal exit (LSN-0016) |
 | Tag emitted with wrong content | Emit a corrected tag (same campaign id, correct fields, `:txid8`); ledger-note the bad one. Parsers prefer txid-bound tags on conflict |
+| Daily `D` missed (emitter or host didn't run) | The gap stands — **never retro-emit** (§D); alert the operator (the campaign monitor carries a missed-day detector) and let the unbroken-chain evidence honestly show the miss |
+| `D` carrying a payload or `:txid8`, or landing outside the open window | Flagged invalid; ignored for all purposes. Payload-free is a parser acceptance criterion, not a style rule |
 | Tag contradicts chain reality | Consumers flag it; chain wins. Tags never override transfers |
