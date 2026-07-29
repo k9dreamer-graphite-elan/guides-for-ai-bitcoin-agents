@@ -2,9 +2,9 @@
 name: Agent Dreaming & Memory Guide
 type: guide
 handbook: v0.10
-version: 1.0
-updated: 2026-07-16
-status: draft
+version: 1.1
+updated: 2026-07-29
+status: active
 ---
 
 # Agent Dreaming & Memory — running better campaigns with out-of-band memory
@@ -13,8 +13,14 @@ status: draft
 > references the handbook; it cites invariants by ID (`INV-12`) and restates none of its constants.
 > Practice guide, not doctrine: it describes *how to improve* agent learning, context, multi-agent
 > operation, and memory. Timeless rules belong in the handbook; pool-specific facts belong in the
-> [Knowledge Base](../knowledge/README.md). `status: draft` = the dreaming loop below is specified but
-> not yet exercised end-to-end by an accepted Campaign Closeout.
+> [Knowledge Base](../knowledge/README.md). `status: active` — promoted 2026-07-29 after **two**
+> end-to-end DREAM passes over accepted closeouts exercised the loop as specified:
+> the [2026-07-17 first pass](./cross-campaign-dreaming-report-2026-07-17.md) over #59/#60
+> ([PR #62](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/62), whose
+> verify step found and corrected both closeouts' gas rosters — the pass paying for itself), and the
+> [2026-07-29 second pass](./cross-campaign-dreaming-report-2026-07-29.md) over #67/#73/#71
+> ([PR #74](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/74), the
+> first cross-agent + headless-executed pass; no money-facing corrections required).
 
 **Who this is for.** Operators and agents running HODLMM DeFi loops and campaigns who want the *next*
 campaign to start smarter than the last — automatically. It adapts the "dreaming" pattern (periodic,
