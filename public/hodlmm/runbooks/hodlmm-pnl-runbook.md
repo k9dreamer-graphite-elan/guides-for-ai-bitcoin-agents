@@ -72,12 +72,21 @@ Read-only — no `--confirm`, no broadcast. Cites handbook §6.6 for the IL defi
    record a **`fee_confidence`** (§6.2, INV-8). There is no claim/FT-transfer event — attribution is
    derived. **Never read DLP balance as fees.**
 5. **NET PnL** = `IL-only PnL + Fee PnL − gas` (cumulative gas from the Transaction Ledger).
-   **At closeout, reconcile gas from chain, not from a running counter**: sum the actual
-   `fee_rate` over every txid in the ledger — including mined-but-aborted txs, which still pay
-   their fee — and let the chain total override any accumulated `gasSpentStx` field. Field
-   evidence: a running counter drifted to 2.05 STX where the chain-summed total was 0.95 STX
-   (HODLMM-DLMM1-20260710-004, issue #59). Chain wins (INV-8/INV-10 spirit: measure, don't trust
-   bookkeeping).
+   **At closeout, build the gas roster from a chain nonce-range sweep, then sum**
+   ([LSN-0019](../knowledge/lessons/lessons-catalog.md#lsn-0019)): sweep the wallet's nonce range
+   over the campaign window from the chain API, partition by campaign
+   `(watched principal, campaign id)` ([memo-tag spec](../specs/campaign-memo-tags.md)), and sum
+   the actual `fee_rate` over that roster — including mined-but-aborted txs (which still pay
+   their fee) and labeling/memo-tag txs emitted by out-of-band tooling. **Roster completeness
+   precedes fee arithmetic**: summing fees over a hand-maintained ledger produces a figure that
+   *looks* chain-verified while omitting whole tx classes, and "trust the chain over the counter"
+   is only safe once the txid set is complete. A mismatch between the swept total and an
+   accumulated `gasSpentStx` counter signals an **incomplete roster or an unbooked out-of-band
+   tx first** — complete the sweep before concluding the counter drifted; the completed sweep is
+   authoritative. Field evidence (issue #59 + its DREAM-pass correction): a closeout summed a
+   3-entry ledger to 0.95 STX and reported the 2.05 STX running counter as "drifted" — the
+   counter was right; the roster was missing 11 unattended auto-repairs. (INV-8/INV-10 spirit:
+   measure, don't trust bookkeeping — and a partial ledger sum is bookkeeping, not measurement.)
 6. **REPORT** — emit the **Campaign PnL Report** (medium-agnostic text/markdown; see "Report
    contract" below). This is the **primary, always-shipped deliverable** whenever the operator asks
    to run PnL or see campaign results, in **every** channel (CLI, Claude Code, an LLM turn, a GitHub

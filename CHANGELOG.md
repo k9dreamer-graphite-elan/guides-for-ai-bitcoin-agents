@@ -20,6 +20,16 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
   LSN-0019 fee booking); `tx_role` mapping and failure-handling rows; on-chain field fixtures
   (006 first fires + the complete 007 `E → D×5 → X` lifecycle, incl. the honest Jul 26–27 gap).
 
+### Fixed
+- **PnL runbook step 5 gas wording corrected to LSN-0019** (the owed follow-up from the
+  2026-07-17 DREAM pass): the old text said to sum fees "over every txid in the ledger" and let
+  the chain total "override any accumulated `gasSpentStx` field", citing 004's 2.05-vs-0.95 STX
+  as counter drift — the inverse of what actually happened (the counter was right; the 0.95
+  "chain-sum" came from a 3-entry roster missing 11 auto-repairs). Corrected rule: build the
+  roster from a **chain nonce-range sweep** partitioned by `(watched principal, campaign id)`;
+  roster completeness precedes fee arithmetic; a counter/sweep mismatch signals an incomplete
+  roster or unbooked out-of-band tx first.
+
 ### Changed
 - **Agent Dreaming & Memory Guide promoted `draft → active`** (v1.1): the promotion condition — the
   dreaming loop exercised end-to-end on accepted closeouts — is met twice, by the
