@@ -10,6 +10,19 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+_Nothing yet._
+
+---
+
+## [0.14.0] - 2026-07-29
+
+The **doctrine-consolidation** release closing out the 007 cycle's follow-ups: the `D` checkpoint
+role lands in the memo-tag spec (v1.3), the Agent Dreaming & Memory Guide graduates `draft → active`
+on two exercised passes, and the PnL runbook's gas wording is corrected to LSN-0019. Handbook
+unchanged at v0.10. Bundles [#76](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/76),
+[#77](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/77), and
+[#78](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/78).
+
 ### Added
 - **Memo-tag spec v1.3 — `D` checkpoint role adopted upstream** (from the consumer thread
   BitflowFinance/bff-army#44, where it was provisionally numbered "v1.2"; that number was already
