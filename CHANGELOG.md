@@ -10,6 +10,16 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+### Added
+- **Memo-tag spec v1.3 — `D` checkpoint role adopted upstream** (from the consumer thread
+  BitflowFinance/bff-army#44, where it was provisionally numbered "v1.2"; that number was already
+  taken by this spec's identity-scoping revision, so the canonical numbering is **v1.3** — erratum
+  recorded in §D). Adds: role set `[E, X, R, D]` + parser regex; §D (chain-anchored snapshot
+  clock; payload-free as a parser acceptance criterion; positional validity; never moves a
+  boundary; never retro-emitted; the sanctioned minimal scheduled emitter carve-out with
+  LSN-0019 fee booking); `tx_role` mapping and failure-handling rows; on-chain field fixtures
+  (006 first fires + the complete 007 `E → D×5 → X` lifecycle, incl. the honest Jul 26–27 gap).
+
 ### Changed
 - **Agent Dreaming & Memory Guide promoted `draft → active`** (v1.1): the promotion condition — the
   dreaming loop exercised end-to-end on accepted closeouts — is met twice, by the
