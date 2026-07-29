@@ -10,11 +10,29 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+_Nothing yet._
+
+---
+
+## [0.13.0] - 2026-07-29
+
+The **007-closeout consolidation** release: the held-back Hex Stallion 004 ingest ([#72](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/72)) bundled with the second end-to-end KB `DREAM` pass ([#74](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/74)), per the operator's 2026-07-28 sequencing hold (one cut after the 007 closeout). Handbook unchanged at v0.10.
+
 ### Added
+- **KB ingest of [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71)
+  (Hex Stallion `HODLMM-DLMM1-20260720-004`, sBTC/USDCx, one staged recenter, clean scheduled
+  auto-exit)** via PR [#72](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/72):
+  lessons catalog v0.9 adds **LSN-0025** (withdrawal amount arithmetic requires fresh direct
+  pool-contract reads; indexed/BFF reserves are advisory-only — canonical `err u5001` evidence) and
+  **LSN-0026** (repair audit history and incident stop-budget are different counters), both
+  `status: draft`, field-confirmed ×1; `pools/dlmm_1.md` v0.5 records the fifth source, advisory-reserve
+  and fee-window-truncation gotchas, and the Hex 004 PnL entry. Confirmations: LSN-0016 (×2),
+  LSN-0018 (first cross-agent + split-axis grading), LSN-0006/LSN-0019 conformance.
 - **Second end-to-end KB `DREAM` pass** over K9Dreamer campaigns 006/007 and Hex Stallion 004
   (issues [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67),
   [#73](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73), and
-  [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71)).
+  [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71)) via PR
+  [#74](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/74).
   Full nonce/event sweeps found no money-facing discrepancies. Adds the first `dlmm_14` pool page,
   the [2026-07-29 fleet report](public/hodlmm/guides/cross-campaign-dreaming-report-2026-07-29.md),
   draft **LSN-0027** (scheduler-cadence terminal verification), and draft **LSN-0028**
