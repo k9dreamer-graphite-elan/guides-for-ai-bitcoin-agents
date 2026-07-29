@@ -3,9 +3,9 @@ type: kb-pool
 pool: dlmm_1
 pair: sBTC/USDCx
 handbook: v0.10
-version: 0.5
-updated: 2026-07-28
-last_ingested: 2026-07-28
+version: 0.6
+updated: 2026-07-29
+last_ingested: 2026-07-29
 status: active
 sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28
@@ -132,6 +132,10 @@ rate. No stale / exit-only (`INV-9`) pool status is recorded.
   nonzero-liquidity range; no-position and unknown-proof time remain separate states.
 
 ## Known API / tx-pattern gotchas
+
+- **DREAM confirmation (2026-07-29):** the direct-read withdrawal rule born from Hex 004's paid
+  `(err u5001)` executed successfully on independent v2 campaign 007, promoting
+  [LSN-0025](../lessons/lessons-catalog.md#lsn-0025) to active.
 
 - Bitflow position endpoint can show zero-liquidity rows **before** exit and return no-position/404
   **after** exit — advisory only; closure proof is wallet DLP zero + chain receipt → [LSN-0002](../lessons/lessons-catalog.md#lsn-0002)

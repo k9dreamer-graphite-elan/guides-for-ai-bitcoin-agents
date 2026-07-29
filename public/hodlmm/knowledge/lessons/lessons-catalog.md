@@ -1,9 +1,9 @@
 ---
 type: kb-lessons
 handbook: v0.10
-version: 0.9
-updated: 2026-07-28
-last_ingested: 2026-07-28
+version: 1.0
+updated: 2026-07-29
+last_ingested: 2026-07-29
 status: active
 sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1
@@ -22,6 +22,7 @@ sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/64
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73
 ---
 
 # HODLMM cross-campaign lessons & failure patterns
@@ -180,11 +181,15 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   **successor-pool check** (does a newer pool for the pair exist, and where does the router point?).
   A pool failing the screen produces dead time, not capture — however right the regime call is.
   Specific thresholds are campaign-charter inputs, not constants (`INV-3`).
-- **Pools seen on:** [dlmm_3](../pools/dlmm_3.md)
-- **Evidence:** [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) (Graphite Elan `HODLMM-DLMM3-20260717-006`; deadlock observed 07-17→07-20, v2 pool appeared 07-20)
-- **Confidence:** realized (deadlock field-observed ×1) · **Status:** **draft** — the screen itself
-  has not yet gated a live entry; promotes to active when a campaign runs it pre-entry (repo
-  doctrine: draft until used) · **last_ingested:** 2026-07-21
+- **Pools seen on:** [dlmm_3](../pools/dlmm_3.md); [dlmm_14](../pools/dlmm_14.md)
+- **Evidence:** [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67)
+  (deadlock observed on v1; successor-pool check proposed),
+  [#73](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73)
+  (**first live use of the screen**: rejected the structurally drained v1 venue, verified v2
+  reserves/recent swaps/mark convergence/router flow, then selected v2)
+- **Confidence:** realized (deadlock ×1; screen exercised ×1) · **Status:** **active** — promoted
+  2026-07-29 after campaign 007 used the screen before entry; this confirms the selection process,
+  not that every successor pool will be profitable · **last_ingested:** 2026-07-29
 
 <a id="lsn-0024"></a>
 ### LSN-0024 — Early exit is the scheduled exit pulled forward: reuse the proven path, add no new signing surface
@@ -307,11 +312,35 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   are monitoring inputs and MUST NOT be a signing basis. Missing, stale, mismatched, or zero-output
   direct evidence **fails closed**. Extends [LSN-0013](#lsn-0013) multi-source read discipline from
   bin targeting to amount arithmetic. (Recenter-runbook candidate: withdrawal evidence provenance.)
-- **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
-- **Evidence:** [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71) (Hex Stallion `HODLMM-DLMM1-20260720-004`; failed `REPAIR` `0x7c29eba0…88aa` maintainer-verified `abort_by_response (err u5001)`, block 8632825; the replacement direct-contract minimum builder passed QA and then correctly returned `hold`)
-- **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes to active when a
-  direct-read-derived withdrawal executes on-chain under this rule (repo doctrine: draft until used)
-  · **last_ingested:** 2026-07-28
+- **Pools seen on:** [dlmm_1](../pools/dlmm_1.md); [dlmm_14](../pools/dlmm_14.md)
+- **Evidence:** [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71)
+  (indexed-reserve `REPAIR` aborted `(err u5001)`; replacement direct-read builder passed QA),
+  [#73](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73)
+  (**first successful independent execution of the mitigation**: fresh per-bin wallet DLP, total
+  supply, and reserves produced nonzero expected-side minimums for all 12 bins; v2 exit succeeded)
+- **Confidence:** realized (failure ×1; mitigation executed ×1) · **Status:** **active** — promoted
+  2026-07-29 after the direct-read rule executed successfully on-chain · **last_ingested:** 2026-07-29
+
+<a id="lsn-0028"></a>
+### LSN-0028 — Static-ladder scaling is demand-limited and event-conditional
+
+- **Category:** effective recenter targeting
+- **Pattern:** a static ask ladder held outside the active range by design for most of a campaign,
+  then two sparse pop-through-and-return events produced the realized edge. A mid-campaign
+  close-now estimate was `+29.75 STX`; the final result was `+31.350775 STX` after gas, 5.1% above
+  that estimate. This supports the event mechanism at the exercised size, but says nothing yet
+  about larger-size capacity.
+- **Mitigation:** separate the two scaling engines. Sweep capture can scale only while position
+  depth remains small relative to event demand; churn capture saturates as the wallet's share of a
+  bin grows. Size against fresh venue depth and flow, and model a pop-free campaign as hold minus
+  gas. Treat static event-capture as a **strategy posture**, not a fourth market regime:
+  `whipsaw / trend / dead` describes the market; posture describes where liquidity is placed.
+- **Pools seen on:** [dlmm_14](../pools/dlmm_14.md)
+- **Evidence:** [#73](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73)
+  (600-STX field result; two-event path; realized-withdrawal +31.350775 STX after gas)
+- **Confidence:** realized at 1× only · **Status:** **draft** — promotes only after a larger-capital
+  campaign tests the depth/demand scaling claim; no larger-size estimate is treated as field
+  evidence · **last_ingested:** 2026-07-29
 
 ---
 
@@ -557,3 +586,22 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 - **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes to active when a
   later campaign's repair accounting survives a real failed-then-resolved incident with both
   counters correct (repo doctrine: draft until used) · **last_ingested:** 2026-07-28
+
+<a id="lsn-0027"></a>
+### LSN-0027 — Terminal verification must cover the scheduler's full execution cadence
+
+- **Category:** post-check lessons
+- **Pattern:** a headless closeout checker ran after the planned end but before the monitor's first
+  eligible post-end tick, declared `EXIT FAILURE`, and stopped. The authorized monitor later
+  executed the exit cleanly at its normal tick. The checker observed a scheduling gap, not an
+  execution failure; its restraint was correct, but its timing premise was false.
+- **Mitigation:** a terminal verifier must either poll through at least one complete scheduler
+  interval or run after `planned_end + scheduler_period + margin`. Record planned end, scheduler
+  cadence, first eligible tick, chain block time, and observed confirmation separately. Never let a
+  premature verifier trigger a duplicate exit (`INV-10`).
+- **Pools seen on:** [dlmm_14](../pools/dlmm_14.md)
+- **Evidence:** [#73](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73)
+  (checker false alarm; later clean scheduled exit `0xdba9c654…3cf1f8`)
+- **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes after a later
+  terminal verifier spans the real scheduler cadence and grades correctly · **last_ingested:**
+  2026-07-29
