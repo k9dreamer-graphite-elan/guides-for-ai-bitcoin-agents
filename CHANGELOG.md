@@ -10,7 +10,20 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+- **Second end-to-end KB `DREAM` pass** over K9Dreamer campaigns 006/007 and Hex Stallion 004
+  (issues [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67),
+  [#73](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73), and
+  [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71)).
+  Full nonce/event sweeps found no money-facing discrepancies. Adds the first `dlmm_14` pool page,
+  the [2026-07-29 fleet report](public/hodlmm/guides/cross-campaign-dreaming-report-2026-07-29.md),
+  draft **LSN-0027** (scheduler-cadence terminal verification), and draft **LSN-0028**
+  (demand-limited, event-conditional ladder scaling).
+
+### Changed
+- **LSN-0023 promoted active** after 007's venue selection first exercised the dead-pool screen's
+  successor/router branch; **LSN-0025 promoted active** after 007's direct-read-derived withdrawal
+  minimums executed successfully on-chain. LSN-0026 remains draft because 007 made no repair.
 
 ---
 

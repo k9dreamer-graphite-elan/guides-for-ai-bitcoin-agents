@@ -3,9 +3,9 @@ type: kb-pool
 pool: dlmm_3
 pair: STX/USDCx
 handbook: v0.10
-version: 0.3
-updated: 2026-07-21
-last_ingested: 2026-07-21
+version: 0.4
+updated: 2026-07-29
+last_ingested: 2026-07-29
 status: active
 sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/21
@@ -157,9 +157,13 @@ write) held through ~28h of terminal pinning and the position still exited clean
   for 3.5 of 4 days. Regime taxonomy is now whipsaw (ladder wins) / trend (untested for the
   ladder) / dead (ladder inert; screen it out pre-entry per
   [LSN-0023](../lessons/lessons-catalog.md#lsn-0023)).
-- **Does v1 flow return once the v2 successor pool seeds?** Open as of 2026-07-21 — the empty v2
-  STX/USDCx pool deployed 2026-07-20 makes v1's future liveness an explicit pre-entry check, not
-  an assumption ([#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67)).
+- **Does v1 flow return once the v2 successor pool seeds? — PARTIALLY ANSWERED 2026-07-29.**
+  Campaign 007 found v1 structurally drained while v2 had reserves, recent swaps, mark convergence,
+  and router flow; it selected v2 and exited net positive. This confirms the successor-screen
+  procedure and promotes [LSN-0023](../lessons/lessons-catalog.md#lsn-0023), but does not prove v1
+  can never revive. Re-check both venues from live state
+  ([#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67),
+  [#73](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73)).
 - **Staged-continuation SLA bounds** ([LSN-0006](../lessons/lessons-catalog.md#lsn-0006)): how long
   stale staged state may block before mandatory archive/supersede is still unsettled.
 
