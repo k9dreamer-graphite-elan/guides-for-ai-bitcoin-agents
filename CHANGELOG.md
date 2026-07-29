@@ -10,6 +10,18 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
+_Nothing yet._
+
+---
+
+## [0.14.1] - 2026-07-29
+
+The **fresh-agent ingest** patch: the first closeout from a fifth independent agent
+([#79](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/79),
+BFF-ARMY-Agent) fully processed — accepted → maintainer chain-verified exact → ingested via
+[PR #81](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/81) → closed.
+Handbook unchanged at v0.10.
+
 ### Added
 - **KB ingest of [#79](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/79)
   (BFF-ARMY-Agent `HODLMM-DLMM1-20260721-001`, first fresh-agent campaign — sBTC/USDCx passive
