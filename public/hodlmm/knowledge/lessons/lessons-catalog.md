@@ -1,7 +1,7 @@
 ---
 type: kb-lessons
 handbook: v0.10
-version: 1.0
+version: 1.1
 updated: 2026-07-29
 last_ingested: 2026-07-29
 status: active
@@ -23,6 +23,7 @@ sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/79
 ---
 
 # HODLMM cross-campaign lessons & failure patterns
@@ -335,10 +336,15 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   bin grows. Size against fresh venue depth and flow, and model a pop-free campaign as hold minus
   gas. Treat static event-capture as a **strategy posture**, not a fourth market regime:
   `whipsaw / trend / dead` describes the market; posture describes where liquidity is placed.
-- **Pools seen on:** [dlmm_14](../pools/dlmm_14.md)
+- **Pools seen on:** [dlmm_14](../pools/dlmm_14.md); [dlmm_1](../pools/dlmm_1.md)
 - **Evidence:** [#73](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73)
-  (600-STX field result; two-event path; realized-withdrawal +31.350775 STX after gas)
-- **Confidence:** realized at 1× only · **Status:** **draft** — promotes only after a larger-capital
+  (600-STX field result; two-event path; realized-withdrawal +31.350775 STX after gas),
+  [#79](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/79)
+  (**independent second agent, second pool**: 30,000-sat passive ladder, 16.709444% time-in-range,
+  zero repairs, +1,879 sats in-kind / +6.26% gross — excursion capture, not residence, produced
+  the edge; maintainer-verified to the sat)
+- **Confidence:** realized at small size, two independent agents/pools (event mechanism); the
+  **scaling claim remains untested** · **Status:** **draft** — promotes only after a larger-capital
   campaign tests the depth/demand scaling claim; no larger-size estimate is treated as field
   evidence · **last_ingested:** 2026-07-29
 
@@ -512,8 +518,15 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   counter missed 4 memo-tag (D-checkpoint) fees emitted by out-of-band tooling; the closeout
   nonce-range sweep caught them (0.356 → 0.368 STX). Any tx-emitting path outside the monitor
   must either book its fee into the shared role ledger at emission or be reconciled by the sweep.
+  **Fifth-campaign conformance (2026-07-29, cross-agent):** a fresh agent's closeout
+  ([#79](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/79))
+  independently arrived at both halves of the rule — its mined abort was booked into the 0.3 STX
+  roster with intent recorded, and its exit accounting initially saw only 3 of 41 sBTC credit
+  events (2,211 of 31,879 sats) on the default event page before pagination-to-`event_count` +
+  exact wallet reconciliation caught it pre-publication; the maintainer sweep reproduced the
+  roster and totals exactly.
 - **Pools seen on:** [dlmm_1](../pools/dlmm_1.md); [dlmm_3](../pools/dlmm_3.md)
-- **Evidence:** [#59 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59#issuecomment-5003288054), [#60 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60#issuecomment-5003288187) (full per-nonce fee tables, Hiro-verified), [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) (D-tag fee omission, chain-sweep catch), [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71) (conformance: 5-tx roster chain-summed to 0.25 STX exact including the mined abort; maintainer-reverified on Hiro)
+- **Evidence:** [#59 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/59#issuecomment-5003288054), [#60 correction](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/60#issuecomment-5003288187) (full per-nonce fee tables, Hiro-verified), [#67](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/67) (D-tag fee omission, chain-sweep catch), [#71](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71) (conformance: 5-tx roster chain-summed to 0.25 STX exact including the mined abort; maintainer-reverified on Hiro), [#79](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/79) (cross-agent conformance: mined abort booked, default-page truncation caught by `event_count` reconciliation; maintainer sweep exact)
 - **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-28 · *(cross-campaign enrichment — produced by the 2026-07-17 DREAM pass, not stated by either closeout)*
 
 <a id="lsn-0017"></a>
@@ -605,3 +618,30 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 - **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes after a later
   terminal verifier spans the real scheduler cadence and grades correctly · **last_ingested:**
   2026-07-29
+
+<a id="lsn-0029"></a>
+### LSN-0029 — Storage-bin IDs and signed-router bin offsets are different coordinate systems
+
+- **Category:** failed-tx patterns
+- **Pattern:** a strict terminal withdrawal composed its per-bin arguments using the pool's
+  **storage bin IDs** where the signed router path expected its own **offset coordinates**. The
+  transaction aborted canonically (`abort_by_post_condition`) with no position mutation — a paid
+  abort produced by a coordinate-system mismatch, not by stale amounts or bad minimums. Local
+  tests were green because fixtures never exercised the deployed router's exact transformation.
+- **Mitigation:** treat the bin-coordinate transformation as part of the deployed-interface
+  contract, alongside `{function, variant, postcondition_mode, contract_bounds}`: withdrawal
+  fixtures MUST cover the exact storage-bin ↔ signed-router-bin mapping of the deployed contract
+  revision, and preflight must verify the composed bin arguments against a fresh direct read of
+  the wallet's actual bin IDs. On a canonical failure with proven zero position mutation:
+  reconcile the exact tx, correct the mapping, repeat every live gate, and submit **at most one**
+  new attempt (`INV-10`; never auto-rebroadcast or fee-bump). The recovered path in the field
+  case used the strict absolute-bin withdrawal function with exact bin IDs and per-bin
+  expected-side minimums — complementing [LSN-0025](#lsn-0025): LSN-0025 governs where withdrawal
+  *amounts* come from; this lesson governs which *coordinates* they are addressed to.
+- **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
+- **Evidence:** [#79](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/79)
+  (failed EXIT `0x00d42b0a…`, nonce 38, `abort_by_post_condition`, fee paid, 0 events;
+  recovered EXIT `0xb67a5a89…` confirmed 72 min later, 31,879 sats maintainer-verified to the sat)
+- **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes when a later
+  campaign's preflight provably blocks or a fixture provably covers the coordinate transform on a
+  live withdrawal (repo doctrine: draft until used) · **last_ingested:** 2026-07-29

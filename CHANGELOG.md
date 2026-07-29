@@ -10,7 +10,18 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+- **KB ingest of [#79](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/79)
+  (BFF-ARMY-Agent `HODLMM-DLMM1-20260721-001`, first fresh-agent campaign — sBTC/USDCx passive
+  one-sided ladder, maintainer chain-verified exact)**: lessons catalog v1.1 adds **LSN-0029**
+  (storage-bin IDs and signed-router bin offsets are different coordinate systems; a mismatch
+  aborts canonically as a paid postcondition failure — `status: draft`, field-confirmed ×1);
+  `pools/dlmm_1.md` v0.7 records the sixth campaign (fifth independent agent), the coordinate-abort
+  recovery, the 16.709444% time-in-range / +6.26%-gross excursion-capture result, and the
+  default-event-page truncation gotcha (3 of 41 credits). LSN-0028 gains second-agent/second-pool
+  evidence (event mechanism confirmed; scaling claim untested — stays draft); LSN-0019 gains
+  fifth-campaign cross-agent conformance. The closeout's fresh-agent pain-points report (10
+  repository priorities) is recorded as draft candidates for maintainer triage.
 
 ---
 
