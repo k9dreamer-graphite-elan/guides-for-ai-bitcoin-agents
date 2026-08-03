@@ -9,6 +9,7 @@ last_ingested: 2026-08-03
 status: active
 sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/83
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/85
 ---
 
@@ -58,11 +59,13 @@ must explicitly choose that posture; authority does not transfer from this close
 - Withdrawal arithmetic comes from fresh direct reads → [LSN-0025](../lessons/lessons-catalog.md#lsn-0025).
 - Full exit event pagination is mandatory; 007 required 50/50/20 events before the empty page
   (008: 120 events, identical pagination discipline).
-- BFF `tvlUsd`/`poolComposition` read absurdly low for this pool at the 008 entry ($50.81 vs
-  669k STX on-chain same minute) while volume/fee fields stayed sane — never screen this venue
-  on BFF TVL; read reserves on-chain.
-- One MCP pool-balance read returned 414 STX against a same-minute 669,335 on Hiro — any balance
-  read gating a decision needs a second source (`balanceReadDoubleSource` charter gate).
+- BFF `tvlUsd`/`poolComposition` read absurdly low for this pool at the 008 entry ($50.81 shown
+  vs ~$165k on-chain same minute) while volume/fee fields stayed sane — never screen this venue
+  on BFF TVL; read reserves on-chain
+  ([#83](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/83)).
+- One MCP pool-balance read returned 414 STX against a same-minute ~669k on a direct chain read —
+  double-source any balance read that gates a decision
+  ([#83](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/83)).
 
 ## PnL (honest framing — INV-8)
 

@@ -415,7 +415,8 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 - **Pattern:** a static ask ladder's monitor carried an alert-only early-exit target (`net vs hold
   ≥ +10%`). When a pop pushed the double-read estimate to `+10.13%`, the monitor alerted (no
   unattended write authority); the operator confirmed over chat and a supervised exit withdrew all
-  bins the same hour, realizing `+10.228%`. The prior campaign on the same venue rode an equivalent
+  bins within the same hour (the monitor's confirming tick logged just after the exit landed),
+  realizing `+10.228%`. The prior campaign on the same venue rode an equivalent
   pop back down (whipsaw) and kept only the premium residue — the target policy is the difference
   between marking a spike and banking it.
 - **Mitigation:** give ladder campaigns an explicit early-exit target in the charter as
@@ -427,9 +428,10 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   whipsaw giveback.
 - **Pools seen on:** [dlmm_14](../pools/dlmm_14.md)
 - **Evidence:** [#85](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/85)
-  (`HODLMM-DLMMV2-20260729-008`: alert est `+10.13%` at 06:35Z, operator-confirmed supervised exit
-  `0x5461c60b…d458` same hour, realized `+92.055414 STX` / `+10.228%` after gas — estimator 1.0%
-  conservative; contrast [#73](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73)'s
+  (`HODLMM-DLMMV2-20260729-008`: operator-confirmed supervised exit `0x5461c60b…3458` at block
+  time 06:31:30Z; the monitor's next tick logged the confirming double-read est `+10.13%` at
+  06:35Z; realized `+92.055414 STX` / `+10.228%` after gas — estimator 1.0% conservative;
+  contrast [#73](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73)'s
   whipsaw giveback on the same venue)
 - **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes when a later
   campaign's early-exit trigger grades correctly again (either direction: a confirmed exit or a
@@ -698,9 +700,9 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   ([LSN-0008](#lsn-0008)'s trust-erosion mechanism on the alerting axis).
 - **Pools seen on:** [dlmm_14](../pools/dlmm_14.md) (campaign-ops lesson; pool-independent)
 - **Evidence:** [#85](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/85)
-  (`HODLMM-DLMMV2-20260729-008`: five consecutive false missed-day markers 16:35Z daily vs real
-  18:00Z emissions; one false operator page on a sibling campaign; fixed by re-deriving the
-  threshold from the schedule's local firing time)
+  (`HODLMM-DLMMV2-20260729-008`: a false missed-day marker every campaign day — threshold
+  `≥16:00 UTC` vs real 18:00Z (14:00 EDT) emissions; one false operator page on a sibling
+  campaign; fixed by re-deriving the threshold from the schedule's local firing time)
 - **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes when a later
   campaign's detector spans a DST boundary or a re-derived threshold grades a real miss correctly
   (repo doctrine: draft until used) · **last_ingested:** 2026-08-03
