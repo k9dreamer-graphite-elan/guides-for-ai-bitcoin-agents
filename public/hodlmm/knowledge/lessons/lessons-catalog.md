@@ -1,9 +1,9 @@
 ---
 type: kb-lessons
 handbook: v0.10
-version: 1.1
-updated: 2026-07-29
-last_ingested: 2026-07-29
+version: 1.2
+updated: 2026-08-03
+last_ingested: 2026-08-03
 status: active
 sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1
@@ -24,6 +24,7 @@ sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/71
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/79
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/85
 ---
 
 # HODLMM cross-campaign lessons & failure patterns
@@ -342,11 +343,17 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
   [#79](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/79)
   (**independent second agent, second pool**: 30,000-sat passive ladder, 16.709444% time-in-range,
   zero repairs, +1,879 sats in-kind / +6.26% gross — excursion capture, not residence, produced
-  the edge; maintainer-verified to the sat)
-- **Confidence:** realized at small size, two independent agents/pools (event mechanism); the
-  **scaling claim remains untested** · **Status:** **draft** — promotes only after a larger-capital
-  campaign tests the depth/demand scaling claim; no larger-size estimate is treated as field
-  evidence · **last_ingested:** 2026-07-29
+  the edge; maintainer-verified to the sat),
+  [#85](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/85)
+  (**first deliberate scale point, same venue as #73 at 1.5×**: 900 STX, rung share 0.9–8.2% of
+  bin depth at entry, realized-withdrawal `+92.055414 STX` / `+10.228%` after gas — edge again
+  produced by sparse pop events, consistent with near-linear scaling at low multiples; the result
+  exceeds a pro-rata 007 repeat because an early-exit lock-in
+  ([LSN-0030](#lsn-0030)) banked the pop rather than riding the whipsaw back)
+- **Confidence:** realized, three campaigns / two agents / two pools (event mechanism); one 1.5×
+  scale point in-model — **larger multiples (10×/50×) remain untested** · **Status:** **draft** —
+  promotes only after a campaign at a materially larger multiple tests the depth/demand saturation
+  claim; no larger-size estimate is treated as field evidence · **last_ingested:** 2026-08-03
 
 ---
 
@@ -400,6 +407,33 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 - **Pools seen on:** [dlmm_1](../pools/dlmm_1.md)
 - **Evidence:** [#28](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/28), [#11 campaign-2 update](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/11#issuecomment-4931652170)
 - **Confidence:** realized · **Status:** active · **last_ingested:** 2026-07-10
+
+<a id="lsn-0030"></a>
+### LSN-0030 — An early-exit target converts a transient pop into realized PnL via alert → fresh double-read → operator confirm
+
+- **Category:** operator approvals/rejections
+- **Pattern:** a static ask ladder's monitor carried an alert-only early-exit target (`net vs hold
+  ≥ +10%`). When a pop pushed the double-read estimate to `+10.13%`, the monitor alerted (no
+  unattended write authority); the operator confirmed over chat and a supervised exit withdrew all
+  bins the same hour, realizing `+10.228%`. The prior campaign on the same venue rode an equivalent
+  pop back down (whipsaw) and kept only the premium residue — the target policy is the difference
+  between marking a spike and banking it.
+- **Mitigation:** give ladder campaigns an explicit early-exit target in the charter as
+  **alert-only**: on trigger, require a fresh double-read estimate (never act on a stale flag —
+  [LSN-0018](#lsn-0018)), route to the operator for confirmation, and execute on the already-proven
+  exit path ([LSN-0024](#lsn-0024): early exit = lifecycle-date change, no new machinery). Grade
+  the estimator against realized at closeout. Plans should carry a "pop + early-exit lock-in"
+  scenario branch; without the policy, the base case for a high ladder is pop-through with
+  whipsaw giveback.
+- **Pools seen on:** [dlmm_14](../pools/dlmm_14.md)
+- **Evidence:** [#85](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/85)
+  (`HODLMM-DLMMV2-20260729-008`: alert est `+10.13%` at 06:35Z, operator-confirmed supervised exit
+  `0x5461c60b…d458` same hour, realized `+92.055414 STX` / `+10.228%` after gas — estimator 1.0%
+  conservative; contrast [#73](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73)'s
+  whipsaw giveback on the same venue)
+- **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes when a later
+  campaign's early-exit trigger grades correctly again (either direction: a confirmed exit or a
+  correctly-held decline) (repo doctrine: draft until used) · **last_ingested:** 2026-08-03
 
 ## post-check lessons
 
@@ -645,3 +679,28 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 - **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes when a later
   campaign's preflight provably blocks or a fixture provably covers the coordinate transform on a
   live withdrawal (repo doctrine: draft until used) · **last_ingested:** 2026-07-29
+
+<a id="lsn-0031"></a>
+### LSN-0031 — A detector watching a scheduled job must share the job's timezone contract
+
+- **Category:** post-check lessons
+- **Pattern:** a missed-day detector for a daily on-chain checkpoint declared the day missed at a
+  fixed **UTC** threshold, but the checkpoint's cron line fires in **host-local time** (crontab
+  semantics). Under UTC−4 the real emission landed hours after the threshold, so the detector
+  false-alarmed every single day of a campaign — and paged the operator for a checkpoint that was
+  in fact 4-for-4 on schedule. The companion failure class is [LSN-0027](#lsn-0027): there the
+  verifier ignored the scheduler's *cadence*; here it ignored the scheduler's *clock*.
+- **Mitigation:** any monitor that judges a scheduled job must state, next to its threshold, which
+  timezone the watched schedule fires in — and derive the threshold from that schedule
+  (worst-case fire time + grace), not from an assumed UTC reading. Crontab lines are host-local
+  unless the host says otherwise; DST moves them against UTC twice a year. A detector that
+  false-alarms daily is worse than none: it trains the operator to ignore the alert channel
+  ([LSN-0008](#lsn-0008)'s trust-erosion mechanism on the alerting axis).
+- **Pools seen on:** [dlmm_14](../pools/dlmm_14.md) (campaign-ops lesson; pool-independent)
+- **Evidence:** [#85](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/85)
+  (`HODLMM-DLMMV2-20260729-008`: five consecutive false missed-day markers 16:35Z daily vs real
+  18:00Z emissions; one false operator page on a sibling campaign; fixed by re-deriving the
+  threshold from the schedule's local firing time)
+- **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes when a later
+  campaign's detector spans a DST boundary or a re-derived threshold grades a real miss correctly
+  (repo doctrine: draft until used) · **last_ingested:** 2026-08-03
