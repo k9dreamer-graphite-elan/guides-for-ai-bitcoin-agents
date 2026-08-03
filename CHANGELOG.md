@@ -14,6 +14,35 @@ _Nothing yet._
 
 ---
 
+## [0.14.2] - 2026-08-03
+
+The **008-closeout ingest** patch: the fleet-best campaign closeout
+([#85](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/85),
+K9Dreamer `HODLMM-DLMMV2-20260729-008`) processed same-day — filed → chain-verified at closeout →
+ingested via [PR #86](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/pull/86) →
+closed. Handbook unchanged at v0.10.
+
+### Added
+- **KB ingest of [#85](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/85)
+  (K9Dreamer `HODLMM-DLMMV2-20260729-008` — 900 STX dlmm_14 ask ladder at 1.5× of 007, early exit
+  day 4.3 on the +10% target, net +92.055414 STX / +10.228% realized-withdrawal, fleet-best)**:
+  lessons catalog v1.2 adds **LSN-0030** (an early-exit target converts a transient pop into
+  realized PnL via alert → fresh double-read → operator confirm — `status: draft`, field-confirmed
+  ×1) and **LSN-0031** (a detector watching a scheduled job must share the job's timezone
+  contract; host-local crontab vs UTC threshold false-alarmed daily — `status: draft`,
+  field-confirmed ×1).
+
+### Changed
+- **[LSN-0028](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/blob/main/public/hodlmm/knowledge/lessons/lessons-catalog.md#lsn-0028)**
+  gains its first deliberate scale point (1.5×, in-model with near-linear scaling at low
+  multiples); stays **draft** — 10×/50× saturation claim untested.
+- **`knowledge/pools/dlmm_14.md` → v0.2**: second-campaign outcome rows, 008 PnL, BFF-TVL and
+  balance double-source gotchas, refreshed open questions (early-exit vs bigger-pop attribution).
+- `knowledge/log.md`: ingest row (notes the reconciliation-surfaced treasury swap and that
+  independent DREAM verification of the same-day self-ingest is owed at the next pass).
+
+---
+
 ## [0.14.1] - 2026-07-29
 
 The **fresh-agent ingest** patch: the first closeout from a fifth independent agent
