@@ -1,9 +1,9 @@
 ---
 type: kb-lessons
 handbook: v0.10
-version: 1.2
-updated: 2026-08-03
-last_ingested: 2026-08-03
+version: 1.3
+updated: 2026-08-06
+last_ingested: 2026-08-06
 status: active
 sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/1
@@ -25,6 +25,7 @@ sources:
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/73
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/79
   - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/85
+  - https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/89
 ---
 
 # HODLMM cross-campaign lessons & failure patterns
@@ -706,3 +707,31 @@ closeout flags a pool exit-only (`INV-9`), record it here and set the pool page 
 - **Confidence:** realized (field-confirmed ×1) · **Status:** **draft** — promotes when a later
   campaign's detector spans a DST boundary or a re-derived threshold grades a real miss correctly
   (repo doctrine: draft until used) · **last_ingested:** 2026-08-03
+
+### LSN-0032 — A returned txid is not success: confirm on-chain, decode the abort by layer, revert the state machine
+
+- **Category:** failed-tx patterns
+- **Pattern:** an unattended executor treated "broadcast returned a txid" as leg success and
+  advanced its state machine immediately. A Stacks tx can abort minutes later
+  (`abort_by_response` with `(err uNNN)`, `abort_by_post_condition`, or a mempool drop) — after
+  which every subsequent tick runs on a false premise: the phase says the funds moved, the chain
+  says they did not. No error surfaces anywhere, so the machine wedges silently; the companion
+  hazard is acting on the same bins/funds again while the first tx is still in flight
+  (duplicate broadcast). Found by inspection while wiring an error decoder into a live recycle
+  executor — the blind spot had been armed for a day.
+- **Mitigation:** persist `pendingTx {txid, leg}` at broadcast; make resolving it the FIRST step
+  of the next tick: `success` → clear; still `pending` → hold all new broadcasts; abort →
+  decode the `err uNNN` **by contract layer** (DLMM v2: u1xxx core / u2xxx swap-router /
+  u3xxx pool / u5xxx liq-router — see the
+  [Error-Triage Runbook](../../runbooks/hodlmm-error-triage-runbook.md)), revert the phase to the
+  leg's precondition, refund consumed budget counters, and alert with the decoded constant name +
+  action, never the bare code. `abort_by_post_condition` is the caller's own deny-mode PC, not a
+  contract error — triage the PC set, not the call.
+- **Pools seen on:** [dlmm_14](../pools/dlmm_14.md) (executor-ops lesson; pool-independent)
+- **Evidence:** [#89](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/89)
+  (`HODLMM-DLMMV2-20260804-010` automation hardening: decoder built from deployed contract
+  source via Hiro; confirm branch live-fired against a real confirmed tx in a dry tick;
+  abort-revert + decode paths bench-verified on synthetic state; no live abort yet)
+- **Confidence:** bench (live dry tick ×1, no live abort) · **Status:** **draft** — promotes when
+  a live on-chain abort is triaged end-to-end (decode → revert → alert) in an unattended cycle
+  (repo doctrine: draft until used) · **last_ingested:** 2026-08-06
