@@ -10,7 +10,14 @@ All notable changes to the **Guides for AI Bitcoin Agents** are recorded here.
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+- **Error-Triage Runbook** (`public/hodlmm/runbooks/hodlmm-error-triage-runbook.md`, draft) — DLMM v2
+  contract map (error prefix → failing layer), per-code decoder tables with actions, the
+  `abort_by_post_condition` / dropped-tx discriminations, and the pendingTx guard for unattended
+  executors. From [#89](https://github.com/k9dreamer-graphite-elan/guides-for-ai-bitcoin-agents/issues/89).
+- **LSN-0032** (draft, failed-tx patterns) — a returned txid is not success: confirm on-chain,
+  decode the abort by contract layer, revert the executor state machine, hold new broadcasts
+  while a tx is in flight. Catalog v1.3.
 
 ---
 
